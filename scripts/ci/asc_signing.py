@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""Ephemeral App Store signing for CI.
+
+`setup`   creates a temporary Apple Distribution certificate and App Store
+          provisioning profiles through the App Store Connect API, and installs
+          them on the runner (certificate in a temporary keychain).
+`cleanup` deletes the profiles and the certificate again and removes the keychain.
+
+No device and no stored certificate is needed. Requires an API key with the
+Admin role. Environment: ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_PATH, RUNNER_TEMP.
+"""
+import base64
+import json
+import os
+import pathlib
+import secrets
+import subprocess
+import sys
+import time
+
+import jwt
+import requests
+
+API = "https://api.appstoreconnect.apple.com/v1"
+PROFILES = {
+    "com.bzrmed.inly": "Inly CI AppStore",
+    "com.bzrmed.inly.widgets": "Inly CI Widgets AppStore",
+}
+WORK = pathlib.Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "signing"
+STATE = WORK / "state.json"
+
+
+def token() -> str:
+    key = pathlib.Path(os.environ["ASC_KEY_PATH"]).read_text()
+    now = int(time.time())
+    return jwt.encode(
+        {"iss": os.environ["ASC_ISSUER_ID"], "iat": now, "exp": now + 900, "aud": "appstoreconnect-v1"},
+        key,
+        algorithm="ES256",
+        headers={"kid": os.environ["ASC_KEY_ID"], "typ": "JWT"},
+    )
+
+
+def call(method: str, path: str, ok=(200, 201, 204), **kwargs):
+    resp = requests.request(
+        method, API + path, headers={"Authorization": "Bearer " + token()}, timeout=60, **kwargs
+    )
+    if resp.status_code not in ok:
+        raise RuntimeError(f"{method} {path} -> {resp.status_code}: {resp.text[:800]}")
+    return resp.json() if resp.content else {}
+
+
+def run(*args: str, **kwargs) -> subprocess.CompletedProcess:
+    return subprocess.run(args, check=True, text=True, **kwargs)
+
+
+def create_certificate(csr_pem: str) -> dict:
+    body = {
+        "data": {
+            "type": "certificates",
+            "attributes": {"certificateType": "DISTRIBUTION", "csrContent": csr_pem},
+        }
+    }
+    try:
+        return call("POST", "/certificates", json=body)["data"]
+    except RuntimeError as err:
+        if "409" not in str(err) and "limit" not in str(err).lower():
+            raise
+        print("Certificate limit reached; removing leftover CI certificates and retrying.")
+        listing = call("GET", "/certificates?filter[certificateType]=DISTRIBUTION&limit=200")
+        for cert in listing.get("data", []):
+            if cert["attributes"].get("name") == "Created via API":
+                print("Revoking leftover certificate", cert["id"])
+                call("DELETE", f"/certificates/{cert['id']}")
+        return call("POST", "/certificates", json=body)["data"]
+
+
+def bundle_id_resource(identifier: str) -> str:
+    listing = call("GET", f"/bundleIds?filter[identifier]={identifier}&limit=200")
+    for item in listing.get("data", []):
+        if item["attributes"]["identifier"] == identifier:
+            return item["id"]
+    raise RuntimeError(f"Bundle ID {identifier} not found in the developer account")
+
+
+def delete_profiles_named(name: str) -> None:
+    listing = call("GET", f"/profiles?filter[name]={requests.utils.quote(name)}&limit=200")
+    for prof in listing.get("data", []):
+        print("Deleting old profile", prof["id"], name)
+        call("DELETE", f"/profiles/{prof['id']}")
+
+
+def setup() -> None:
+    WORK.mkdir(parents=True, exist_ok=True)
+    key_pem, csr_pem, p12 = WORK / "key.pem", WORK / "req.csr", WORK / "cert.p12"
+
+    run("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes",
+        "-keyout", str(key_pem), "-out", str(csr_pem), "-subj", "/CN=Inly CI/O=Inly/C=US")
+    cert = create_certificate(csr_pem.read_text())
+    print("Created distribution certificate", cert["id"])
+
+    der = WORK / "cert.der"
+    der.write_bytes(base64.b64decode(cert["attributes"]["certificateContent"]))
+    cert_pem = WORK / "cert.pem"
+    run("openssl", "x509", "-inform", "der", "-in", str(der), "-out", str(cert_pem))
+    password = secrets.token_hex(16)
+    run("openssl", "pkcs12", "-export", "-inkey", str(key_pem), "-in", str(cert_pem),
+        "-out", str(p12), "-passout", f"pass:{password}")
+
+    keychain = str(WORK / "ci.keychain-db")
+    run("security", "create-keychain", "-p", password, keychain)
+    run("security", "set-keychain-settings", "-lut", "21600", keychain)
+    run("security", "unlock-keychain", "-p", password, keychain)
+    run("security", "import", str(p12), "-k", keychain, "-P", password,
+        "-T", "/usr/bin/codesign", "-T", "/usr/bin/security")
+    run("security", "set-key-partition-list", "-S", "apple-tool:,apple:", "-s", "-k", password, keychain)
+    existing = subprocess.run(["security", "list-keychains", "-d", "user"], capture_output=True, text=True).stdout
+    current = [line.strip().strip('"') for line in existing.splitlines() if line.strip()]
+    run("security", "list-keychains", "-d", "user", "-s", keychain, *current)
+
+    profile_ids = []
+    install_dirs = [
+        pathlib.Path.home() / "Library/MobileDevice/Provisioning Profiles",
+        pathlib.Path.home() / "Library/Developer/Xcode/UserData/Provisioning Profiles",
+    ]
+    for d in install_dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    for identifier, name in PROFILES.items():
+        delete_profiles_named(name)
+        body = {
+            "data": {
+                "type": "profiles",
+                "attributes": {"name": name, "profileType": "IOS_APP_STORE"},
+                "relationships": {
+                    "bundleId": {"data": {"type": "bundleIds", "id": bundle_id_resource(identifier)}},
+                    "certificates": {"data": [{"type": "certificates", "id": cert["id"]}]},
+                },
+            }
+        }
+        prof = call("POST", "/profiles", json=body)["data"]
+        profile_ids.append(prof["id"])
+        content = base64.b64decode(prof["attributes"]["profileContent"])
+        for d in install_dirs:
+            (d / f"{prof['attributes']['uuid']}.mobileprovision").write_bytes(content)
+        print("Installed profile", name, prof["attributes"]["uuid"])
+
+    STATE.write_text(json.dumps({"cert": cert["id"], "profiles": profile_ids, "keychain": keychain}))
+    run("security", "find-identity", "-v", "-p", "codesigning", keychain)
+
+
+def cleanup() -> None:
+    if not STATE.exists():
+        print("Nothing to clean up.")
+        return
+    state = json.loads(STATE.read_text())
+    for pid in state.get("profiles", []):
+        try:
+            call("DELETE", f"/profiles/{pid}")
+            print("Deleted profile", pid)
+        except RuntimeError as err:
+            print("Could not delete profile:", err)
+    try:
+        call("DELETE", f"/certificates/{state['cert']}")
+        print("Revoked certificate", state["cert"])
+    except RuntimeError as err:
+        print("Could not revoke certificate:", err)
+    subprocess.run(["security", "delete-keychain", state["keychain"]], check=False)
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2 or sys.argv[1] not in ("setup", "cleanup"):
+        sys.exit("usage: asc_signing.py setup|cleanup")
+    setup() if sys.argv[1] == "setup" else cleanup()
