@@ -45,3 +45,11 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - Start tray sheet: today or yesterday, planned days, next switch date, early/late warning; glass Undo toast after starting.
 - Reminder notification on the switch day at 9:00, rescheduled on start and undo.
 - Screenshots reviewed (05-trays, 06-start-tray on the `ci-screenshots` branch).
+
+## Milestone 3 - Widgets and controls (done)
+
+- One widget "Aligner wear": Home Screen small (ring + live timer) and medium (ring, tray line, back-by time, interactive Take out / Put back in button); Lock Screen circular and rectangular.
+- Control Center toggle (aligners out on/off) and a Shortcuts action usable on the Action Button.
+- Both buttons run in the app process (LiveActivityIntent) so they also start/end the Dynamic Island.
+- Out-time reminders: 10 minutes before the budget ends and when it ends; cancelled when the aligners go back in.
+- Not verified on a device: widgets cannot be screenshotted in CI, so layout is unreviewed. Reminders use the normal interruption level (time-sensitive needs a special entitlement that the CI signing profile does not include).
