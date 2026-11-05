@@ -55,12 +55,17 @@ def run(*args: str, **kwargs) -> subprocess.CompletedProcess:
 
 
 def purge_leftover_certificates() -> None:
-    """Revoke certificates created by earlier CI runs that did not clean up."""
+    """Revoke earlier distribution certificates (left over from previous runs).
+
+    Apple allows only one current Distribution certificate for this kind of request, and the
+    previous run intentionally leaves its certificate in place so Apple can finish processing.
+    Builds that are already uploaded keep working after the certificate is revoked.
+    """
     listing = call("GET", "/certificates?filter[certificateType]=DISTRIBUTION&limit=200")
     for cert in listing.get("data", []):
-        if cert["attributes"].get("name") == "Created via API":
-            print("Revoking leftover CI certificate", cert["id"])
-            call("DELETE", f"/certificates/{cert['id']}")
+        attrs = cert["attributes"]
+        print("Revoking earlier distribution certificate", cert["id"], attrs.get("name"), attrs.get("serialNumber"))
+        call("DELETE", f"/certificates/{cert['id']}")
 
 
 def create_certificate(csr_pem: str) -> dict:
