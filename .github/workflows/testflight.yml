@@ -62,23 +62,11 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Manual \
-            CODE_SIGN_IDENTITY="-" \
-            CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGNING_ALLOWED=YES \
-            PROVISIONING_PROFILE_SPECIFIER="" \
+            CODE_SIGNING_ALLOWED=NO \
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             | tee build/archive.log | xcbeautify --renderer github-actions
 
-      - name: Inspect archive entitlements
-        run: |
-          for app in build/Inly.xcarchive/Products/Applications/Inly.app \
-                     build/Inly.xcarchive/Products/Applications/Inly.app/PlugIns/InlyWidgets.appex; do
-            echo "== $app"
-            codesign -d --entitlements :- "$app" 2>&1 | grep -A2 "application-groups" || echo "no application-groups entitlement found"
-          done
-
-      - name: Export and upload to App Store Connect
+      - name: Export signed IPA
         run: |
           set -o pipefail
           cat > build/ExportOptions.plist <<EOF
@@ -87,7 +75,7 @@ jobs:
           <plist version="1.0">
           <dict>
             <key>method</key><string>app-store-connect</string>
-            <key>destination</key><string>upload</string>
+            <key>destination</key><string>export</string>
             <key>teamID</key><string>${APPLE_TEAM_ID}</string>
             <key>signingStyle</key><string>automatic</string>
             <key>uploadSymbols</key><true/>
@@ -104,6 +92,25 @@ jobs:
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             | tee build/export.log | xcbeautify --renderer github-actions
 
+      - name: Inspect signed IPA
+        run: |
+          ls -la build/export
+          rm -rf build/ipa && mkdir -p build/ipa
+          unzip -q build/export/Inly.ipa -d build/ipa
+          for app in build/ipa/Payload/Inly.app build/ipa/Payload/Inly.app/PlugIns/InlyWidgets.appex; do
+            echo "== $app"
+            codesign -d --entitlements :- "$app" 2>&1 | grep -A2 "application-groups" || echo "NO application-groups entitlement"
+          done
+
+      - name: Upload to App Store Connect
+        run: |
+          mkdir -p ~/private_keys
+          cp "$ASC_KEY_PATH" ~/private_keys/
+          xcrun altool --upload-app --type ios \
+            --file build/export/Inly.ipa \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee build/upload.log
+
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
@@ -112,8 +119,9 @@ jobs:
           path: |
             build/archive.log
             build/export.log
+            build/upload.log
           if-no-files-found: ignore
 
       - name: Remove API key
         if: always()
-        run: rm -rf "$RUNNER_TEMP/keys"
+        run: rm -rf "$RUNNER_TEMP/keys" ~/private_keys
