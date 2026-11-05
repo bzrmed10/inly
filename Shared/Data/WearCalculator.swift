@@ -95,3 +95,26 @@ enum WearCalculator {
         return (wornTotal / elapsedTotal) * 24
     }
 }
+
+struct DayWear: Sendable, Equatable, Identifiable {
+    let day: Date
+    let wornSeconds: TimeInterval
+    /// Seconds of the day that have passed (24h for finished days).
+    let elapsedSeconds: TimeInterval
+    var id: Date { day }
+    var wornHours: Double { wornSeconds / 3600 }
+}
+
+extension WearCalculator {
+    /// Worn time for each of the last `days` calendar days, oldest first. Today only counts elapsed time.
+    static func dailyWear(endingOn now: Date, days: Int, sessions: [SessionSpan], calendar: Calendar) -> [DayWear] {
+        let today = calendar.startOfDay(for: now)
+        return (0..<days).reversed().compactMap { back in
+            guard let dayStart = calendar.date(byAdding: .day, value: -back, to: today) else { return nil }
+            let interval = dayInterval(containing: dayStart, calendar: calendar)
+            let elapsed = max(0, min(now, interval.end).timeIntervalSince(interval.start))
+            let out = outSeconds(in: interval, sessions: sessions, now: now)
+            return DayWear(day: dayStart, wornSeconds: max(0, elapsed - out), elapsedSeconds: elapsed)
+        }
+    }
+}

@@ -52,3 +52,14 @@ extension ScreenshotTests {
         save("06-start-tray")
     }
 }
+
+extension ScreenshotTests {
+    func testHistoryScreen() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-demoData"]
+        app.launch()
+        app.tabBars.buttons["History"].tap()
+        sleep(2)
+        save("07-history")
+    }
+}

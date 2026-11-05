@@ -64,3 +64,21 @@ struct WearCalculatorTests {
         #expect(abs(avg - 21) < 0.0001)
     }
 }
+
+struct DailyWearTests {
+    private var cal: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "UTC")!
+        return c
+    }
+
+    @Test func dailyWearOldestFirstAndTodayPartial() {
+        func date(_ d: Int, _ h: Int) -> Date { cal.date(from: DateComponents(year: 2026, month: 3, day: d, hour: h))! }
+        let sessions = [SessionSpan(start: date(1, 8), end: date(1, 10))]
+        let days = WearCalculator.dailyWear(endingOn: date(2, 12), days: 2, sessions: sessions, calendar: cal)
+        #expect(days.count == 2)
+        #expect(days[0].wornHours == 22)
+        #expect(days[1].wornHours == 12)
+        #expect(days[1].elapsedSeconds == 12 * 3600)
+    }
+}

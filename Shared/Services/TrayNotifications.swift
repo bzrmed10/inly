@@ -12,7 +12,7 @@ enum TrayNotifications {
     static func scheduleSwitchReminder(for tray: Tray, calendar: Calendar = .current) {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
-        guard tray.endDate == nil else { return }
+        guard tray.endDate == nil, WearSettings.load().remindersEnabled else { return }
 
         let day = TrayLogic.switchDate(start: tray.startDate, plannedDays: tray.plannedDays, calendar: calendar)
         var comps = calendar.dateComponents([.year, .month, .day], from: day)

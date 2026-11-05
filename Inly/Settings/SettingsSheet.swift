@@ -13,6 +13,12 @@ struct SettingsSheet: View {
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                 }
+                Section("Reminders") {
+                    Toggle("Out-time and tray reminders", isOn: $settings.remindersEnabled)
+                    Text("A nudge when your out-time is nearly used up, and on the day to switch trays.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
                 Section("Trays") {
                     Stepper("Total trays: \(settings.totalTrays)", value: $settings.totalTrays, in: 1...80)
                     Stepper("Days per tray: \(settings.defaultTrayDays)", value: $settings.defaultTrayDays, in: 1...30)
@@ -24,11 +30,13 @@ struct SettingsSheet: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { settings.save(); dismiss() }
+                    Button("Done") { settings.save()
+                        SessionService.shared.reconcileLiveActivity()
+                        dismiss() }
                 }
             }
         }
         .preferredColorScheme(.dark)
-        .presentationDetents([.medium])
+        .presentationDetents([.medium, .large])
     }
 }

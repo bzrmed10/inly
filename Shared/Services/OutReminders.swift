@@ -8,6 +8,7 @@ enum OutReminders {
     static func schedule(budgetEnd: Date, now: Date = .now) {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: ids)
+        guard WearSettings.load().remindersEnabled else { return }
 
         let soon = budgetEnd.addingTimeInterval(-10 * 60)
         if soon > now.addingTimeInterval(5) {
