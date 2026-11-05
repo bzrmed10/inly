@@ -37,3 +37,11 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - CI captures simulator screenshots (branch `ci-screenshots`). Reviewed; fixed the action button hidden under the tab bar.
 - Note: Live Activity color uses amber to coral via the stale date (no yellow step); Settings is a toolbar button, not a bottom glass circle.
 - Not yet checked on a real iPhone: Dynamic Island animations and the button inside the Live Activity.
+
+## Milestone 2 - Trays (done)
+
+- Tray date maths with unit tests (day number, days spent, switch date, early/late).
+- Trays screen: segment progress for all trays, current tray card (day X of Y, started, switch date, average wear), history list showing days on each tray against the plan (off-plan counts in amber).
+- Start tray sheet: today or yesterday, planned days, next switch date, early/late warning; glass Undo toast after starting.
+- Reminder notification on the switch day at 9:00, rescheduled on start and undo.
+- Screenshots reviewed (05-trays, 06-start-tray on the `ci-screenshots` branch).
