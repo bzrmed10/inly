@@ -24,6 +24,8 @@ targets:
       path: Inly/Info.plist
       properties:
         CFBundleDisplayName: Inly
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
         UILaunchScreen:
           UIColorName: LaunchBackground
         UISupportedInterfaceOrientations:
@@ -62,6 +64,8 @@ targets:
       path: InlyWidgets/Info.plist
       properties:
         CFBundleDisplayName: Inly
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     entitlements:

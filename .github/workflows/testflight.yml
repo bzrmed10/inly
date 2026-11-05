@@ -105,14 +105,23 @@ jobs:
             codesign -d --entitlements :- "$app" 2>&1 | grep -A2 "application-groups" || { echo "::error::$app is missing the application-groups entitlement"; exit 1; }
           done
 
+      - name: Check build number inside the IPA
+        run: |
+          unzip -q -o build/export/Inly.ipa -d build/ipa
+          v=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" build/ipa/Payload/Inly.app/Info.plist)
+          echo "CFBundleVersion in IPA: $v (expected ${{ github.run_number }})"
+          test "$v" = "${{ github.run_number }}"
+
       - name: Upload to App Store Connect
         run: |
+          set -o pipefail
           mkdir -p ~/private_keys
           cp "$ASC_KEY_PATH" ~/private_keys/
           xcrun altool --upload-app --type ios \
             --file build/export/Inly.ipa \
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee build/upload.log
+          grep -q "UPLOAD SUCCEEDED" build/upload.log
 
       - name: Upload logs
         if: always()
