@@ -144,7 +144,7 @@ struct TraysView: View {
                 .tint(tint)
             HStack(alignment: .top) {
                 info("Started", tray.startDate.formatted(.dateTime.month(.abbreviated).day()))
-                info("Switch on", due.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
+                info("Switch on", due.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()).replacingOccurrences(of: ",", with: ""))
                 info("Avg wear", TimeFormat.hoursMinutes(avg * 3600))
             }
             Button { showStart = true } label: {

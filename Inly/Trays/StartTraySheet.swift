@@ -79,6 +79,7 @@ struct StartTraySheet: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 24)
+        .frame(maxHeight: .infinity, alignment: .top)
         .presentationDetents([.fraction(0.86), .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Color(hex: 0x1C1C22))
@@ -134,6 +135,7 @@ struct ExtendTraySheet: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 24)
+        .frame(maxHeight: .infinity, alignment: .top)
         .presentationDetents([.fraction(0.62), .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Color(hex: 0x1C1C22))

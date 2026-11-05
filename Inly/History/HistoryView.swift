@@ -146,11 +146,15 @@ extension HistoryView {
                     Spacer()
                     navButton("chevron.right", enabled: canGoForward) { shift(1) }
                 }
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 7), spacing: 6) {
+                HStack(spacing: 6) {
                     ForEach(Array(order.enumerated()), id: \.offset) { _, s in
                         Text(s).font(Theme.font(11, .heavy)).foregroundStyle(Theme.muted)
+                            .frame(maxWidth: .infinity)
                     }
-                    ForEach(0..<blanks, id: \.self) { _ in Color.clear.frame(height: 40) }
+                }
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 7), spacing: 6) {
+                    // Negative ids so the blanks never collide with the day numbers.
+                    ForEach((0..<blanks).map { -($0 + 1) }, id: \.self) { _ in Color.clear.frame(height: 40) }
                     ForEach(1...days, id: \.self) { n in
                         let day = cal.date(byAdding: .day, value: n - 1, to: month) ?? month
                         dayCell(
