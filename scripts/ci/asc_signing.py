@@ -54,6 +54,15 @@ def run(*args: str, **kwargs) -> subprocess.CompletedProcess:
     return subprocess.run(args, check=True, text=True, **kwargs)
 
 
+def purge_leftover_certificates() -> None:
+    """Revoke certificates created by earlier CI runs that did not clean up."""
+    listing = call("GET", "/certificates?filter[certificateType]=DISTRIBUTION&limit=200")
+    for cert in listing.get("data", []):
+        if cert["attributes"].get("name") == "Created via API":
+            print("Revoking leftover CI certificate", cert["id"])
+            call("DELETE", f"/certificates/{cert['id']}")
+
+
 def create_certificate(csr_pem: str) -> dict:
     body = {
         "data": {
@@ -61,18 +70,7 @@ def create_certificate(csr_pem: str) -> dict:
             "attributes": {"certificateType": "DISTRIBUTION", "csrContent": csr_pem},
         }
     }
-    try:
-        return call("POST", "/certificates", json=body)["data"]
-    except RuntimeError as err:
-        if "409" not in str(err) and "limit" not in str(err).lower():
-            raise
-        print("Certificate limit reached; removing leftover CI certificates and retrying.")
-        listing = call("GET", "/certificates?filter[certificateType]=DISTRIBUTION&limit=200")
-        for cert in listing.get("data", []):
-            if cert["attributes"].get("name") == "Created via API":
-                print("Revoking leftover certificate", cert["id"])
-                call("DELETE", f"/certificates/{cert['id']}")
-        return call("POST", "/certificates", json=body)["data"]
+    return call("POST", "/certificates", json=body)["data"]
 
 
 def bundle_id_resource(identifier: str) -> str:
@@ -94,18 +92,25 @@ def setup() -> None:
     WORK.mkdir(parents=True, exist_ok=True)
     key_pem, csr_pem, p12 = WORK / "key.pem", WORK / "req.csr", WORK / "cert.p12"
 
+    purge_leftover_certificates()
     run("openssl", "req", "-new", "-newkey", "rsa:2048", "-nodes",
         "-keyout", str(key_pem), "-out", str(csr_pem), "-subj", "/CN=Inly CI/O=Inly/C=US")
     cert = create_certificate(csr_pem.read_text())
     print("Created distribution certificate", cert["id"])
+    STATE.write_text(json.dumps({"cert": cert["id"], "profiles": [], "keychain": str(WORK / "ci.keychain-db")}))
 
     der = WORK / "cert.der"
     der.write_bytes(base64.b64decode(cert["attributes"]["certificateContent"]))
     cert_pem = WORK / "cert.pem"
     run("openssl", "x509", "-inform", "der", "-in", str(der), "-out", str(cert_pem))
     password = secrets.token_hex(16)
-    run("openssl", "pkcs12", "-export", "-inkey", str(key_pem), "-in", str(cert_pem),
-        "-out", str(p12), "-passout", f"pass:{password}")
+    export_cmd = ["openssl", "pkcs12", "-export", "-inkey", str(key_pem), "-in", str(cert_pem),
+                  "-out", str(p12), "-passout", f"pass:{password}"]
+    try:
+        # OpenSSL 3 needs -legacy so macOS `security` can read the file.
+        run(*export_cmd, "-legacy")
+    except subprocess.CalledProcessError:
+        run(*export_cmd)
 
     keychain = str(WORK / "ci.keychain-db")
     run("security", "create-keychain", "-p", password, keychain)
@@ -145,6 +150,7 @@ def setup() -> None:
         print("Installed profile", name, prof["attributes"]["uuid"])
 
     STATE.write_text(json.dumps({"cert": cert["id"], "profiles": profile_ids, "keychain": keychain}))
+    
     run("security", "find-identity", "-v", "-p", "codesigning", keychain)
 
 
