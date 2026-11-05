@@ -26,3 +26,10 @@ Each TestFlight run (`scripts/ci/asc_signing.py`) creates a temporary Apple Dist
 - **"App ID not found" or capability errors**: check that both App IDs exist and the App Group is enabled on each (Certificates, Identifiers and Profiles -> Identifiers).
 - **Build uploaded but not visible**: wait for processing, and check your email for a rejection notice from App Store Connect.
 - Logs from each run are attached to the run as an artifact (`testflight-logs`).
+
+
+### Why builds were rejected with "90721 Certificate Revoked"
+The workflow used to revoke its temporary certificate right after uploading. Apple checks the signing
+certificate again while processing the upload, so some builds were marked Failed. The certificate is now
+kept until the next TestFlight run, which revokes it at the start. Apple still sends a "certificate revoked"
+email each run; that is expected and harmless.

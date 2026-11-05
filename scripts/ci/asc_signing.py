@@ -155,22 +155,19 @@ def setup() -> None:
 
 
 def cleanup() -> None:
+    """Remove the temporary keychain only.
+
+    The certificate and profiles are deliberately NOT revoked here: Apple re-checks the signing
+    certificate while it processes the upload (error 90721 "Certificate Revoked" otherwise).
+    The next run revokes the leftover certificate in purge_leftover_certificates() and replaces
+    same-named profiles.
+    """
     if not STATE.exists():
         print("Nothing to clean up.")
         return
     state = json.loads(STATE.read_text())
-    for pid in state.get("profiles", []):
-        try:
-            call("DELETE", f"/profiles/{pid}")
-            print("Deleted profile", pid)
-        except RuntimeError as err:
-            print("Could not delete profile:", err)
-    try:
-        call("DELETE", f"/certificates/{state['cert']}")
-        print("Revoked certificate", state["cert"])
-    except RuntimeError as err:
-        print("Could not revoke certificate:", err)
     subprocess.run(["security", "delete-keychain", state["keychain"]], check=False)
+    print("Removed temporary keychain; certificate kept until the next run so Apple can finish processing.")
 
 
 if __name__ == "__main__":
