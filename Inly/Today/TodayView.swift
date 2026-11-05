@@ -41,19 +41,23 @@ struct TodayView: View {
         let color = ringColor(snap)
 
         ScrollView {
-            VStack(spacing: 22) {
+            VStack(spacing: 18) {
                 header(now: now)
                 trayCard
                 if snap.isOut { reasonChips }
                 hero(snap: snap, color: color, now: now)
                 statusPill(snap: snap, color: color)
                 stats(snap: snap)
-                actionButton(snap: snap)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 24)
         }
         .scrollIndicators(.hidden)
+        .safeAreaInset(edge: .bottom) {
+            actionButton(snap: snap)
+                .padding(.horizontal, 20)
+                .padding(.bottom, 8)
+        }
     }
 
     private func ringColor(_ snap: WearSnapshot) -> Color {
@@ -130,7 +134,7 @@ struct TodayView: View {
                     .lineLimit(1)
             }
         }
-        .frame(width: 260, height: 260)
+        .frame(width: 230, height: 230)
         .padding(.vertical, 12)
         .accessibilityElement(children: .combine)
     }
