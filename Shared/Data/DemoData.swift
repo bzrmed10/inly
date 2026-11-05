@@ -16,6 +16,13 @@ enum DemoData {
             context.insert(Tray(number: n, startDate: start, endDate: end, plannedDays: 14))
         }
         context.insert(Tray(number: 7, startDate: cal.date(byAdding: .day, value: -8, to: today) ?? today, plannedDays: 14))
+        let outMinutes = [95, 120, 150, 200, 100, 80, 140]
+        for back in 1...27 {
+            guard let day = cal.date(byAdding: .day, value: -back, to: today),
+                  let start = cal.date(bySettingHour: 12, minute: 0, second: 0, of: day) else { continue }
+            let m = outMinutes[back % outMinutes.count]
+            context.insert(WearSession(start: start, end: start.addingTimeInterval(Double(m) * 60), reason: .meal))
+        }
         func at(_ h: Int, _ m: Int) -> Date { cal.date(bySettingHour: h, minute: m, second: 0, of: now) ?? now }
         if at(8, 35) < now {
             context.insert(WearSession(start: at(8, 0), end: at(8, 35), reason: .meal))
