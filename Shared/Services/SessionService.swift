@@ -38,13 +38,10 @@ final class SessionService {
 
     // MARK: Actions
 
-    @discardableResult
-    func takeOut(reason: OutReason = .other, at date: Date = .now) -> WearSession {
-        if let existing = openSession() { return existing }
-        let s = WearSession(start: date, reason: reason)
-        context.insert(s)
+    func takeOut(reason: OutReason = .other, at date: Date = .now) {
+        if openSession() != nil { return }
+        context.insert(WearSession(start: date, reason: reason))
         save()
-        return s
     }
 
     func putBackIn(at date: Date = .now) {
