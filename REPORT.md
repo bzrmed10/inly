@@ -65,3 +65,16 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - Install the TestFlight build on an iPhone with iOS 26 and try: Take out (Dynamic Island + Lock Screen), Put back in from the Island, widgets, the Control Center toggle, Start tray + Undo.
 - Real app icon artwork (the current one is a generated placeholder), support URL and privacy policy URL before any App Store submission.
 - Ideas for later: iCloud sync, CSV export for the orthodontist, Apple Watch.
+
+## Milestone 5 - Feedback round 1 (done)
+
+- Ring: worn time against the daily goal (no longer always full). Take out is blue, Put back in is orange (app, widgets, Dynamic Island).
+- Widgets and Lock Screen show out-time left today (live countdown while out).
+- First-launch setup: name, tray you are on, total trays, planned days, which day you are on, daily goal. Settings has "Redo first-time setup".
+- Trays: days over the plan show as "+N days" (Today card, Trays card); "Extend plan" adds days on purpose; the reminder follows.
+- Trays screen rebuilt from the design (dotted progress, glowing current card, history rows with on plan / -N / +N), start-tray sheet as designed, swipe left to delete with Undo (deleting the current tray reopens the previous one).
+- Settings is now the detached glass circle next to the tab bar (iOS 26 search-role tab); the gear is gone.
+- Greeting with your name, richer tray card (tap opens Trays), 24-hour timeline of today's breaks, "Left" stat card.
+- History: real monthly calendar (swipe or arrows, tray start and switch-day dots); tap a day to see breaks, edit, delete, or add a missed break. Undo toast after Take out / Put back in.
+- Found by screenshot review and fixed: calendar days 1-6 missing (SwiftUI id collision), sheet content centered instead of top-aligned.
+- Not verified on device: widgets, Control Center toggle, the Settings tab shape.
