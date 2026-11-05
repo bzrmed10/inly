@@ -122,3 +122,32 @@ struct DayWearAndGreetingTests {
         #expect(Greeting.phrase(for: date(1, 2), calendar: cal) == "Good evening")
     }
 }
+
+struct TrackingStartTests {
+    private var cal: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "UTC")!
+        return c
+    }
+    private func date(_ d: Int, _ h: Int, _ m: Int = 0) -> Date {
+        cal.date(from: DateComponents(year: 2026, month: 3, day: d, hour: h, minute: m))!
+    }
+
+    @Test func firstDayCountsFromTrackingStart() {
+        // Started tracking at 21:30, now 21:40, 9 minutes out -> only 1 minute worn, not 21h.
+        let s = [SessionSpan(start: date(1, 21, 31), end: date(1, 21, 40))]
+        let snap = WearCalculator.snapshot(
+            sessions: s, now: date(1, 21, 40), budgetSeconds: 7200, calendar: cal, trackingStart: date(1, 21, 30)
+        )
+        #expect(snap.wornSeconds == 60)
+        #expect(snap.outSeconds == 540)
+    }
+
+    @Test func daysBeforeTrackingHaveNoData() {
+        let w = WearCalculator.dayWear(on: date(1, 12), sessions: [], now: date(3, 12), calendar: cal, trackingStart: date(2, 8))
+        #expect(w.elapsedSeconds == 0)
+        let w2 = WearCalculator.dayWear(on: date(2, 12), sessions: [], now: date(3, 12), calendar: cal, trackingStart: date(2, 8))
+        #expect(w2.elapsedSeconds == 16 * 3600)
+        #expect(w2.wornHours == 16)
+    }
+}

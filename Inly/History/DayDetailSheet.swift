@@ -18,7 +18,8 @@ struct DayDetailSheet: View {
     var body: some View {
         let now = Date.now
         let spans = allSessions.map { SessionSpan(start: $0.start, end: $0.end) }
-        let wear = WearCalculator.dayWear(on: day, sessions: spans, now: now, calendar: .current)
+        let tracking = WearSettings.load().resolvedTrackingStart(firstSession: allSessions.first?.start)
+        let wear = WearCalculator.dayWear(on: day, sessions: spans, now: now, calendar: .current, trackingStart: tracking)
         let out = wear.elapsedSeconds - wear.wornSeconds
 
         ScrollView {

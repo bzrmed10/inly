@@ -21,6 +21,8 @@ struct TraysView: View {
     private var current: Tray? { trays.first(where: { $0.endDate == nil }) }
     private var finished: [Tray] { trays.filter { $0.endDate != nil } }
     private var spans: [SessionSpan] { sessions.map { SessionSpan(start: $0.start, end: $0.end) } }
+    private var trackingMoment: Date? { settings.resolvedTrackingStart(firstSession: sessions.map(\.start).min()) }
+    private func from(_ tray: Tray) -> Date { max(tray.startDate, trackingMoment ?? tray.startDate) }
     private var nextNumber: Int { (trays.first?.number ?? 0) + 1 }
     private let insets = EdgeInsets(top: 4, leading: 20, bottom: 4, trailing: 20)
 
@@ -123,7 +125,7 @@ struct TraysView: View {
         let over = TrayLogic.overage(start: tray.startDate, plannedDays: tray.plannedDays, now: .now, calendar: cal)
         let tint = over > 0 ? Theme.outColor : Theme.trayColor
         let due = TrayLogic.switchDate(start: tray.startDate, plannedDays: tray.plannedDays, calendar: cal)
-        let avg = WearCalculator.averageWornHours(from: tray.startDate, to: .now, sessions: spans, now: .now, calendar: cal)
+        let avg = WearCalculator.averageWornHours(from: from(tray), to: .now, sessions: spans, now: .now, calendar: cal)
 
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
@@ -207,7 +209,7 @@ struct TraysView: View {
         let barColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Theme.inColor : Theme.trayColor)
         let noteColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Color(hex: 0x8DBBFF) : Theme.muted)
         let note = delta == 0 ? "on plan" : (delta > 0 ? "+\(delta) day\(delta == 1 ? "" : "s")" : "−\(-delta) day\(delta == -1 ? "" : "s")")
-        let avg = WearCalculator.averageWornHours(from: tray.startDate, to: tray.endDate ?? .now, sessions: spans, now: .now, calendar: cal)
+        let avg = WearCalculator.averageWornHours(from: from(tray), to: tray.endDate ?? .now, sessions: spans, now: .now, calendar: cal)
         let md: (Date) -> String = { $0.formatted(.dateTime.month(.abbreviated).day()) }
 
         return HStack(spacing: 12) {

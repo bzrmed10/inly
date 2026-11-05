@@ -38,7 +38,8 @@ struct TodayView: View {
     private func content(now: Date) -> some View {
         let spans = sessions.map { SessionSpan(start: $0.start, end: $0.end) }
         let snap = WearCalculator.snapshot(
-            sessions: spans, now: now, budgetSeconds: settings.budgetSeconds, calendar: .current
+            sessions: spans, now: now, budgetSeconds: settings.budgetSeconds, calendar: .current,
+            trackingStart: settings.resolvedTrackingStart(firstSession: sessions.first?.start)
         )
         let color = ringColor(snap)
 

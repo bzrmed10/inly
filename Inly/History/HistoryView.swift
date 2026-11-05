@@ -12,9 +12,13 @@ struct HistoryView: View {
     private var spans: [SessionSpan] { sessions.map { SessionSpan(start: $0.start, end: $0.end) } }
 
     /// First day we have any data for; earlier days are not counted as "worn".
+    private var trackingMoment: Date? {
+        settings.resolvedTrackingStart(firstSession: sessions.map(\.start).min())
+    }
+
     private var trackingStart: Date {
         let cal = Calendar.current
-        let dates = sessions.map(\.start) + trays.map(\.startDate)
+        let dates = trackingMoment.map { [$0] } ?? (sessions.map(\.start) + trays.map(\.startDate))
         return cal.startOfDay(for: dates.min() ?? .now)
     }
 
@@ -34,7 +38,7 @@ struct HistoryView: View {
 
     @ViewBuilder
     private func content(now: Date) -> some View {
-        let last28 = WearCalculator.dailyWear(endingOn: now, days: 28, sessions: spans, calendar: .current)
+        let last28 = WearCalculator.dailyWear(endingOn: now, days: 28, sessions: spans, calendar: .current, trackingStart: trackingMoment)
             .filter { $0.day >= trackingStart }
         let week = Array(last28.suffix(7))
         let finished = last28.filter { $0.elapsedSeconds >= 86_400 - 1 }
@@ -207,8 +211,8 @@ extension HistoryView {
         let cal = Calendar.current
         let isFuture = day > now
         let isToday = cal.isDateInToday(day)
-        let wear = WearCalculator.dayWear(on: day, sessions: spans, now: now, calendar: cal)
-        let filled = tracked && !isFuture
+        let wear = WearCalculator.dayWear(on: day, sessions: spans, now: now, calendar: cal, trackingStart: trackingMoment)
+        let filled = tracked && !isFuture && wear.elapsedSeconds > 0
         let color: Color = {
             guard filled else { return Theme.raised.opacity(0.5) }
             if isToday { return Theme.inColor.opacity(0.85) }

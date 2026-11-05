@@ -11,13 +11,21 @@ struct WearEntry: TimelineEntry, Sendable {
     let outStart: Date
     let budgetEnd: Date
     let wornSeconds: TimeInterval
+    /// Worn time against the daily goal, 0...1.
     let wornFraction: Double
-    /// Out-time left today at `date` (when out, the live countdown runs to `budgetEnd`).
+    /// Out-time left today at `date`.
     let leftSeconds: TimeInterval
     let goalHours: Int
     let trayLine: String?
 
     var isOver: Bool { isOut && date >= budgetEnd }
+
+    /// 0...1 share of the out-time budget used by this entry's date (ring while out).
+    var outProgress: Double {
+        let total = budgetEnd.timeIntervalSince(outStart)
+        guard total > 0 else { return 1 }
+        return min(1, max(0, date.timeIntervalSince(outStart) / total))
+    }
 
     static let placeholder = WearEntry(
         date: .now, isOut: false, outStart: .now, budgetEnd: .now.addingTimeInterval(3600),
@@ -35,10 +43,31 @@ struct WearProvider: TimelineProvider {
     }
 
     func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<WearEntry>) -> Void) {
-        let entry = Self.load(now: .now)
-        var next = Date.now.addingTimeInterval(15 * 60)
-        if entry.isOut, entry.budgetEnd > .now { next = min(next, entry.budgetEnd) }
-        completion(Timeline(entries: [entry], policy: .after(next)))
+        let first = Self.load(now: .now)
+        var entries = [first]
+        var refresh = Date.now.addingTimeInterval(15 * 60)
+
+        if first.isOut, first.budgetEnd > .now {
+            // While out, add an entry every 5 minutes so the ring keeps filling, plus one at the budget end.
+            var t = Date.now.addingTimeInterval(5 * 60)
+            while t < first.budgetEnd, entries.count < 36 {
+                entries.append(Self.entry(from: first, at: t))
+                t = t.addingTimeInterval(5 * 60)
+            }
+            entries.append(Self.entry(from: first, at: first.budgetEnd))
+            refresh = first.budgetEnd.addingTimeInterval(15 * 60)
+        }
+        completion(Timeline(entries: entries, policy: .after(refresh)))
+    }
+
+    /// The same data at a later moment (only the out-time left and the ring move while out).
+    private static func entry(from e: WearEntry, at date: Date) -> WearEntry {
+        WearEntry(
+            date: date, isOut: e.isOut, outStart: e.outStart, budgetEnd: e.budgetEnd,
+            wornSeconds: e.wornSeconds, wornFraction: e.wornFraction,
+            leftSeconds: max(0, e.budgetEnd.timeIntervalSince(date)),
+            goalHours: e.goalHours, trayLine: e.trayLine
+        )
     }
 
     static func load(now: Date) -> WearEntry {
@@ -46,7 +75,10 @@ struct WearProvider: TimelineProvider {
         let sessions = (try? context.fetch(FetchDescriptor<WearSession>())) ?? []
         let spans = sessions.map { SessionSpan(start: $0.start, end: $0.end) }
         let settings = WearSettings.load()
-        let snap = WearCalculator.snapshot(sessions: spans, now: now, budgetSeconds: settings.budgetSeconds, calendar: .current)
+        let tracking = settings.resolvedTrackingStart(firstSession: sessions.map(\.start).min())
+        let snap = WearCalculator.snapshot(
+            sessions: spans, now: now, budgetSeconds: settings.budgetSeconds, calendar: .current, trackingStart: tracking
+        )
 
         let open = sessions.first(where: { $0.end == nil })
         var budgetEnd = now.addingTimeInterval(snap.leftSeconds)
@@ -113,39 +145,39 @@ private struct WearWidgetView: View {
         }
     }
 
-    // Home Screen
-    private var timerText: some View {
+    // MARK: Home Screen
+
+    /// Big number in the middle of the ring: live timer while out, worn time while in.
+    private var centerValue: some View {
         Group {
             if entry.isOut {
                 Text(timerInterval: entry.outStart...entry.outStart.addingTimeInterval(86_400), countsDown: false)
                     .monospacedDigit()
+                    .multilineTextAlignment(.center)
+                    .frame(maxWidth: .infinity)
             } else {
                 Text(TimeFormat.hoursMinutes(entry.wornSeconds))
             }
         }
-        .font(Theme.font(24, .heavy))
-        .minimumScaleFactor(0.6)
+        .font(Theme.font(22, .heavy))
+        .minimumScaleFactor(0.5)
         .lineLimit(1)
     }
 
     private var ring: some View {
-        ZStack {
-            Circle().stroke(Theme.raised, lineWidth: 10)
-            if entry.isOut {
-                ProgressView(timerInterval: outRange, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
-                    .progressViewStyle(.circular)
-                    .tint(color)
-            } else {
-                Circle()
-                    .trim(from: 0, to: max(0.001, entry.wornFraction))
-                    .stroke(color, style: StrokeStyle(lineWidth: 10, lineCap: .round))
-                    .rotationEffect(.degrees(-90))
-            }
-            VStack(spacing: 2) {
+        let progress = entry.isOut ? entry.outProgress : entry.wornFraction
+        return ZStack {
+            Circle().stroke(Theme.raised, lineWidth: 9)
+            Circle()
+                .trim(from: 0, to: max(0.001, progress))
+                .stroke(color, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            VStack(spacing: 1) {
                 Text(entry.isOut ? "OUT" : "WORN")
                     .font(Theme.font(10, .heavy)).tracking(1).foregroundStyle(color)
-                timerText.padding(.horizontal, 12)
+                centerValue
             }
+            .padding(.horizontal, 16)
         }
     }
 
@@ -156,9 +188,10 @@ private struct WearWidgetView: View {
                 if entry.isOver {
                     Text("Over budget")
                 } else {
-                    HStack(spacing: 3) {
+                    HStack(spacing: 4) {
                         Text(timerInterval: Date.now...max(entry.budgetEnd, Date.now.addingTimeInterval(1)), countsDown: true)
                             .monospacedDigit()
+                            .fixedSize()
                         Text("left")
                     }
                 }
@@ -174,7 +207,7 @@ private struct WearWidgetView: View {
 
     private var small: some View {
         VStack(spacing: 6) {
-            ring.padding(2)
+            ring.padding(3)
             leftLabel(font: Theme.font(13, .heavy))
         }
     }
@@ -182,13 +215,13 @@ private struct WearWidgetView: View {
     private var medium: some View {
         HStack(spacing: 16) {
             ring.frame(width: 118, height: 118)
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: 6) {
                 if let line = entry.trayLine {
-                    Text(line).font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted)
+                    Text(line).font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted).lineLimit(1)
                 }
-                leftLabel(font: Theme.font(15, .heavy))
+                leftLabel(font: Theme.font(16, .heavy))
                 Text(entry.isOut && !entry.isOver ? "Back in by \(entry.budgetEnd.formatted(date: .omitted, time: .shortened))" : "Goal \(entry.goalHours)h a day")
-                    .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
+                    .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted).lineLimit(1)
                 Spacer(minLength: 0)
                 Button(intent: ToggleWearIntent()) {
                     Text(entry.isOut ? "Put back in" : "Take out")
@@ -199,10 +232,12 @@ private struct WearWidgetView: View {
                 .background(entry.isOut ? Theme.outColor : Theme.inColor, in: Capsule())
                 .foregroundStyle(Theme.night)
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
-    // Lock Screen
+    // MARK: Lock Screen
+
     private var circular: some View {
         Group {
             if entry.isOut {

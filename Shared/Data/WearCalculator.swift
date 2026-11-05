@@ -47,11 +47,14 @@ enum WearCalculator {
         sessions: [SessionSpan],
         now: Date,
         budgetSeconds: TimeInterval,
-        calendar: Calendar
+        calendar: Calendar,
+        trackingStart: Date? = nil
     ) -> WearSnapshot {
         let day = dayInterval(containing: now, calendar: calendar)
-        let out = outSeconds(in: day, sessions: sessions, now: now)
-        let elapsed = max(1, min(now, day.end).timeIntervalSince(day.start))
+        // Time before tracking began is unknown, so it is never counted as worn.
+        let from = min(max(day.start, trackingStart ?? day.start), now)
+        let out = outSeconds(in: DateInterval(start: from, end: day.end), sessions: sessions, now: now)
+        let elapsed = max(1, min(now, day.end).timeIntervalSince(from))
         let worn = max(0, elapsed - out)
         let isOut = sessions.contains { $0.end == nil && $0.start <= now }
         let left = max(0, budgetSeconds - out)
@@ -110,24 +113,24 @@ struct DayWear: Sendable, Equatable, Identifiable {
 
 extension WearCalculator {
     /// Worn time for each of the last `days` calendar days, oldest first. Today only counts elapsed time.
-    static func dailyWear(endingOn now: Date, days: Int, sessions: [SessionSpan], calendar: Calendar) -> [DayWear] {
+    static func dailyWear(endingOn now: Date, days: Int, sessions: [SessionSpan], calendar: Calendar, trackingStart: Date? = nil) -> [DayWear] {
         let today = calendar.startOfDay(for: now)
         return (0..<days).reversed().compactMap { back in
             guard let dayStart = calendar.date(byAdding: .day, value: -back, to: today) else { return nil }
-            let interval = dayInterval(containing: dayStart, calendar: calendar)
-            let elapsed = max(0, min(now, interval.end).timeIntervalSince(interval.start))
-            let out = outSeconds(in: interval, sessions: sessions, now: now)
-            return DayWear(day: dayStart, wornSeconds: max(0, elapsed - out), elapsedSeconds: elapsed)
+            return dayWear(on: dayStart, sessions: sessions, now: now, calendar: calendar, trackingStart: trackingStart)
         }
     }
 }
 
 extension WearCalculator {
     /// Worn time for one calendar day (today only counts the time that has passed).
-    static func dayWear(on day: Date, sessions: [SessionSpan], now: Date, calendar: Calendar) -> DayWear {
+    static func dayWear(on day: Date, sessions: [SessionSpan], now: Date, calendar: Calendar, trackingStart: Date? = nil) -> DayWear {
         let interval = dayInterval(containing: day, calendar: calendar)
-        let elapsed = max(0, min(now, interval.end).timeIntervalSince(interval.start))
-        let out = outSeconds(in: interval, sessions: sessions, now: now)
+        let upper = min(now, interval.end)
+        let from = max(interval.start, trackingStart ?? interval.start)
+        guard from < upper else { return DayWear(day: interval.start, wornSeconds: 0, elapsedSeconds: 0) }
+        let elapsed = upper.timeIntervalSince(from)
+        let out = outSeconds(in: DateInterval(start: from, end: upper), sessions: sessions, now: now)
         return DayWear(day: interval.start, wornSeconds: max(0, elapsed - out), elapsedSeconds: elapsed)
     }
 

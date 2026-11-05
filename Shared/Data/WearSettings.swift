@@ -8,6 +8,8 @@ struct WearSettings: Sendable, Equatable {
     var remindersEnabled: Bool = true
     var userName: String = ""
     var onboardingDone: Bool = false
+    /// When tracking really began (end of setup). Time before this is never counted as worn.
+    var trackingStart: Date?
 
     var goalSeconds: TimeInterval { TimeInterval(goalHours) * 3600 }
     /// Allowed time out of the mouth per day.
@@ -20,6 +22,7 @@ struct WearSettings: Sendable, Equatable {
         static let reminders = "remindersEnabled"
         static let name = "userName"
         static let onboarded = "onboardingDone"
+        static let tracking = "trackingStart"
     }
 
     private static var defaults: UserDefaults {
@@ -35,13 +38,14 @@ struct WearSettings: Sendable, Equatable {
         if d.object(forKey: Key.reminders) != nil { s.remindersEnabled = d.bool(forKey: Key.reminders) }
         s.userName = d.string(forKey: Key.name) ?? ""
         s.onboardingDone = d.bool(forKey: Key.onboarded)
+        if d.object(forKey: Key.tracking) != nil { s.trackingStart = Date(timeIntervalSince1970: d.double(forKey: Key.tracking)) }
         return s
     }
 
     /// Forget everything (used by UI tests that need a first launch).
     static func reset() {
         let d = defaults
-        for k in [Key.goal, Key.total, Key.days, Key.reminders, Key.name, Key.onboarded] { d.removeObject(forKey: k) }
+        for k in [Key.goal, Key.total, Key.days, Key.reminders, Key.name, Key.onboarded, Key.tracking] { d.removeObject(forKey: k) }
     }
 
     func save() {
@@ -52,5 +56,13 @@ struct WearSettings: Sendable, Equatable {
         d.set(remindersEnabled, forKey: Key.reminders)
         d.set(userName, forKey: Key.name)
         d.set(onboardingDone, forKey: Key.onboarded)
+        if let trackingStart { d.set(trackingStart.timeIntervalSince1970, forKey: Key.tracking) } else { d.removeObject(forKey: Key.tracking) }
+    }
+}
+
+extension WearSettings {
+    /// The moment tracking began: the saved one, else the first logged break, else unknown.
+    func resolvedTrackingStart(firstSession: Date?) -> Date? {
+        trackingStart ?? firstSession
     }
 }

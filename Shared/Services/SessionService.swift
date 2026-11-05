@@ -117,6 +117,7 @@ final class SessionService {
         settings.defaultTrayDays = plannedDays
         settings.goalHours = goalHours
         settings.onboardingDone = true
+        settings.trackingStart = .now
         settings.save()
         save()
         TrayNotifications.scheduleSwitchReminder(for: tray)
