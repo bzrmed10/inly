@@ -28,10 +28,10 @@ One task = one commit. Mark `[x]` when committed and CI is green. Progress is su
 - [x] M2.4 Tray switch notification
 
 ## Milestone 3 — Widgets and controls
-- [ ] M3.1 Home Screen widgets (small, medium interactive)
-- [ ] M3.2 Lock Screen accessory widgets
-- [ ] M3.3 Control Center toggle + Action Button intent
-- [ ] M3.4 Out-time reminder notifications (time-sensitive)
+- [x] M3.1 Home Screen widgets (small, medium interactive)
+- [x] M3.2 Lock Screen accessory widgets
+- [x] M3.3 Control Center toggle + Action Button intent
+- [x] M3.4 Out-time reminder notifications (time-sensitive)
 
 ## Milestone 4 — History and polish
 - [ ] M4.1 History screen: 7-day bars, 4-week heatmap, stats
