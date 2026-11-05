@@ -14,8 +14,8 @@ One task = one commit. Mark `[x]` when committed and CI is green. Progress is su
 - [x] M1.1 Design system in code: color tokens, rounded type styles, `GlowRing` view with animation
 - [x] M1.2 Data layer: SwiftData models (`WearSession`, `Tray`, `Settings`) in the App Group store
 - [x] M1.3 Wear math (`WearCalculator`) + unit tests (midnight split, budget, averages)
-- [ ] M1.4 Today screen: ring, timer, reason chips, stat cards, Take out / Put back in, haptics
-- [ ] M1.5 Liquid Glass tab bar and navigation shell (Today, Trays, History, Settings)
+- [x] M1.4 Today screen: ring, timer, reason chips, stat cards, Take out / Put back in, haptics
+- [x] M1.5 Liquid Glass tab bar and navigation shell (Today, Trays, History, Settings)
 - [ ] M1.6 Live Activity: attributes, start/end on state change, compact / minimal / expanded / Lock Screen views
 - [ ] M1.7 `PutBackInIntent` (App Intent) wired into the Live Activity button
 - [ ] M1.8 Screenshot job in CI (simulator screenshots of key screens attached to the run)
