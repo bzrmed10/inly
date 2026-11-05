@@ -8,6 +8,7 @@ struct GlowRing: View {
     var glow: Bool = true
 
     @State private var breathe = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
         ZStack {
@@ -36,6 +37,7 @@ struct GlowRing: View {
         }
         .animation(.smooth(duration: 0.6), value: color)
         .onAppear {
+            guard !reduceMotion else { return }
             withAnimation(.easeInOut(duration: 3.2).repeatForever(autoreverses: true)) {
                 breathe = true
             }

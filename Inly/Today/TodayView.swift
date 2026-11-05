@@ -136,7 +136,9 @@ struct TodayView: View {
         }
         .frame(width: 230, height: 230)
         .padding(.vertical, 12)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(snap.isOut ? "Aligners out" : "Worn today")
+        .accessibilityValue(TimeFormat.hoursMinutes(seconds))
     }
 
     private func statusPill(snap: WearSnapshot, color: Color) -> some View {
@@ -192,5 +194,6 @@ struct TodayView: View {
             Text(snap.isOut ? "Put back in" : "Take out")
         }
         .buttonStyle(PillButtonStyle(color: snap.isOut ? Theme.inColor : Theme.outColor))
+        .accessibilityHint(snap.isOut ? "Records that your aligners are back in" : "Starts timing how long your aligners are out")
     }
 }

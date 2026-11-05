@@ -34,8 +34,18 @@ enum Theme {
     static let pillRadius: CGFloat = 28
 
     /// Rounded system font, heavy weights for numbers.
+    /// Sizes up to 20pt map to text styles so they follow the user's Dynamic Type setting.
     static func font(_ size: CGFloat, _ weight: Font.Weight = .bold) -> Font {
-        .system(size: size, weight: weight, design: .rounded)
+        let style: Font.TextStyle? = switch size {
+        case ..<13: .caption
+        case ..<14: .footnote
+        case ..<16: .subheadline
+        case ..<18: .body
+        case ..<21: .title3
+        default: nil
+        }
+        if let style { return .system(style, design: .rounded, weight: weight) }
+        return .system(size: size, weight: weight, design: .rounded)
     }
 
     /// Big timers: rounded, heavy, tabular so digits do not jitter.

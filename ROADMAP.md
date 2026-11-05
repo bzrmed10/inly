@@ -36,5 +36,5 @@ One task = one commit. Mark `[x]` when committed and CI is green. Progress is su
 ## Milestone 4 — History and polish
 - [x] M4.1 History screen: 7-day bars, 4-week heatmap, stats
 - [x] M4.2 Settings screen
-- [ ] M4.3 Accessibility pass (VoiceOver, Dynamic Type, contrast)
-- [ ] M4.4 App icon, launch screen, App Store metadata draft
+- [x] M4.3 Accessibility pass (VoiceOver, Dynamic Type, contrast)
+- [x] M4.4 App icon, launch screen, App Store metadata draft

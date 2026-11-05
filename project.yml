@@ -24,7 +24,8 @@ targets:
       path: Inly/Info.plist
       properties:
         CFBundleDisplayName: Inly
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIColorName: LaunchBackground
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
         UIApplicationSceneManifest:

@@ -134,6 +134,7 @@ struct HistoryView: View {
         let number = Calendar.current.component(.day, from: day)
         let color: Color = {
             guard let wear, !isFuture else { return Theme.raised.opacity(0.5) }
+            if Calendar.current.isDateInToday(day) { return Theme.inColor.opacity(0.85) }
             if wear.wornHours >= goal { return Theme.trayColor }
             if wear.wornHours >= goal - 2 { return Theme.outColor }
             return Theme.overColor
