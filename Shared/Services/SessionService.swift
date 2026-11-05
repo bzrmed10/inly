@@ -73,7 +73,11 @@ final class SessionService {
             )
             left = snap.leftSeconds
         }
-        LiveActivityController.reconcile(openSession: open, budgetLeftAtStart: left)
+        let start = open?.start
+        let reason = open?.reasonRaw ?? OutReason.other.rawValue
+        Task {
+            await LiveActivityController.reconcile(outStart: start, reasonRaw: reason, budgetLeftAtStart: left)
+        }
     }
 
     private func save() {
