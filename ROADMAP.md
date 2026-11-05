@@ -11,9 +11,9 @@ One task = one commit. Mark `[x]` when committed and CI is green. Progress is su
 - [x] M0.6 Setup guide for secrets and first TestFlight install (`docs/SETUP.md`)
 
 ## Milestone 1 — Core tracking + Dynamic Island (first TestFlight)
-- [ ] M1.1 Design system in code: color tokens, rounded type styles, `GlowRing` view with animation
-- [ ] M1.2 Data layer: SwiftData models (`WearSession`, `Tray`, `Settings`) in the App Group store
-- [ ] M1.3 Wear math (`WearCalculator`) + unit tests (midnight split, budget, averages)
+- [x] M1.1 Design system in code: color tokens, rounded type styles, `GlowRing` view with animation
+- [x] M1.2 Data layer: SwiftData models (`WearSession`, `Tray`, `Settings`) in the App Group store
+- [x] M1.3 Wear math (`WearCalculator`) + unit tests (midnight split, budget, averages)
 - [ ] M1.4 Today screen: ring, timer, reason chips, stat cards, Take out / Put back in, haptics
 - [ ] M1.5 Liquid Glass tab bar and navigation shell (Today, Trays, History, Settings)
 - [ ] M1.6 Live Activity: attributes, start/end on state change, compact / minimal / expanded / Lock Screen views
