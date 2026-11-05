@@ -1,0 +1,91 @@
+name: Inly
+options:
+  bundleIdPrefix: com.bzrmed
+  createIntermediateGroups: true
+  deploymentTarget:
+    iOS: "26.0"
+  developmentLanguage: en
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    DEVELOPMENT_TEAM: "${APPLE_TEAM_ID}"
+    TARGETED_DEVICE_FAMILY: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+targets:
+  Inly:
+    type: application
+    platform: iOS
+    sources:
+      - path: Inly
+      - path: Shared
+    info:
+      path: Inly/Info.plist
+      properties:
+        CFBundleDisplayName: Inly
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        NSSupportsLiveActivities: true
+        ITSAppUsesNonExemptEncryption: false
+    entitlements:
+      path: Inly/Inly.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.bzrmed.inly
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_KEY_UIUserInterfaceStyle: Dark
+    dependencies:
+      - target: InlyWidgets
+        embed: true
+  InlyWidgets:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: InlyWidgets
+      - path: Shared
+    info:
+      path: InlyWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Inly
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: InlyWidgets/InlyWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.bzrmed.inly
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly.widgets
+        SKIP_INSTALL: YES
+  InlyTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: InlyTests
+    dependencies:
+      - target: Inly
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly.tests
+        GENERATE_INFOPLIST_FILE: YES
+schemes:
+  Inly:
+    build:
+      targets:
+        Inly: all
+        InlyWidgets: all
+    test:
+      targets:
+        - InlyTests
+    run:
+      config: Debug
+    archive:
+      config: Release

@@ -8,9 +8,10 @@ Milestone 0 (foundation) in progress.
 ## Done
 - M0.1 README, repo connected, push access verified
 - M0.2 SPEC.md, ROADMAP.md, REPORT.md
+- M0.3 Xcode project (XcodeGen): app, widget extension, App Group, tests, placeholder icon. Not yet compiled; first CI run will verify.
 
 ## In progress
-- M0.3 Xcode project
+- M0.4 CI build and test
 
 ## Blockers
 None.
