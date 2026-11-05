@@ -78,3 +78,10 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - History: real monthly calendar (swipe or arrows, tray start and switch-day dots); tap a day to see breaks, edit, delete, or add a missed break. Undo toast after Take out / Put back in.
 - Found by screenshot review and fixed: calendar days 1-6 missing (SwiftUI id collision), sheet content centered instead of top-aligned.
 - Not verified on device: widgets, Control Center toggle, the Settings tab shape.
+
+## Fixes after build 14 test
+- Worn time now counts from the moment setup finished (before it was counted from midnight, so day 1 started at 21h). Days before you started have no data in History and averages.
+- Widgets: ring no longer overlaps the text, timer is centered, "left" label sits next to the countdown, one ring instead of two; the out-ring fills every 5 minutes.
+- "Put back in" from the widget / Dynamic Island: faster (widget reload first, the Live Activity update is awaited before the process sleeps).
+- Not possible: haptics on widget or Dynamic Island buttons (WidgetKit has no API). Control Center toggle and the Action Button give the system haptic.
+- Build signing: certificate is kept until the next run (fixes 90721).
