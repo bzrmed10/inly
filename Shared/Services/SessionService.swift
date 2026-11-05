@@ -100,6 +100,55 @@ final class SessionService {
         let closedTrayID: PersistentIdentifier?
     }
 
+    struct TrayRecord: Sendable {
+        let number: Int
+        let startDate: Date
+        let endDate: Date?
+        let plannedDays: Int
+    }
+
+    struct DeleteUndo: Sendable {
+        let record: TrayRecord
+        let reopenedID: PersistentIdentifier?
+        let reopenedPreviousEnd: Date?
+    }
+
+    /// Deletes a tray. If it was the current one, the previous tray becomes current again.
+    func deleteTray(_ tray: Tray) -> DeleteUndo {
+        let record = TrayRecord(number: tray.number, startDate: tray.startDate, endDate: tray.endDate, plannedDays: tray.plannedDays)
+        var reopenedID: PersistentIdentifier?
+        var previousEnd: Date?
+        if tray.endDate == nil {
+            let all = (try? context.fetch(FetchDescriptor<Tray>())) ?? []
+            let previous = all
+                .filter { $0.endDate != nil && $0.number < tray.number }
+                .max(by: { $0.number < $1.number })
+            if let previous {
+                previousEnd = previous.endDate
+                previous.endDate = nil
+                reopenedID = previous.persistentModelID
+            }
+        }
+        context.delete(tray)
+        save()
+        rescheduleTrayReminder()
+        return DeleteUndo(record: record, reopenedID: reopenedID, reopenedPreviousEnd: previousEnd)
+    }
+
+    func undoDelete(_ undo: DeleteUndo) {
+        let r = undo.record
+        context.insert(Tray(number: r.number, startDate: r.startDate, endDate: r.endDate, plannedDays: r.plannedDays))
+        if let id = undo.reopenedID, let t = context.model(for: id) as? Tray {
+            t.endDate = undo.reopenedPreviousEnd
+        }
+        save()
+        rescheduleTrayReminder()
+    }
+
+    private func rescheduleTrayReminder() {
+        if let t = currentTray() { TrayNotifications.scheduleSwitchReminder(for: t) } else { TrayNotifications.cancel() }
+    }
+
     func currentTray() -> Tray? {
         var d = FetchDescriptor<Tray>(
             predicate: #Predicate { $0.endDate == nil },

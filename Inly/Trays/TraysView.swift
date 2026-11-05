@@ -1,152 +1,272 @@
 import SwiftData
 import SwiftUI
 
+private struct ToastData: Identifiable {
+    let id = UUID()
+    let title: String
+    let subtitle: String?
+    let undo: () -> Void
+}
+
 struct TraysView: View {
     @Query(sort: \Tray.number, order: .reverse) private var trays: [Tray]
     @Query private var sessions: [WearSession]
 
     @State private var settings = WearSettings.load()
     @State private var showStart = false
-    @State private var undo: SessionService.TrayUndo?
+    @State private var showExtend = false
+    @State private var toast: ToastData?
     @State private var toastTask: Task<Void, Never>?
 
     private var current: Tray? { trays.first(where: { $0.endDate == nil }) }
     private var finished: [Tray] { trays.filter { $0.endDate != nil } }
     private var spans: [SessionSpan] { sessions.map { SessionSpan(start: $0.start, end: $0.end) } }
+    private var nextNumber: Int { (trays.first?.number ?? 0) + 1 }
+    private let insets = EdgeInsets(top: 4, leading: 20, bottom: 4, trailing: 20)
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(spacing: 18) {
-                    segments
-                    if let current { currentCard(current) }
-                    if !finished.isEmpty { history }
+        ZStack(alignment: .top) {
+            List {
+                header.row(insets)
+                progress.row(insets)
+                if let current {
+                    currentCard(current).row(insets)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) { delete(current) } label: { Label("Delete", systemImage: "trash") }
+                        }
+                } else {
+                    emptyCard.row(insets)
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 24)
-            }
-            .scrollIndicators(.hidden)
-            .background(Theme.night.ignoresSafeArea())
-            .navigationTitle("Trays")
-            .overlay(alignment: .bottom) { toast }
-            .sheet(isPresented: $showStart) {
-                StartTraySheet(
-                    current: current,
-                    nextNumber: (trays.first?.number ?? 0) + 1,
-                    defaultDays: settings.defaultTrayDays
-                ) { date, days in
-                    TrayNotifications.requestPermission()
-                    let u = SessionService.shared.startNextTray(on: date, plannedDays: days)
-                    withAnimation(.smooth) { undo = u }
-                    toastTask?.cancel()
-                    toastTask = Task {
-                        try? await Task.sleep(for: .seconds(7))
-                        if !Task.isCancelled { withAnimation(.smooth) { undo = nil } }
+                if !finished.isEmpty {
+                    historyHeader.row(EdgeInsets(top: 12, leading: 20, bottom: 4, trailing: 20))
+                    ForEach(finished) { tray in
+                        historyRow(tray).row(insets)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) { delete(tray) } label: { Label("Delete", systemImage: "trash") }
+                            }
                     }
+                }
+                Color.clear.frame(height: 90).row(insets)
+            }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .scrollIndicators(.hidden)
+
+            if let toast {
+                ToastBanner(title: toast.title, subtitle: toast.subtitle) {
+                    toast.undo()
+                    withAnimation(.smooth) { self.toast = nil }
+                }
+                .padding(.top, 6)
+            }
+        }
+        .background(Theme.night.ignoresSafeArea())
+        .onAppear { settings = WearSettings.load() }
+        .sheet(isPresented: $showStart) {
+            StartTraySheet(current: current, nextNumber: nextNumber, defaultDays: settings.defaultTrayDays) { date, days in
+                TrayNotifications.requestPermission()
+                let undo = SessionService.shared.startNextTray(on: date, plannedDays: days)
+                let started = nextNumber - 1
+                let due = TrayLogic.switchDate(start: date, plannedDays: days, calendar: .current)
+                    .formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+                show(ToastData(title: "Tray \(started) started", subtitle: "Switch reminder \(due)") {
+                    SessionService.shared.undoStartTray(undo)
+                })
+            }
+        }
+        .sheet(isPresented: $showExtend) {
+            if let current {
+                ExtendTraySheet(tray: current) { days in
+                    SessionService.shared.extendCurrentTray(by: days)
                 }
             }
         }
-        .onAppear { settings = WearSettings.load() }
-        .sensoryFeedback(.success, trigger: undo?.newTrayID)
+        .sensoryFeedback(.success, trigger: toast?.id)
     }
 
-    private var segments: some View {
-        let total = max(settings.totalTrays, trays.first?.number ?? 0)
-        let currentNumber = current?.number ?? 0
-        return VStack(alignment: .leading, spacing: 10) {
-            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: 12), spacing: 4) {
-                ForEach(1...max(1, total), id: \.self) { n in
+    // MARK: Pieces
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Treatment · \(max(settings.totalTrays, trays.first?.number ?? 0)) trays")
+                .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
+            Text("Trays").font(Theme.font(36, .heavy))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 8)
+    }
+
+    private var progress: some View {
+        let total = max(settings.totalTrays, trays.first?.number ?? 0, 1)
+        let cur = current?.number ?? nextNumber
+        let columns = Array(repeating: GridItem(.flexible(), spacing: 3), count: min(24, total))
+        return VStack(spacing: 8) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("Tray \(min(cur, total)) of \(total)").font(Theme.font(15, .heavy))
+                Spacer()
+                Text("\(max(0, total - cur)) trays to go").font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+            }
+            LazyVGrid(columns: columns, spacing: 3) {
+                ForEach(1...total, id: \.self) { i in
                     Capsule()
-                        .fill(n < currentNumber ? Theme.trayColor : n == currentNumber ? Theme.trayColor.opacity(0.55) : Theme.raised)
+                        .fill(i < cur ? Theme.trayColor : (i == cur ? Color.white : Color(hex: 0x2A2A33)))
                         .frame(height: 8)
                 }
             }
-            Text("\(max(0, currentNumber - 1)) of \(total) trays finished")
-                .font(Theme.font(13, .medium))
-                .foregroundStyle(Theme.muted)
         }
     }
 
     private func currentCard(_ tray: Tray) -> some View {
-        let day = TrayLogic.dayNumber(start: tray.startDate, now: .now, calendar: .current)
-        let due = TrayLogic.switchDate(start: tray.startDate, plannedDays: tray.plannedDays, calendar: .current)
-        let avg = WearCalculator.averageWornHours(from: tray.startDate, to: .now, sessions: spans, now: .now, calendar: .current)
-        return Card {
-            VStack(alignment: .leading, spacing: 14) {
-                HStack {
-                    Text("TRAY \(tray.number)")
-                        .font(Theme.font(12, .heavy)).tracking(1.2)
-                        .foregroundStyle(Theme.trayColor)
-                    Spacer()
-                    Text("Day \(day) of \(tray.plannedDays)")
-                        .font(Theme.font(15, .heavy))
-                }
-                ProgressView(value: min(1, Double(day) / Double(max(1, tray.plannedDays))))
-                    .tint(Theme.trayColor)
-                HStack {
-                    info("Started", tray.startDate.formatted(.dateTime.month(.abbreviated).day()))
-                    info("Switch", due.formatted(.dateTime.month(.abbreviated).day()))
-                    info("Avg wear", String(format: "%.1fh", avg))
-                }
-                Button("Start tray \(tray.number + 1)") { showStart = true }
-                    .buttonStyle(PillButtonStyle(color: Theme.trayColor))
+        let cal = Calendar.current
+        let elapsed = TrayLogic.daysElapsed(start: tray.startDate, now: .now, calendar: cal)
+        let dayN = elapsed + 1
+        let over = TrayLogic.overage(start: tray.startDate, plannedDays: tray.plannedDays, now: .now, calendar: cal)
+        let tint = over > 0 ? Theme.outColor : Theme.trayColor
+        let due = TrayLogic.switchDate(start: tray.startDate, plannedDays: tray.plannedDays, calendar: cal)
+        let avg = WearCalculator.averageWornHours(from: tray.startDate, to: .now, sessions: spans, now: .now, calendar: cal)
+
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Text("Current tray").font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
+                Spacer()
+                Text("Day \(dayN) of \(tray.plannedDays)")
+                    .font(Theme.font(13, .heavy)).foregroundStyle(tint)
+                    .padding(.horizontal, 12).frame(height: 28)
+                    .background(tint.opacity(0.16), in: Capsule())
             }
+            Text("Tray \(tray.number)")
+                .font(Theme.font(38, .heavy)).minimumScaleFactor(0.7).lineLimit(1)
+            if over > 0 {
+                Text("+\(over) day\(over == 1 ? "" : "s") over the plan")
+                    .font(Theme.font(15, .heavy)).foregroundStyle(Theme.outColor)
+            }
+            ProgressView(value: min(1, Double(dayN) / Double(max(1, tray.plannedDays))))
+                .tint(tint)
+            HStack(alignment: .top) {
+                info("Started", tray.startDate.formatted(.dateTime.month(.abbreviated).day()))
+                info("Switch on", due.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()))
+                info("Avg wear", TimeFormat.hoursMinutes(avg * 3600))
+            }
+            Button { showStart = true } label: {
+                Label("Start tray \(tray.number + 1)", systemImage: "plus")
+            }
+            .buttonStyle(PillButtonStyle(color: .white, height: 54))
+            Button { showExtend = true } label: { Text("Extend plan") }
+                .font(Theme.font(15, .heavy))
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background(Theme.raised, in: Capsule())
+                .buttonStyle(.plain)
         }
+        .padding(18)
+        .background(alignment: .topTrailing) {
+            Circle()
+                .fill(RadialGradient(colors: [tint.opacity(0.35), tint.opacity(0)], center: .center, startRadius: 0, endRadius: 120))
+                .frame(width: 240, height: 240)
+                .offset(x: 70, y: -90)
+                .blur(radius: 10)
+        }
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+    }
+
+    private var emptyCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("No tray yet").font(Theme.font(24, .heavy))
+            Text("Start a tray to track how many days you stay on it.")
+                .font(Theme.font(15, .semibold)).foregroundStyle(Theme.muted)
+            Button { showStart = true } label: { Label("Start tray \(nextNumber)", systemImage: "plus") }
+                .buttonStyle(PillButtonStyle(color: .white, height: 54))
+        }
+        .padding(18)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
     }
 
     private func info(_ title: String, _ value: String) -> some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text(title.uppercased()).font(Theme.font(11, .heavy)).tracking(1).foregroundStyle(Theme.muted)
-            Text(value).font(Theme.font(17, .heavy).monospacedDigit())
+        VStack(alignment: .leading, spacing: 1) {
+            Text(title).font(Theme.font(12, .bold)).foregroundStyle(Theme.muted)
+            Text(value).font(Theme.font(15, .heavy)).minimumScaleFactor(0.7).lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var history: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            Text("History").font(Theme.font(20, .heavy))
-            ForEach(finished) { tray in
-                let days = TrayLogic.daysSpent(start: tray.startDate, end: tray.endDate, now: .now, calendar: .current)
-                let avg = WearCalculator.averageWornHours(from: tray.startDate, to: tray.endDate ?? .now, sessions: spans, now: .now, calendar: .current)
-                Card {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 3) {
-                            Text("Tray \(tray.number)").font(Theme.font(17, .heavy))
-                            Text("\(tray.startDate.formatted(.dateTime.month(.abbreviated).day())) – \((tray.endDate ?? .now).formatted(.dateTime.month(.abbreviated).day()))")
-                                .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
-                        }
-                        Spacer()
-                        VStack(alignment: .trailing, spacing: 3) {
-                            Text("\(days) days")
-                                .font(Theme.font(17, .heavy))
-                                .foregroundStyle(days == tray.plannedDays ? Theme.text : Theme.outColor)
-                            Text("plan \(tray.plannedDays) · \(String(format: "%.1f", avg))h avg")
-                                .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
-                        }
-                    }
-                }
-            }
+    private var historyHeader: some View {
+        let days = finished.map { TrayLogic.daysSpent(start: $0.startDate, end: $0.endDate, now: .now, calendar: .current) }
+        let avg = days.isEmpty ? 0 : Double(days.reduce(0, +)) / Double(days.count)
+        return HStack(alignment: .firstTextBaseline) {
+            Text("Tray history").font(Theme.font(20, .heavy))
+            Spacer()
+            Text("\(finished.count) done · avg \(String(format: "%.1f", avg)) days")
+                .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
         }
     }
 
-    @ViewBuilder
-    private var toast: some View {
-        if let undo {
-            HStack {
-                Label("New tray started", systemImage: "checkmark.circle.fill")
-                    .font(Theme.font(15, .semibold))
-                Spacer()
-                Button("Undo") {
-                    SessionService.shared.undoStartTray(undo)
-                    withAnimation(.smooth) { self.undo = nil }
+    private func historyRow(_ tray: Tray) -> some View {
+        let cal = Calendar.current
+        let days = TrayLogic.daysSpent(start: tray.startDate, end: tray.endDate, now: .now, calendar: cal)
+        let delta = days - tray.plannedDays
+        let barColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Theme.inColor : Theme.trayColor)
+        let noteColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Color(hex: 0x8DBBFF) : Theme.muted)
+        let note = delta == 0 ? "on plan" : (delta > 0 ? "+\(delta) day\(delta == 1 ? "" : "s")" : "−\(-delta) day\(delta == -1 ? "" : "s")")
+        let avg = WearCalculator.averageWornHours(from: tray.startDate, to: tray.endDate ?? .now, sessions: spans, now: .now, calendar: cal)
+        let md: (Date) -> String = { $0.formatted(.dateTime.month(.abbreviated).day()) }
+
+        return HStack(spacing: 12) {
+            Text("\(tray.number)")
+                .font(Theme.font(16, .heavy))
+                .frame(width: 40, height: 40)
+                .background(Theme.raised, in: Circle())
+            VStack(spacing: 5) {
+                HStack(alignment: .firstTextBaseline) {
+                    Text("Tray \(tray.number) · \(md(tray.startDate)) – \(md(tray.endDate ?? .now))")
+                        .font(Theme.font(15, .heavy)).lineLimit(1).minimumScaleFactor(0.8)
+                    Spacer(minLength: 6)
+                    Text("\(days) day\(days == 1 ? "" : "s")").font(Theme.font(15, .heavy))
                 }
-                .font(Theme.font(15, .heavy))
-                .foregroundStyle(Theme.inColor)
+                GeometryReader { geo in
+                    ZStack(alignment: .leading) {
+                        Capsule().fill(Theme.raised)
+                        Capsule().fill(barColor).frame(width: geo.size.width * min(1, Double(days) / 16))
+                    }
+                }
+                .frame(height: 6)
+                HStack {
+                    Text("avg wear \(TimeFormat.hoursMinutes(avg * 3600))")
+                    Spacer()
+                    Text(note).foregroundStyle(noteColor)
+                }
+                .font(Theme.font(12, .bold)).foregroundStyle(Theme.muted)
             }
-            .padding(.horizontal, 18).padding(.vertical, 14)
-            .glassEffect(.regular, in: Capsule())
-            .padding(.horizontal, 20).padding(.bottom, 12)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
         }
+        .padding(.horizontal, 14).padding(.vertical, 12)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .accessibilityElement(children: .combine)
+    }
+
+    // MARK: Actions
+
+    private func delete(_ tray: Tray) {
+        let number = tray.number
+        let undo = SessionService.shared.deleteTray(tray)
+        show(ToastData(title: "Tray \(number) deleted", subtitle: nil) {
+            SessionService.shared.undoDelete(undo)
+        })
+    }
+
+    private func show(_ data: ToastData) {
+        withAnimation(.smooth) { toast = data }
+        toastTask?.cancel()
+        toastTask = Task {
+            try? await Task.sleep(for: .seconds(7))
+            if !Task.isCancelled { withAnimation(.smooth) { toast = nil } }
+        }
+    }
+}
+
+private extension View {
+    /// Plain list row: no separator or background, custom insets.
+    func row(_ insets: EdgeInsets) -> some View {
+        self.listRowInsets(insets)
+            .listRowSeparator(.hidden)
+            .listRowBackground(Color.clear)
     }
 }

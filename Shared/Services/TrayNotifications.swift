@@ -9,6 +9,10 @@ enum TrayNotifications {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { _, _ in }
     }
 
+    static func cancel() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [identifier])
+    }
+
     static func scheduleSwitchReminder(for tray: Tray, calendar: Calendar = .current) {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [identifier])

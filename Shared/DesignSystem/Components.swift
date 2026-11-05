@@ -49,13 +49,14 @@ struct GlowRing: View {
 struct PillButtonStyle: ButtonStyle {
     var color: Color
     var foreground: Color = Color(hex: 0x0B0B0F)
+    var height: CGFloat = 60
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Theme.font(19, .heavy))
             .foregroundStyle(foreground)
             .frame(maxWidth: .infinity)
-            .frame(height: 60)
+            .frame(height: height)
             .background(color, in: RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous))
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.snappy(duration: 0.18), value: configuration.isPressed)
@@ -140,5 +141,44 @@ struct StepperRow: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label)
+    }
+}
+
+
+/// Glass banner with an Undo button (top of the screen, as in the design).
+struct ToastBanner: View {
+    let title: String
+    var subtitle: String?
+    var color: Color = Theme.trayColor
+    var onUndo: () -> Void
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "checkmark")
+                .font(.system(size: 16, weight: .heavy))
+                .foregroundStyle(Color(hex: 0x062014))
+                .frame(width: 36, height: 36)
+                .background(color, in: Circle())
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title).font(Theme.font(15, .heavy))
+                if let subtitle {
+                    Text(subtitle).font(Theme.font(12, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
+                }
+            }
+            Spacer(minLength: 8)
+            Button(action: onUndo) {
+                Text("Undo")
+                    .font(Theme.font(14, .heavy))
+                    .padding(.horizontal, 16)
+                    .frame(height: 44)
+                    .background(.white.opacity(0.14), in: Capsule())
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.leading, 14).padding(.trailing, 10).padding(.vertical, 10)
+        .glassEffect(.regular, in: Capsule())
+        .padding(.horizontal, 16)
+        .transition(.move(edge: .top).combined(with: .opacity))
+        .accessibilityElement(children: .combine)
     }
 }

@@ -7,7 +7,6 @@ struct TodayView: View {
     private var currentTrays: [Tray]
 
     @State private var settings = WearSettings.load()
-    @State private var showSettings = false
     @State private var toggles = 0
 
     private var openSession: WearSession? { sessions.last(where: { $0.end == nil }) }
@@ -18,16 +17,6 @@ struct TodayView: View {
                 content(now: timeline.date)
             }
             .background(Theme.night.ignoresSafeArea())
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button { showSettings = true } label: { Image(systemName: "gearshape.fill") }
-                        .accessibilityLabel("Settings")
-                }
-            }
-            .toolbarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showSettings, onDismiss: { settings = WearSettings.load() }) {
-                SettingsSheet()
-            }
         }
         .sensoryFeedback(.impact(weight: .medium), trigger: toggles)
     }

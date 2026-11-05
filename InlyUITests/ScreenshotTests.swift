@@ -33,7 +33,7 @@ final class ScreenshotTests: XCTestCase {
         app.buttons["Take out"].tap()
         sleep(2)
         save("03-after-take-out")
-        app.buttons["Settings"].tap()
+        app.tabBars.buttons["Settings"].tap()
         sleep(1)
         save("04-settings")
     }
