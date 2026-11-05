@@ -90,7 +90,27 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly.tests
         GENERATE_INFOPLIST_FILE: YES
+  InlyUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - path: InlyUITests
+    dependencies:
+      - target: Inly
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_TARGET_NAME: Inly
 schemes:
+  InlyScreenshots:
+    build:
+      targets:
+        Inly: all
+        InlyWidgets: all
+    test:
+      targets:
+        - InlyUITests
   Inly:
     build:
       targets:

@@ -54,6 +54,10 @@ final class SessionService {
 
     /// Makes sure there is always a current tray (tray 1 on first launch).
     func ensureTray() {
+        if DemoData.isEnabled {
+            DemoData.seed(context)
+            return
+        }
         let count = (try? context.fetchCount(FetchDescriptor<Tray>())) ?? 0
         guard count == 0 else { return }
         let settings = WearSettings.load()

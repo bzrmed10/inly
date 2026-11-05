@@ -44,6 +44,26 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             | tee build/xcodebuild.log | xcbeautify --renderer github-actions
 
+      - name: Capture screenshots
+        run: |
+          set -o pipefail
+          mkdir -p build/screenshots
+          TEST_RUNNER_SCREENSHOT_DIR="$PWD/build/screenshots" xcodebuild test \
+            -project Inly.xcodeproj \
+            -scheme InlyScreenshots \
+            -destination "platform=iOS Simulator,id=${{ steps.sim.outputs.udid }}" \
+            -resultBundlePath build/UITest.xcresult \
+            CODE_SIGNING_ALLOWED=NO \
+            | tee build/uitest.log | xcbeautify --renderer github-actions
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: build/screenshots
+          if-no-files-found: ignore
+
       - name: Upload logs
         if: always()
         uses: actions/upload-artifact@v4
