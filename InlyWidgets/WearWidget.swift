@@ -12,6 +12,8 @@ struct WearEntry: TimelineEntry, Sendable {
     let budgetEnd: Date
     let wornSeconds: TimeInterval
     let wornFraction: Double
+    /// Out-time left today at `date` (when out, the live countdown runs to `budgetEnd`).
+    let leftSeconds: TimeInterval
     let goalHours: Int
     let trayLine: String?
 
@@ -19,7 +21,7 @@ struct WearEntry: TimelineEntry, Sendable {
 
     static let placeholder = WearEntry(
         date: .now, isOut: false, outStart: .now, budgetEnd: .now.addingTimeInterval(3600),
-        wornSeconds: 14 * 3600, wornFraction: 0.93, goalHours: 22, trayLine: "Tray 7 · Day 9 of 14"
+        wornSeconds: 14 * 3600, wornFraction: 0.64, leftSeconds: 50 * 60, goalHours: 22, trayLine: "Tray 7 · Day 9 of 14"
     )
 }
 
@@ -64,7 +66,7 @@ struct WearProvider: TimelineProvider {
 
         return WearEntry(
             date: now, isOut: open != nil, outStart: open?.start ?? now, budgetEnd: budgetEnd,
-            wornSeconds: snap.wornSeconds, wornFraction: snap.wornFraction,
+            wornSeconds: snap.wornSeconds, wornFraction: snap.goalProgress, leftSeconds: snap.leftSeconds,
             goalHours: settings.goalHours, trayLine: tray
         )
     }
@@ -147,8 +149,34 @@ private struct WearWidgetView: View {
         }
     }
 
+    /// "35m left" (static) or a live countdown while out.
+    private func leftLabel(font: Font) -> some View {
+        Group {
+            if entry.isOut {
+                if entry.isOver {
+                    Text("Over budget")
+                } else {
+                    HStack(spacing: 3) {
+                        Text(timerInterval: Date.now...max(entry.budgetEnd, Date.now.addingTimeInterval(1)), countsDown: true)
+                            .monospacedDigit()
+                        Text("left")
+                    }
+                }
+            } else {
+                Text("\(TimeFormat.hoursMinutes(entry.leftSeconds)) left")
+            }
+        }
+        .font(font)
+        .foregroundStyle(color)
+        .lineLimit(1)
+        .minimumScaleFactor(0.7)
+    }
+
     private var small: some View {
-        ring.padding(2)
+        VStack(spacing: 6) {
+            ring.padding(2)
+            leftLabel(font: Theme.font(13, .heavy))
+        }
     }
 
     private var medium: some View {
@@ -158,8 +186,9 @@ private struct WearWidgetView: View {
                 if let line = entry.trayLine {
                     Text(line).font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted)
                 }
-                Text(entry.isOver ? "Over budget" : entry.isOut ? "Back by \(entry.budgetEnd.formatted(date: .omitted, time: .shortened))" : "Goal \(entry.goalHours)h a day")
-                    .font(Theme.font(15, .heavy)).foregroundStyle(color)
+                leftLabel(font: Theme.font(15, .heavy))
+                Text(entry.isOut && !entry.isOver ? "Back in by \(entry.budgetEnd.formatted(date: .omitted, time: .shortened))" : "Goal \(entry.goalHours)h a day")
+                    .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
                 Spacer(minLength: 0)
                 Button(intent: ToggleWearIntent()) {
                     Text(entry.isOut ? "Put back in" : "Take out")
@@ -167,7 +196,7 @@ private struct WearWidgetView: View {
                         .frame(maxWidth: .infinity).padding(.vertical, 10)
                 }
                 .buttonStyle(.plain)
-                .background(entry.isOut ? Theme.inColor : Theme.outColor, in: Capsule())
+                .background(entry.isOut ? Theme.outColor : Theme.inColor, in: Capsule())
                 .foregroundStyle(Theme.night)
             }
         }
@@ -198,10 +227,12 @@ private struct WearWidgetView: View {
                 Text(timerInterval: entry.outStart...entry.outStart.addingTimeInterval(86_400), countsDown: false)
                     .font(.system(.title3, design: .rounded, weight: .heavy)).monospacedDigit()
                 ProgressView(timerInterval: outRange, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
+                leftLabel(font: .system(.caption, design: .rounded, weight: .semibold))
             } else {
                 Text("\(TimeFormat.hoursMinutes(entry.wornSeconds)) worn today")
                     .font(.system(.subheadline, design: .rounded, weight: .semibold))
                 ProgressView(value: entry.wornFraction)
+                leftLabel(font: .system(.caption, design: .rounded, weight: .semibold))
             }
         }
     }

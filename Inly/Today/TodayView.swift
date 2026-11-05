@@ -121,7 +121,7 @@ struct TodayView: View {
             return snap.wornSeconds
         }()
         return ZStack {
-            GlowRing(progress: snap.isOut ? snap.budgetUsed : snap.wornFraction, color: color)
+            GlowRing(progress: snap.isOut ? snap.budgetUsed : snap.goalProgress, color: color)
             VStack(spacing: 4) {
                 Text(snap.isOut ? "OUT FOR" : "WORN TODAY")
                     .font(Theme.font(13, .heavy))
@@ -193,7 +193,7 @@ struct TodayView: View {
         } label: {
             Text(snap.isOut ? "Put back in" : "Take out")
         }
-        .buttonStyle(PillButtonStyle(color: snap.isOut ? Theme.inColor : Theme.outColor))
+        .buttonStyle(PillButtonStyle(color: snap.isOut ? Theme.outColor : Theme.inColor))
         .accessibilityHint(snap.isOut ? "Records that your aligners are back in" : "Starts timing how long your aligners are out")
     }
 }

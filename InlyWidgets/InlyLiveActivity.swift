@@ -48,7 +48,7 @@ struct InlyLiveActivity: Widget {
                                     .padding(.vertical, 8)
                             }
                             .buttonStyle(.plain)
-                            .background(Theme.inColor, in: Capsule())
+                            .background(Theme.outColor, in: Capsule())
                             .foregroundStyle(Theme.night)
                         }
                     }
@@ -160,7 +160,7 @@ private struct LockScreenView: View {
                         .padding(.vertical, 9)
                 }
                 .buttonStyle(.plain)
-                .background(Theme.inColor, in: Capsule())
+                .background(Theme.outColor, in: Capsule())
                 .foregroundStyle(Theme.night)
             }
         }

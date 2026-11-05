@@ -20,6 +20,8 @@ struct WearSnapshot: Sendable, Equatable {
     var budgetUsed: Double
     /// 0...1: share of the day's elapsed time worn.
     var wornFraction: Double
+    /// 0...1: worn time against the daily goal (what the ring shows while the aligners are in).
+    var goalProgress: Double
 }
 
 enum WearCalculator {
@@ -61,7 +63,8 @@ enum WearCalculator {
             leftSeconds: left,
             isOverBudget: out > budgetSeconds,
             budgetUsed: budgetSeconds > 0 ? min(1, out / budgetSeconds) : 1,
-            wornFraction: min(1, worn / elapsed)
+            wornFraction: min(1, worn / elapsed),
+            goalProgress: min(1, worn / max(1, 86_400 - budgetSeconds))
         )
     }
 

@@ -42,6 +42,13 @@ struct WearCalculatorTests {
         #expect(abs(snap.budgetUsed - 0.375) < 0.0001)
     }
 
+    @Test func goalProgressIsWornOverGoal() {
+        // 12:00, nothing out -> 12h worn of a 22h goal.
+        let snap = WearCalculator.snapshot(sessions: [], now: date(1, 12), budgetSeconds: 7200, calendar: cal)
+        #expect(abs(snap.goalProgress - 12.0 / 22.0) < 0.0001)
+        #expect(abs(snap.wornFraction - 1.0) < 0.0001)
+    }
+
     @Test func overBudgetClampsLeftToZero() {
         let sessions = [SessionSpan(start: date(1, 6), end: date(1, 9))]
         let snap = WearCalculator.snapshot(

@@ -41,8 +41,8 @@ One task = one commit. Mark `[x]` when committed and CI is green. Progress is su
 
 ## Milestone 5 — Feedback round 1 (after first TestFlight test)
 Order: quick fixes first, then the bigger screens.
-- [ ] M5.1 Colors and ring: ring shows worn time against the daily goal (worn ÷ 22h, no longer always full); "Take out" is blue (matches the in-ring), "Put back in" is orange (matches the out-ring) in the app, widgets and Live Activity
-- [ ] M5.2 Widgets: show out-time left today ("35m left") on small, medium and Lock Screen rectangular
+- [x] M5.1 Colors and ring: ring shows worn time against the daily goal (worn ÷ 22h, no longer always full); "Take out" is blue (matches the in-ring), "Put back in" is orange (matches the out-ring) in the app, widgets and Live Activity
+- [x] M5.2 Widgets: show out-time left today ("35m left") on small, medium and Lock Screen rectangular
 - [ ] M5.3 First-launch setup: pick current tray number, total trays, planned days for this tray and which day you are on; no more silent "tray 1, day 1"
 - [ ] M5.4 Tray overage and extend: after the planned days the tray counts "+1 day, +2 days" automatically; "Extend" button adds planned days on purpose; Today card and reminder follow
 - [ ] M5.5 Trays screen rebuilt to match the design exactly (header, dotted progress, glowing current card, history rows with number badge, days, progress bar, average wear, on plan / −N days / +N days)
@@ -50,9 +50,9 @@ Order: quick fixes first, then the bigger screens.
 - [ ] M5.7 Settings as the detached glass circle next to the tab bar (as in the design); gear button removed
 - [ ] M5.8 Greeting with the user's name: "Good morning / afternoon / evening, Name!" with the small date line above (asked in setup, editable in Settings)
 - [ ] M5.9 Today cards redesigned: richer tray card (badge, day dots, "switch in N days", +N days chip, tap opens Trays) and a 24-hour day strip showing today's out periods
-- [ ] M5.10 History calendar: real monthly calendar (swipe between months, today highlighted, tray start/switch markers); tap a day for its sessions and totals; replaces the 4-week grid
-- [ ] M5.11 Fix forgotten taps: edit or add a session (start/end/reason) from the day view; Undo toast after Take out / Put back in
-- [ ] M5.12 Screenshot review against the design, TestFlight build
+- [x] M5.10 History calendar: real monthly calendar (swipe between months, today highlighted, tray start/switch markers); tap a day for its sessions and totals; replaces the 4-week grid
+- [x] M5.11 Fix forgotten taps: edit or add a session (start/end/reason) from the day view; Undo toast after Take out / Put back in
+- [x] M5.12 Screenshot review against the design, TestFlight build
 
 ### Decisions taken (change any of these)
 - Ring = worn today ÷ daily goal while the aligners are in; while out it stays out-time used ÷ out-time budget.
