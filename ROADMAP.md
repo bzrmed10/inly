@@ -19,7 +19,7 @@ One task = one commit. Mark `[x]` when committed and CI is green. Progress is su
 - [x] M1.6 Live Activity: attributes, start/end on state change, compact / minimal / expanded / Lock Screen views
 - [x] M1.7 `PutBackInIntent` (App Intent) wired into the Live Activity button
 - [x] M1.8 Screenshot job in CI (simulator screenshots of key screens attached to the run)
-- [ ] M1.9 TestFlight build 1
+- [x] M1.9 TestFlight build 1
 
 ## Milestone 2 — Trays
 - [ ] M2.1 Tray model logic: current tray, planned days, switch date

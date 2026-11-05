@@ -26,3 +26,14 @@ None.
 
 ## How to test
 Builds are uploaded to TestFlight at the end of each milestone. Install the TestFlight app on your iPhone and accept the invite for `Inly`.
+
+
+## Milestone 1 - Today screen and Dynamic Island (done)
+
+- Design system in code (colors, rounded type, glowing ring, pill buttons).
+- SwiftData store in the App Group; wear math with unit tests (midnight split, budget, averages).
+- Today screen, Take out / Put back in, reason chips, haptics; Liquid Glass tab bar (Today, Trays, History); Settings as a sheet.
+- Live Activity: compact, minimal, expanded and Lock Screen layouts; amber turns coral when the out-time budget ends; "Put back in" button via App Intent.
+- CI captures simulator screenshots (branch `ci-screenshots`). Reviewed; fixed the action button hidden under the tab bar.
+- Note: Live Activity color uses amber to coral via the stale date (no yellow step); Settings is a toolbar button, not a bottom glass circle.
+- Not yet checked on a real iPhone: Dynamic Island animations and the button inside the Live Activity.
