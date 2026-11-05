@@ -5,6 +5,7 @@ import WidgetKit
 struct InlyWidgetsBundle: WidgetBundle {
     var body: some Widget {
         PlaceholderWidget()
+        InlyLiveActivity()
     }
 }
 

@@ -61,8 +61,24 @@ final class SessionService {
         save()
     }
 
+    /// Align the Live Activity with stored state (call on launch, foreground and after changes).
+    func reconcileLiveActivity(now: Date = .now) {
+        let open = openSession()
+        var left: TimeInterval = 0
+        if let open {
+            let others = allSpans().filter { $0.start != open.start }
+            let snap = WearCalculator.snapshot(
+                sessions: others, now: open.start,
+                budgetSeconds: WearSettings.load().budgetSeconds, calendar: .current
+            )
+            left = snap.leftSeconds
+        }
+        LiveActivityController.reconcile(openSession: open, budgetLeftAtStart: left)
+    }
+
     private func save() {
         try? context.save()
         WidgetCenter.shared.reloadAllTimelines()
+        reconcileLiveActivity()
     }
 }
