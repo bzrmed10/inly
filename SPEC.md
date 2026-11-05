@@ -53,3 +53,12 @@ Apple Watch, photos/Teethie, doctor export, iCloud sync, Android, retainer mode.
 - Unit tests for wear-time math (midnight splits, budget, tray day counts).
 - Accessibility: VoiceOver labels on rings and buttons, Dynamic Type for body text, color never the only signal.
 - Data safety: no destructive actions without Undo.
+
+
+## Changes after first test (Milestone 5)
+- First launch asks which tray you are on, total trays, planned days and the current day on the tray.
+- A tray past its planned days shows "+N days" (amber) until the next tray is started; history shows on plan (green), −N days (blue) or +N days (amber). "Extend" changes the plan on purpose.
+- Trays screen follows the design canvas exactly; swipe left deletes a tray (Undo).
+- Settings is the detached glass circle at the right of the tab bar, not a toolbar gear.
+- Ring: in = worn ÷ goal; out = out-time budget used. Buttons: Take out = blue (in color), Put back in = orange (out color).
+- Widgets and Lock Screen show out-time left today.
