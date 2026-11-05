@@ -180,7 +180,12 @@ struct TodayView: View {
     private func actionButton(snap: WearSnapshot) -> some View {
         Button {
             withAnimation(.smooth) {
-                if snap.isOut { SessionService.shared.putBackIn() } else { SessionService.shared.takeOut() }
+                if snap.isOut {
+                    SessionService.shared.putBackIn()
+                } else {
+                    TrayNotifications.requestPermission()
+                    SessionService.shared.takeOut()
+                }
             }
             toggles += 1
         } label: {

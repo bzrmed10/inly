@@ -30,6 +30,12 @@ final class SessionService {
         return all.map { SessionSpan(start: $0.start, end: $0.end) }
     }
 
+    func isOut() -> Bool { openSession() != nil }
+
+    func toggle() {
+        if isOut() { putBackIn() } else { takeOut() }
+    }
+
     // MARK: Actions
 
     @discardableResult
@@ -118,6 +124,11 @@ final class SessionService {
             )
             left = snap.leftSeconds
         }
+        if let open {
+            OutReminders.schedule(budgetEnd: open.start.addingTimeInterval(max(1, left)), now: now)
+        } else {
+            OutReminders.cancel()
+        }
         let start = open?.start
         let reason = open?.reasonRaw ?? OutReason.other.rawValue
         Task {
@@ -128,6 +139,7 @@ final class SessionService {
     private func save() {
         try? context.save()
         WidgetCenter.shared.reloadAllTimelines()
+        ControlCenter.shared.reloadAllControls()
         reconcileLiveActivity()
     }
 }
