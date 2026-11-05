@@ -16,15 +16,13 @@
 4. On your iPhone, install **TestFlight** from the App Store, sign in with the same Apple ID, open Inly and tap Install.
 5. Later builds: run the workflow again; each run gets a new build number automatically.
 
-## Register one iPhone (needed for automatic signing)
-Apple only creates the development profile that archives need if at least one device is registered.
-1. Get your iPhone's UDID: connect it to your Windows PC with a cable, open the **Apple Devices** app (Microsoft Store) or iTunes, select the iPhone and click the line under its name (serial number) until it shows the **UDID**. Copy it.
-2. developer.apple.com -> Certificates, Identifiers and Profiles -> **Devices** -> **+** -> Platform iOS, name `My iPhone`, paste the UDID -> Register.
+## How signing works (no Mac, no registered device)
+Each TestFlight run (`scripts/ci/asc_signing.py`) creates a temporary Apple Distribution certificate and two App Store provisioning profiles through the App Store Connect API, signs the app with them, uploads it, and then revokes the certificate and deletes the profiles. Nothing is stored between runs except the API key secrets. This needs the API key to have the **Admin** role. Revoking a distribution certificate does not affect builds already uploaded to TestFlight or the App Store.
 
 ## If the TestFlight workflow fails
 - **"Missing repository secret"**: add the secret named in the error.
-- **Provisioning or certificate errors** (for example "Cloud signing permission error" or "No signing certificate"): the API key role is too low to create a distribution certificate. Use a key with the **Admin** role (already done for this repo).
-- **"Your team has no devices"**: register an iPhone (see above).
+- **API errors 401/403 while creating the certificate or profiles**: the API key role is too low or the key was revoked. Use a key with the **Admin** role.
+- **Certificate limit errors**: the script revokes leftover certificates named "Created via API" at the start of each run. If it still fails, revoke old Apple Distribution certificates in the developer portal.
 - **"App ID not found" or capability errors**: check that both App IDs exist and the App Group is enabled on each (Certificates, Identifiers and Profiles -> Identifiers).
 - **Build uploaded but not visible**: wait for processing, and check your email for a rejection notice from App Store Connect.
 - Logs from each run are attached to the run as an artifact (`testflight-logs`).

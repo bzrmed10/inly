@@ -14,14 +14,15 @@ Milestone 0 (foundation) in progress.
 - M0.6 Setup guide in `docs/SETUP.md`.
 
 ## In progress
-- First TestFlight upload. Admin key works: archive, cloud signing, export and upload to Apple all run. Remaining steps below.
+- Nothing. Milestone 0 is complete. Next: Milestone 1 (core tracking + Dynamic Island).
 
 ## Blockers
-- **Register one iPhone** (UDID) in the developer portal. Without a device Apple will not create the development profile, so the archive cannot be signed and the exported app loses its App Group entitlement. Steps in `docs/SETUP.md`.
+None.
 
-## Fixed along the way
-- App was set to iPhone and iPad; Apple rejected the upload for missing iPad orientations. Now iPhone-only.
-- Workflow now fails early if the App Group entitlement is missing, instead of uploading a broken build.
+## Milestone 0 result
+- First build uploaded to App Store Connect (delivery UUID 81202ced-2a0a-4539-aed4-32a5b26c9ad4). It is a placeholder screen; it proves the full pipeline works: build, sign, upload.
+- Signing needs no Mac and no registered device: a temporary distribution certificate and profiles are created and revoked in every run.
+- The App Group entitlement is verified inside the exported app and widget extension on every run.
 
 ## How to test
 Builds are uploaded to TestFlight at the end of each milestone. Install the TestFlight app on your iPhone and accept the invite for `Inly`.
