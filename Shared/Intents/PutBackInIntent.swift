@@ -7,6 +7,7 @@ struct PutBackInIntent: LiveActivityIntent {
 
     func perform() async throws -> some IntentResult {
         await SessionService.shared.putBackIn()
+        await SessionService.shared.waitForLiveActivity()
         return .result()
     }
 }

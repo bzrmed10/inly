@@ -221,6 +221,13 @@ final class SessionService {
         save()
     }
 
+    /// The latest Live Activity update, so intents can wait for it before the process is suspended.
+    private var activityTask: Task<Void, Never>?
+
+    func waitForLiveActivity() async {
+        await activityTask?.value
+    }
+
     /// Align the Live Activity with stored state (call on launch, foreground and after changes).
     func reconcileLiveActivity(now: Date = .now) {
         let open = openSession()
@@ -233,22 +240,23 @@ final class SessionService {
             )
             left = snap.leftSeconds
         }
+        let start = open?.start
+        let reason = open?.reasonRaw ?? OutReason.other.rawValue
+        // Live Activity first: it is the visible part, reminders can follow.
+        activityTask = Task {
+            await LiveActivityController.reconcile(outStart: start, reasonRaw: reason, budgetLeftAtStart: left)
+        }
         if let open {
             OutReminders.schedule(budgetEnd: open.start.addingTimeInterval(max(1, left)), now: now)
         } else {
             OutReminders.cancel()
-        }
-        let start = open?.start
-        let reason = open?.reasonRaw ?? OutReason.other.rawValue
-        Task {
-            await LiveActivityController.reconcile(outStart: start, reasonRaw: reason, budgetLeftAtStart: left)
         }
     }
 
     private func save() {
         try? context.save()
         WidgetCenter.shared.reloadAllTimelines()
-        ControlCenter.shared.reloadAllControls()
         reconcileLiveActivity()
+        ControlCenter.shared.reloadAllControls()
     }
 }

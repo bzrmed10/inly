@@ -10,6 +10,7 @@ struct ToggleWearIntent: LiveActivityIntent {
 
     func perform() async throws -> some IntentResult {
         await SessionService.shared.toggle()
+        await SessionService.shared.waitForLiveActivity()
         return .result()
     }
 }
@@ -27,6 +28,7 @@ struct SetOutIntent: SetValueIntent, LiveActivityIntent {
         } else {
             await SessionService.shared.putBackIn()
         }
+        await SessionService.shared.waitForLiveActivity()
         return .result()
     }
 }
