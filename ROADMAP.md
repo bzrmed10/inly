@@ -48,10 +48,24 @@ Order: quick fixes first, then the bigger screens.
 - [ ] M5.5 Trays screen rebuilt to match the design exactly (header, dotted progress, glowing current card, history rows with number badge, days, progress bar, average wear, on plan / −N days / +N days)
 - [ ] M5.6 Swipe left to delete a tray (with Undo)
 - [ ] M5.7 Settings as the detached glass circle next to the tab bar (as in the design); gear button removed
-- [ ] M5.8 Screenshot review against the design, TestFlight build
+- [ ] M5.8 Greeting with the user's name: "Good morning / afternoon / evening, Name!" with the small date line above (asked in setup, editable in Settings)
+- [ ] M5.9 Today cards redesigned: richer tray card (badge, day dots, "switch in N days", +N days chip, tap opens Trays) and a 24-hour day strip showing today's out periods
+- [ ] M5.10 History calendar: real monthly calendar (swipe between months, today highlighted, tray start/switch markers); tap a day for its sessions and totals; replaces the 4-week grid
+- [ ] M5.11 Fix forgotten taps: edit or add a session (start/end/reason) from the day view; Undo toast after Take out / Put back in
+- [ ] M5.12 Screenshot review against the design, TestFlight build
 
 ### Decisions taken (change any of these)
 - Ring = worn today ÷ daily goal while the aligners are in; while out it stays out-time used ÷ out-time budget.
 - Deleting a finished tray only removes it from history. Deleting the current tray makes the previous tray current again.
 - Days on a tray are counted by calendar day; overage = days on tray − planned days.
 - Tray history is only what you log in the app. Trays before the one you start on are shown as done in the progress dots but have no history rows.
+
+## Milestone 6 — Ideas for later (not scheduled)
+- Streak: days in a row the goal was met, shown on Today and History
+- CSV / PDF export of wear time per tray for the orthodontist
+- iCloud sync (new phone, backup)
+- Languages (French, Arabic with right-to-left)
+- Notes per tray (sore teeth, attachments, checkup date) and a next-appointment reminder
+- Evening summary notification ("You wore them 22h 10m today")
+- StandBy / Lock Screen polish, Apple Watch, retainer mode
+- Real app icon artwork
