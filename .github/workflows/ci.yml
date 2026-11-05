@@ -13,6 +13,8 @@ jobs:
   build-and-test:
     runs-on: macos-26
     timeout-minutes: 30
+    permissions:
+      contents: write
     env:
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
     steps:
@@ -55,6 +57,17 @@ jobs:
             -resultBundlePath build/UITest.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             | tee build/uitest.log | xcbeautify --renderer github-actions
+
+      - name: Publish screenshots to the ci-screenshots branch
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          cd build/screenshots 2>/dev/null || exit 0
+          git init -q -b ci-screenshots
+          git config user.name "github-actions"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git commit -q -m "screenshots for ${GITHUB_SHA}"
+          git push -f "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${GITHUB_REPOSITORY}.git" ci-screenshots
 
       - name: Upload screenshots
         if: always()
