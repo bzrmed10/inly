@@ -53,3 +53,15 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - Both buttons run in the app process (LiveActivityIntent) so they also start/end the Dynamic Island.
 - Out-time reminders: 10 minutes before the budget ends and when it ends; cancelled when the aligners go back in.
 - Not verified on a device: widgets cannot be screenshotted in CI, so layout is unreviewed. Reminders use the normal interruption level (time-sensitive needs a special entitlement that the CI signing profile does not include).
+
+## Milestone 4 - History and polish (done)
+
+- History: 7-day bars with goal line, 4-week calendar heatmap (green = goal met, amber = within 2h, coral = missed, blue = today in progress), daily average and goals-met count. Days before you started tracking are not counted.
+- Settings: goal, reminders on/off, total trays, default days per tray.
+- Accessibility: text follows Dynamic Type (up to 20pt styles), the glow animation respects Reduce Motion, VoiceOver labels on the ring, heatmap days and the main button.
+- Dark launch screen (no white flash); App Store draft in `docs/APPSTORE.md`.
+
+### What still needs you
+- Install the TestFlight build on an iPhone with iOS 26 and try: Take out (Dynamic Island + Lock Screen), Put back in from the Island, widgets, the Control Center toggle, Start tray + Undo.
+- Real app icon artwork (the current one is a generated placeholder), support URL and privacy policy URL before any App Store submission.
+- Ideas for later: iCloud sync, CSV export for the orthodontist, Apple Watch.

@@ -128,7 +128,7 @@ struct TodayView: View {
                     .tracking(1.4)
                     .foregroundStyle(color)
                 Text(TimeFormat.clock(seconds))
-                    .font(Theme.timerFont(46))
+                    .font(Theme.timerFont(40))
                     .contentTransition(.numericText(countsDown: false))
                     .minimumScaleFactor(0.6)
                     .lineLimit(1)
