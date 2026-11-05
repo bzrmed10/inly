@@ -89,3 +89,36 @@ struct DailyWearTests {
         #expect(days[1].elapsedSeconds == 12 * 3600)
     }
 }
+
+struct DayWearAndGreetingTests {
+    private var cal: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "UTC")!
+        return c
+    }
+    private func date(_ d: Int, _ h: Int, _ m: Int = 0) -> Date {
+        cal.date(from: DateComponents(year: 2026, month: 3, day: d, hour: h, minute: m))!
+    }
+
+    @Test func dayWearForPastDay() {
+        let s = [SessionSpan(start: date(1, 12), end: date(1, 13, 30))]
+        let w = WearCalculator.dayWear(on: date(1, 5), sessions: s, now: date(5, 0), calendar: cal)
+        #expect(w.wornHours == 22.5)
+        #expect(w.elapsedSeconds == 86_400)
+    }
+
+    @Test func overlapDetection() {
+        let others = [SessionSpan(start: date(1, 12), end: date(1, 13))]
+        #expect(WearCalculator.hasOverlap(start: date(1, 12, 30), end: date(1, 14), others: others, now: date(2, 0)))
+        #expect(!WearCalculator.hasOverlap(start: date(1, 13), end: date(1, 14), others: others, now: date(2, 0)))
+        let open = [SessionSpan(start: date(1, 20), end: nil)]
+        #expect(WearCalculator.hasOverlap(start: date(1, 21), end: date(1, 22), others: open, now: date(1, 23)))
+    }
+
+    @Test func greetingByHour() {
+        #expect(Greeting.phrase(for: date(1, 8), calendar: cal) == "Good morning")
+        #expect(Greeting.phrase(for: date(1, 14), calendar: cal) == "Good afternoon")
+        #expect(Greeting.phrase(for: date(1, 20), calendar: cal) == "Good evening")
+        #expect(Greeting.phrase(for: date(1, 2), calendar: cal) == "Good evening")
+    }
+}

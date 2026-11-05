@@ -121,3 +121,21 @@ extension WearCalculator {
         }
     }
 }
+
+extension WearCalculator {
+    /// Worn time for one calendar day (today only counts the time that has passed).
+    static func dayWear(on day: Date, sessions: [SessionSpan], now: Date, calendar: Calendar) -> DayWear {
+        let interval = dayInterval(containing: day, calendar: calendar)
+        let elapsed = max(0, min(now, interval.end).timeIntervalSince(interval.start))
+        let out = outSeconds(in: interval, sessions: sessions, now: now)
+        return DayWear(day: interval.start, wornSeconds: max(0, elapsed - out), elapsedSeconds: elapsed)
+    }
+
+    /// True if [start, end) overlaps any of `others` (open sessions run to `now`).
+    static func hasOverlap(start: Date, end: Date, others: [SessionSpan], now: Date) -> Bool {
+        others.contains { o in
+            let oEnd = o.end ?? now
+            return start < oEnd && end > o.start
+        }
+    }
+}

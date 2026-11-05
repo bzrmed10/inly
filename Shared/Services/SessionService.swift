@@ -38,17 +38,54 @@ final class SessionService {
 
     // MARK: Actions
 
+    enum LastToggle: Sendable {
+        case tookOut(start: Date)
+        case putBack(start: Date)
+    }
+    private(set) var lastToggle: LastToggle?
+
     func takeOut(reason: OutReason = .other, at date: Date = .now) {
         if openSession() != nil { return }
         context.insert(WearSession(start: date, reason: reason))
+        lastToggle = .tookOut(start: date)
         save()
     }
 
     func putBackIn(at date: Date = .now) {
         guard let s = openSession() else { return }
         s.end = max(date, s.start)
+        lastToggle = .putBack(start: s.start)
         save()
     }
+
+    /// Reverts the last Take out / Put back in (for accidental taps).
+    func undoLastToggle() {
+        guard let last = lastToggle else { return }
+        lastToggle = nil
+        switch last {
+        case .tookOut(let start):
+            if let s = openSession(), s.start == start { context.delete(s) }
+        case .putBack(let start):
+            let all = (try? context.fetch(FetchDescriptor<WearSession>())) ?? []
+            if let s = all.first(where: { $0.start == start }) { s.end = nil }
+        }
+        save()
+    }
+
+    // MARK: Editing sessions
+
+    func addSession(start: Date, end: Date, reason: OutReason) {
+        context.insert(WearSession(start: start, end: end, reason: reason))
+        save()
+    }
+
+    func delete(_ session: WearSession) {
+        context.delete(session)
+        save()
+    }
+
+    /// Call after changing a session's fields in a view.
+    func commit() { save() }
 
     func setReason(_ reason: OutReason) {
         openSession()?.reason = reason

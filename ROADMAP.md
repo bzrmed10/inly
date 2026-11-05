@@ -48,8 +48,8 @@ Order: quick fixes first, then the bigger screens.
 - [x] M5.5 Trays screen rebuilt to match the design exactly (header, dotted progress, glowing current card, history rows with number badge, days, progress bar, average wear, on plan / −N days / +N days)
 - [x] M5.6 Swipe left to delete a tray (with Undo)
 - [x] M5.7 Settings as the detached glass circle next to the tab bar (as in the design); gear button removed
-- [ ] M5.8 Greeting with the user's name: "Good morning / afternoon / evening, Name!" with the small date line above (asked in setup, editable in Settings)
-- [ ] M5.9 Today cards redesigned: richer tray card (badge, day dots, "switch in N days", +N days chip, tap opens Trays) and a 24-hour day strip showing today's out periods
+- [x] M5.8 Greeting with the user's name: "Good morning / afternoon / evening, Name!" with the small date line above (asked in setup, editable in Settings)
+- [x] M5.9 Today cards redesigned: richer tray card (badge, day dots, "switch in N days", +N days chip, tap opens Trays) and a 24-hour day strip showing today's out periods
 - [x] M5.10 History calendar: real monthly calendar (swipe between months, today highlighted, tray start/switch markers); tap a day for its sessions and totals; replaces the 4-week grid
 - [x] M5.11 Fix forgotten taps: edit or add a session (start/end/reason) from the day view; Undo toast after Take out / Put back in
 - [x] M5.12 Screenshot review against the design, TestFlight build
