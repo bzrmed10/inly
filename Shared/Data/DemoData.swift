@@ -4,6 +4,7 @@ import SwiftData
 /// Launch-argument driven demo data, used by the screenshot UI tests only.
 enum DemoData {
     static var isEnabled: Bool { ProcessInfo.processInfo.arguments.contains("-demoData") }
+    static var isFresh: Bool { ProcessInfo.processInfo.arguments.contains("-freshStart") }
     static var startsOut: Bool { ProcessInfo.processInfo.arguments.contains("-demoOut") }
 
     @MainActor
@@ -33,6 +34,11 @@ enum DemoData {
         if startsOut {
             context.insert(WearSession(start: now.addingTimeInterval(-14 * 60 - 12), reason: .meal))
         }
+        var settings = WearSettings()
+        settings.userName = "Alex"
+        settings.totalTrays = 24
+        settings.onboardingDone = true
+        settings.save()
         try? context.save()
     }
 }

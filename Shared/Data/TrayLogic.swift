@@ -34,4 +34,20 @@ enum TrayLogic {
         if spent > plannedDays { return .late(days: spent - plannedDays) }
         return .onTime
     }
+
+    /// Whole calendar days since the tray was started (0 on the start day).
+    static func daysElapsed(start: Date, now: Date, calendar: Calendar) -> Int {
+        let d = calendar.dateComponents([.day], from: calendar.startOfDay(for: start), to: calendar.startOfDay(for: now)).day ?? 0
+        return max(0, d)
+    }
+
+    /// Extra days beyond the plan: 0 until the switch day, then +1, +2 ... (same maths as history).
+    static func overage(start: Date, plannedDays: Int, now: Date, calendar: Calendar) -> Int {
+        max(0, daysElapsed(start: start, now: now, calendar: calendar) - plannedDays)
+    }
+
+    /// Days until the switch day. 0 = switch today, negative = overdue.
+    static func daysUntilSwitch(start: Date, plannedDays: Int, now: Date, calendar: Calendar) -> Int {
+        plannedDays - daysElapsed(start: start, now: now, calendar: calendar)
+    }
 }

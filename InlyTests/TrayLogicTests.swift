@@ -32,4 +32,16 @@ struct TrayLogicTests {
         #expect(TrayLogic.timing(start: d(1), plannedDays: 14, switchingOn: d(15), calendar: cal) == .onTime)
         #expect(TrayLogic.timing(start: d(1), plannedDays: 14, switchingOn: d(17), calendar: cal) == .late(days: 2))
     }
+
+    @Test func overageStartsAfterSwitchDay() {
+        #expect(TrayLogic.overage(start: d(1), plannedDays: 14, now: d(14), calendar: cal) == 0)
+        #expect(TrayLogic.overage(start: d(1), plannedDays: 14, now: d(15), calendar: cal) == 0)
+        #expect(TrayLogic.overage(start: d(1), plannedDays: 14, now: d(17), calendar: cal) == 2)
+    }
+
+    @Test func daysUntilSwitch() {
+        #expect(TrayLogic.daysUntilSwitch(start: d(1), plannedDays: 14, now: d(10), calendar: cal) == 5)
+        #expect(TrayLogic.daysUntilSwitch(start: d(1), plannedDays: 14, now: d(15), calendar: cal) == 0)
+        #expect(TrayLogic.daysUntilSwitch(start: d(1), plannedDays: 14, now: d(16), calendar: cal) == -1)
+    }
 }

@@ -89,3 +89,56 @@ struct Card<Content: View>: View {
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
     }
 }
+
+
+/// A labelled value with round minus / plus buttons (matches the design's tray-days stepper).
+struct StepperRow: View {
+    let title: String
+    let valueText: String
+    @Binding var value: Int
+    var range: ClosedRange<Int>
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title).font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted)
+                Text(valueText).font(Theme.font(20, .heavy).monospacedDigit())
+                    .contentTransition(.numericText())
+            }
+            Spacer()
+            HStack(spacing: 8) {
+                roundButton("minus", label: "One less") { value = max(range.lowerBound, value - 1) }
+                    .disabled(value <= range.lowerBound)
+                roundButton("plus", label: "One more") { value = min(range.upperBound, value + 1) }
+                    .disabled(value >= range.upperBound)
+            }
+        }
+        .padding(.vertical, 8)
+        .padding(.leading, 16)
+        .padding(.trailing, 8)
+        .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        .animation(.snappy, value: value)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(valueText)
+        .accessibilityAdjustableAction { direction in
+            switch direction {
+            case .increment: value = min(range.upperBound, value + 1)
+            case .decrement: value = max(range.lowerBound, value - 1)
+            @unknown default: break
+            }
+        }
+    }
+
+    private func roundButton(_ symbol: String, label: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 16, weight: .heavy))
+                .foregroundStyle(.white)
+                .frame(width: 44, height: 44)
+                .background(Color(hex: 0x33333D), in: Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
+    }
+}

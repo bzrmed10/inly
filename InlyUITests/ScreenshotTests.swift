@@ -63,3 +63,13 @@ extension ScreenshotTests {
         save("07-history")
     }
 }
+
+extension ScreenshotTests {
+    func testOnboarding() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStart"]
+        app.launch()
+        sleep(2)
+        save("00-onboarding")
+    }
+}

@@ -55,17 +55,42 @@ final class SessionService {
         save()
     }
 
-    /// Makes sure there is always a current tray (tray 1 on first launch).
+    /// Demo / fresh-start launch arguments (UI tests). Real users go through setup instead.
     func ensureTray() {
         if DemoData.isEnabled {
             DemoData.seed(context)
-            return
+        } else if ProcessInfo.processInfo.arguments.contains("-freshStart") {
+            WearSettings.reset()
         }
-        let count = (try? context.fetchCount(FetchDescriptor<Tray>())) ?? 0
-        guard count == 0 else { return }
-        let settings = WearSettings.load()
-        context.insert(Tray(number: 1, startDate: Calendar.current.startOfDay(for: .now), plannedDays: settings.defaultTrayDays))
+    }
+
+    /// First-launch setup: replaces any trays with the one the user is on right now.
+    func completeSetup(name: String, currentTray: Int, totalTrays: Int, plannedDays: Int, dayOnTray: Int, goalHours: Int) {
+        let all = (try? context.fetch(FetchDescriptor<Tray>())) ?? []
+        for t in all { context.delete(t) }
+        let cal = Calendar.current
+        let today = cal.startOfDay(for: .now)
+        let start = cal.date(byAdding: .day, value: -(max(1, dayOnTray) - 1), to: today) ?? today
+        let tray = Tray(number: currentTray, startDate: start, plannedDays: plannedDays)
+        context.insert(tray)
+
+        var settings = WearSettings.load()
+        settings.userName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        settings.totalTrays = max(totalTrays, currentTray)
+        settings.defaultTrayDays = plannedDays
+        settings.goalHours = goalHours
+        settings.onboardingDone = true
+        settings.save()
         save()
+        TrayNotifications.scheduleSwitchReminder(for: tray)
+    }
+
+    /// Adds planned days to the current tray on purpose (e.g. the orthodontist says three more days).
+    func extendCurrentTray(by days: Int) {
+        guard days > 0, let tray = currentTray() else { return }
+        tray.plannedDays += days
+        save()
+        TrayNotifications.scheduleSwitchReminder(for: tray)
     }
 
     // MARK: Trays

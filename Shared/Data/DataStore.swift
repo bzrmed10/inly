@@ -8,7 +8,7 @@ enum DataStore {
     static func makeContainer(inMemory: Bool = false) -> ModelContainer {
         do {
             let config: ModelConfiguration
-            if inMemory || DemoData.isEnabled {
+            if inMemory || DemoData.isEnabled || DemoData.isFresh {
                 config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true, cloudKitDatabase: .none)
             } else if let dir = AppGroup.containerURL {
                 config = ModelConfiguration(

@@ -43,8 +43,8 @@ One task = one commit. Mark `[x]` when committed and CI is green. Progress is su
 Order: quick fixes first, then the bigger screens.
 - [x] M5.1 Colors and ring: ring shows worn time against the daily goal (worn ÷ 22h, no longer always full); "Take out" is blue (matches the in-ring), "Put back in" is orange (matches the out-ring) in the app, widgets and Live Activity
 - [x] M5.2 Widgets: show out-time left today ("35m left") on small, medium and Lock Screen rectangular
-- [ ] M5.3 First-launch setup: pick current tray number, total trays, planned days for this tray and which day you are on; no more silent "tray 1, day 1"
-- [ ] M5.4 Tray overage and extend: after the planned days the tray counts "+1 day, +2 days" automatically; "Extend" button adds planned days on purpose; Today card and reminder follow
+- [x] M5.3 First-launch setup: pick current tray number, total trays, planned days for this tray and which day you are on; no more silent "tray 1, day 1"
+- [x] M5.4 Tray overage and extend: after the planned days the tray counts "+1 day, +2 days" automatically; "Extend" button adds planned days on purpose; Today card and reminder follow
 - [ ] M5.5 Trays screen rebuilt to match the design exactly (header, dotted progress, glowing current card, history rows with number badge, days, progress bar, average wear, on plan / −N days / +N days)
 - [ ] M5.6 Swipe left to delete a tray (with Undo)
 - [ ] M5.7 Settings as the detached glass circle next to the tab bar (as in the design); gear button removed
