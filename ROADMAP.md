@@ -7,8 +7,8 @@ One task = one commit. Mark `[x]` when committed and CI is green. Progress is su
 - [x] M0.2 SPEC.md, ROADMAP.md, REPORT.md
 - [x] M0.3 Xcode project via XcodeGen (`project.yml`): app target `Inly`, extension `InlyWidgets`, iOS 26, App Group, Live Activities + push entitlements, minimal SwiftUI app
 - [x] M0.4 CI: build + test on macOS runner on every push
-- [ ] M0.5 TestFlight workflow (manual trigger and on tag): archive, sign with ASC API key, upload
-- [ ] M0.6 Setup guide for secrets and first TestFlight install (`docs/SETUP.md`)
+- [x] M0.5 TestFlight workflow (manual trigger and on tag): archive, sign with ASC API key, upload
+- [x] M0.6 Setup guide for secrets and first TestFlight install (`docs/SETUP.md`)
 
 ## Milestone 1 — Core tracking + Dynamic Island (first TestFlight)
 - [ ] M1.1 Design system in code: color tokens, rounded type styles, `GlowRing` view with animation
