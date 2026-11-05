@@ -38,3 +38,17 @@ final class ScreenshotTests: XCTestCase {
         save("04-settings")
     }
 }
+
+extension ScreenshotTests {
+    func testTraysScreen() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-demoData"]
+        app.launch()
+        app.tabBars.buttons["Trays"].tap()
+        sleep(2)
+        save("05-trays")
+        app.buttons["Start tray 8"].tap()
+        sleep(1)
+        save("06-start-tray")
+    }
+}

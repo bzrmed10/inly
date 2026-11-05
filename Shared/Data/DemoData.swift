@@ -10,6 +10,11 @@ enum DemoData {
     static func seed(_ context: ModelContext, now: Date = .now) {
         let cal = Calendar.current
         let today = cal.startOfDay(for: now)
+        for n in 1...6 {
+            let start = cal.date(byAdding: .day, value: -8 - 14 * (7 - n), to: today) ?? today
+            let end = cal.date(byAdding: .day, value: n == 3 ? 15 : 14, to: start) ?? today
+            context.insert(Tray(number: n, startDate: start, endDate: end, plannedDays: 14))
+        }
         context.insert(Tray(number: 7, startDate: cal.date(byAdding: .day, value: -8, to: today) ?? today, plannedDays: 14))
         func at(_ h: Int, _ m: Int) -> Date { cal.date(bySettingHour: h, minute: m, second: 0, of: now) ?? now }
         if at(8, 35) < now {
