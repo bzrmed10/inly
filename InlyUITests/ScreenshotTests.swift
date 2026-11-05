@@ -73,3 +73,22 @@ extension ScreenshotTests {
         save("00-onboarding")
     }
 }
+
+extension ScreenshotTests {
+    func testCalendarAndDay() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-demoData"]
+        app.launch()
+        app.tabBars.buttons["History"].tap()
+        sleep(1)
+        app.swipeUp()
+        sleep(1)
+        save("08-history-calendar")
+        let cell = app.buttons["day-3"]
+        if cell.waitForExistence(timeout: 3) {
+            cell.tap()
+            sleep(1)
+            save("09-day-detail")
+        }
+    }
+}

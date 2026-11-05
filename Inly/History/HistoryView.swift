@@ -6,6 +6,8 @@ struct HistoryView: View {
     @Query private var sessions: [WearSession]
     @Query private var trays: [Tray]
     @State private var settings = WearSettings.load()
+    @State private var month = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: .now)) ?? .now
+    @State private var selectedDay: DayID?
 
     private var spans: [SessionSpan] { sessions.map { SessionSpan(start: $0.start, end: $0.end) } }
 
@@ -25,14 +27,17 @@ struct HistoryView: View {
             .navigationTitle("History")
         }
         .onAppear { settings = WearSettings.load() }
+        .sheet(item: $selectedDay) { id in
+            DayDetailSheet(day: id.date)
+        }
     }
 
     @ViewBuilder
     private func content(now: Date) -> some View {
-        let month = WearCalculator.dailyWear(endingOn: now, days: 28, sessions: spans, calendar: .current)
+        let last28 = WearCalculator.dailyWear(endingOn: now, days: 28, sessions: spans, calendar: .current)
             .filter { $0.day >= trackingStart }
-        let week = Array(month.suffix(7))
-        let finished = month.filter { $0.elapsedSeconds >= 86_400 - 1 }
+        let week = Array(last28.suffix(7))
+        let finished = last28.filter { $0.elapsedSeconds >= 86_400 - 1 }
         let goal = Double(settings.goalHours)
         let metCount = finished.filter { $0.wornHours >= goal }.count
         let avg = finished.isEmpty ? 0 : finished.map(\.wornHours).reduce(0, +) / Double(finished.count)
@@ -44,7 +49,7 @@ struct HistoryView: View {
                     stat("Goal met", "\(metCount) of \(finished.count)", Theme.trayColor)
                 }
                 weekChart(week, goal: goal)
-                heatmap(month, goal: goal)
+                calendarCard(now: now, goal: goal)
             }
             .padding(.horizontal, 20)
             .padding(.bottom, 24)
@@ -103,52 +108,147 @@ struct HistoryView: View {
             }
         }
     }
+}
 
-    private func heatmap(_ days: [DayWear], goal: Double) -> some View {
+struct DayID: Identifiable, Hashable {
+    let date: Date
+    var id: Date { date }
+}
+
+// MARK: - Calendar
+
+extension HistoryView {
+    fileprivate func calendarCard(now: Date, goal: Double) -> some View {
         let cal = Calendar.current
-        let byDay = Dictionary(uniqueKeysWithValues: days.map { ($0.day, $0) })
-        let today = cal.startOfDay(for: .now)
-        // 4 weeks ending this week, weeks start on the calendar's first weekday.
-        let weekStart = cal.dateInterval(of: .weekOfYear, for: today)?.start ?? today
-        let first = cal.date(byAdding: .day, value: -21, to: weekStart) ?? weekStart
-        let cells: [Date] = (0..<28).compactMap { cal.date(byAdding: .day, value: $0, to: first) }
+        let thisMonth = cal.date(from: cal.dateComponents([.year, .month], from: now)) ?? now
+        let firstMonth = cal.date(from: cal.dateComponents([.year, .month], from: trackingStart)) ?? thisMonth
+        let canGoBack = month > firstMonth
+        let canGoForward = month < thisMonth
+
+        let days = cal.range(of: .day, in: .month, for: month)?.count ?? 30
+        let weekdayOfFirst = cal.component(.weekday, from: month)
+        let blanks = (weekdayOfFirst - cal.firstWeekday + 7) % 7
         let symbols = cal.veryShortWeekdaySymbols
         let order = (0..<7).map { symbols[(cal.firstWeekday - 1 + $0) % 7] }
+        let starts = Set(trays.map { cal.startOfDay(for: $0.startDate) })
+        let dueDays = Set(trays.filter { $0.endDate == nil }.map {
+            TrayLogic.switchDate(start: $0.startDate, plannedDays: $0.plannedDays, calendar: cal)
+        })
 
         return Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Last 4 weeks").font(Theme.font(17, .heavy))
+                HStack {
+                    navButton("chevron.left", enabled: canGoBack) { shift(-1) }
+                    Spacer()
+                    Text(month.formatted(.dateTime.month(.wide).year()))
+                        .font(Theme.font(17, .heavy))
+                        .contentTransition(.numericText())
+                    Spacer()
+                    navButton("chevron.right", enabled: canGoForward) { shift(1) }
+                }
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 7), spacing: 6) {
                     ForEach(Array(order.enumerated()), id: \.offset) { _, s in
                         Text(s).font(Theme.font(11, .heavy)).foregroundStyle(Theme.muted)
                     }
-                    ForEach(cells, id: \.self) { day in
-                        cell(day: day, wear: byDay[day], goal: goal, isFuture: day > today)
+                    ForEach(0..<blanks, id: \.self) { _ in Color.clear.frame(height: 40) }
+                    ForEach(1...days, id: \.self) { n in
+                        let day = cal.date(byAdding: .day, value: n - 1, to: month) ?? month
+                        dayCell(
+                            number: n, day: day, now: now, goal: goal,
+                            tracked: day >= trackingStart,
+                            isStart: starts.contains(day),
+                            isDue: dueDays.contains(day)
+                        )
                     }
+                }
+                HStack(spacing: 14) {
+                    key(Theme.trayColor, "Goal met")
+                    key(Theme.outColor, "Close")
+                    key(Theme.overColor, "Missed")
+                }
+                HStack(spacing: 14) {
+                    dot(Theme.trayColor, "Tray started")
+                    dot(.white, "Switch day")
                 }
             }
         }
+        .gesture(
+            DragGesture(minimumDistance: 30).onEnded { v in
+                if v.translation.width < -50, month < thisMonth { shift(1) }
+                if v.translation.width > 50, month > firstMonth { shift(-1) }
+            }
+        )
     }
 
-    private func cell(day: Date, wear: DayWear?, goal: Double, isFuture: Bool) -> some View {
-        let number = Calendar.current.component(.day, from: day)
+    fileprivate func shift(_ by: Int) {
+        withAnimation(.smooth) {
+            month = Calendar.current.date(byAdding: .month, value: by, to: month) ?? month
+        }
+    }
+
+    private func navButton(_ symbol: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 14, weight: .heavy))
+                .frame(width: 40, height: 40)
+                .background(Theme.raised, in: Circle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .opacity(enabled ? 1 : 0.3)
+        .accessibilityLabel(symbol == "chevron.left" ? "Previous month" : "Next month")
+    }
+
+    private func dayCell(number: Int, day: Date, now: Date, goal: Double, tracked: Bool, isStart: Bool, isDue: Bool) -> some View {
+        let cal = Calendar.current
+        let isFuture = day > now
+        let isToday = cal.isDateInToday(day)
+        let wear = WearCalculator.dayWear(on: day, sessions: spans, now: now, calendar: cal)
+        let filled = tracked && !isFuture
         let color: Color = {
-            guard let wear, !isFuture else { return Theme.raised.opacity(0.5) }
-            if Calendar.current.isDateInToday(day) { return Theme.inColor.opacity(0.85) }
+            guard filled else { return Theme.raised.opacity(0.5) }
+            if isToday { return Theme.inColor.opacity(0.85) }
             if wear.wornHours >= goal { return Theme.trayColor }
             if wear.wornHours >= goal - 2 { return Theme.outColor }
             return Theme.overColor
         }()
-        let filled = wear != nil && !isFuture
-        return Text("\(number)")
-            .font(Theme.font(13, .heavy).monospacedDigit())
+        let label = day.formatted(.dateTime.month().day())
+        return Button {
+            selectedDay = DayID(date: day)
+        } label: {
+            VStack(spacing: 2) {
+                Text("\(number)").font(Theme.font(14, .heavy).monospacedDigit())
+                Circle()
+                    .fill(isStart ? (filled ? Theme.night : Theme.trayColor) : (isDue ? (filled ? Theme.night : Color.white) : Color.clear))
+                    .frame(width: 5, height: 5)
+            }
             .foregroundStyle(filled ? Theme.night : Theme.muted)
             .frame(maxWidth: .infinity)
-            .frame(height: 36)
-            .background(color, in: RoundedRectangle(cornerRadius: 10, style: .continuous))
-            .accessibilityLabel(
-                wear.map { "\(day.formatted(.dateTime.month().day())): \(String(format: "%.1f", $0.wornHours)) hours worn" }
-                ?? "\(day.formatted(.dateTime.month().day())): no data"
-            )
+            .frame(height: 40)
+            .background(color, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+            .overlay {
+                if isToday { RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(.white, lineWidth: 2) }
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityIdentifier("day-\(number)")
+        .accessibilityLabel(
+            filled ? "\(label): \(String(format: "%.1f", wear.wornHours)) hours worn" + (isStart ? ", tray started" : "") + (isDue ? ", switch day" : "")
+                   : "\(label): no data"
+        )
+    }
+
+    private func key(_ color: Color, _ text: String) -> some View {
+        HStack(spacing: 6) {
+            RoundedRectangle(cornerRadius: 3).fill(color).frame(width: 12, height: 12)
+            Text(text).font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
+        }
+    }
+
+    private func dot(_ color: Color, _ text: String) -> some View {
+        HStack(spacing: 6) {
+            Circle().fill(color).frame(width: 7, height: 7)
+            Text(text).font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
+        }
     }
 }
