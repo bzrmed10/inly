@@ -62,9 +62,21 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGN_STYLE=Automatic \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGNING_ALLOWED=YES \
+            PROVISIONING_PROFILE_SPECIFIER="" \
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             | tee build/archive.log | xcbeautify --renderer github-actions
+
+      - name: Inspect archive entitlements
+        run: |
+          for app in build/Inly.xcarchive/Products/Applications/Inly.app \
+                     build/Inly.xcarchive/Products/Applications/Inly.app/PlugIns/InlyWidgets.appex; do
+            echo "== $app"
+            codesign -d --entitlements :- "$app" 2>&1 | grep -A2 "application-groups" || echo "no application-groups entitlement found"
+          done
 
       - name: Export and upload to App Store Connect
         run: |
