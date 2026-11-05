@@ -14,10 +14,14 @@ Milestone 0 (foundation) in progress.
 - M0.6 Setup guide in `docs/SETUP.md`.
 
 ## In progress
-- First TestFlight upload: archive works; export blocked on API key role (see Blockers)
+- First TestFlight upload. Admin key works: archive, cloud signing, export and upload to Apple all run. Remaining steps below.
 
 ## Blockers
-- **TestFlight export fails: "Cloud signing permission error".** The App Store Connect API key has the App Manager role, which cannot create the cloud-managed distribution certificate. Fix: create a new API key with the **Admin** role and replace the `ASC_KEY_ID` and `ASC_KEY_P8` secrets (`ASC_ISSUER_ID` stays the same).
+- **Register one iPhone** (UDID) in the developer portal. Without a device Apple will not create the development profile, so the archive cannot be signed and the exported app loses its App Group entitlement. Steps in `docs/SETUP.md`.
+
+## Fixed along the way
+- App was set to iPhone and iPad; Apple rejected the upload for missing iPad orientations. Now iPhone-only.
+- Workflow now fails early if the App Group entitlement is missing, instead of uploading a broken build.
 
 ## How to test
 Builds are uploaded to TestFlight at the end of each milestone. Install the TestFlight app on your iPhone and accept the invite for `Inly`.

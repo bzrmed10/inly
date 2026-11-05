@@ -62,7 +62,7 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
-            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_STYLE=Automatic \
             CURRENT_PROJECT_VERSION="${{ github.run_number }}" \
             | tee build/archive.log | xcbeautify --renderer github-actions
 
@@ -99,7 +99,7 @@ jobs:
           unzip -q build/export/Inly.ipa -d build/ipa
           for app in build/ipa/Payload/Inly.app build/ipa/Payload/Inly.app/PlugIns/InlyWidgets.appex; do
             echo "== $app"
-            codesign -d --entitlements :- "$app" 2>&1 | grep -A2 "application-groups" || echo "NO application-groups entitlement"
+            codesign -d --entitlements :- "$app" 2>&1 | grep -A2 "application-groups" || { echo "::error::$app is missing the application-groups entitlement"; exit 1; }
           done
 
       - name: Upload to App Store Connect
