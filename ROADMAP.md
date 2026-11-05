@@ -22,10 +22,10 @@ One task = one commit. Mark `[x]` when committed and CI is green. Progress is su
 - [x] M1.9 TestFlight build 1
 
 ## Milestone 2 — Trays
-- [ ] M2.1 Tray model logic: current tray, planned days, switch date
+- [x] M2.1 Tray model logic: current tray, planned days, switch date
 - [ ] M2.2 Trays screen: segments, current tray card, history list
 - [ ] M2.3 Start tray sheet with Undo toast and early/late warnings
-- [ ] M2.4 Tray switch notification
+- [x] M2.4 Tray switch notification
 
 ## Milestone 3 — Widgets and controls
 - [ ] M3.1 Home Screen widgets (small, medium interactive)

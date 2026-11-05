@@ -65,6 +65,47 @@ final class SessionService {
         save()
     }
 
+    // MARK: Trays
+
+    struct TrayUndo: Sendable {
+        let newTrayID: PersistentIdentifier
+        let closedTrayID: PersistentIdentifier?
+    }
+
+    func currentTray() -> Tray? {
+        var d = FetchDescriptor<Tray>(
+            predicate: #Predicate { $0.endDate == nil },
+            sortBy: [SortDescriptor(\.startDate, order: .reverse)]
+        )
+        d.fetchLimit = 1
+        return try? context.fetch(d).first
+    }
+
+    /// Closes the current tray on `date` and starts the next one.
+    @discardableResult
+    func startNextTray(on date: Date, plannedDays: Int) -> TrayUndo {
+        let all = (try? context.fetch(FetchDescriptor<Tray>())) ?? []
+        let current = all.first(where: { $0.endDate == nil })
+        current?.endDate = max(date, current?.startDate ?? date)
+        let number = (all.map(\.number).max() ?? 0) + 1
+        let tray = Tray(number: number, startDate: date, plannedDays: plannedDays)
+        context.insert(tray)
+        save()
+        TrayNotifications.scheduleSwitchReminder(for: tray)
+        return TrayUndo(newTrayID: tray.persistentModelID, closedTrayID: current?.persistentModelID)
+    }
+
+    func undoStartTray(_ undo: TrayUndo) {
+        if let closed = undo.closedTrayID, let t = context.model(for: closed) as? Tray {
+            t.endDate = nil
+            TrayNotifications.scheduleSwitchReminder(for: t)
+        }
+        if let n = context.model(for: undo.newTrayID) as? Tray {
+            context.delete(n)
+        }
+        save()
+    }
+
     /// Align the Live Activity with stored state (call on launch, foreground and after changes).
     func reconcileLiveActivity(now: Date = .now) {
         let open = openSession()
