@@ -95,3 +95,9 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 **M7 Apple Watch:** `InlyWatch` target (bundle `com.bzrmed.inly.watchkitapp`), WatchConnectivity (application context for state, `sendMessage`/`transferUserInfo` for explicit takeOut/putBackIn commands). CI registers the bundle ID and creates the profile. Limit: a Live Activity cannot be *started* while the app is in the background, so Take out from the watch may not start the Dynamic Island. No complications yet.
 
 **M8 Tray photos, notes, appointment:** `Tray.photoData` (external storage), `TrayNote` model, `TrayDetailSheet` (PhotosPicker + quick-note chips), `AppointmentSheet` with evening-before and morning-of reminders. Unit tests for the reminder planning.
+
+## Milestones 9–11 (build 20)
+
+- **Export:** History → share icon. PDF report (summary, streak, trays, notes, daily table) or CSV per day / per break, over 7 days, 30 days or everything. Shared with the system share sheet.
+- **Photos:** camera (system camera, needs the new camera permission text) or library; Trays → "Compare photos" (slider or side by side) once two trays have photos.
+- **Insights:** streak and best streak on History; estimated finish date on Trays (remaining days of the current tray plus the default days for each remaining tray). Unit tests cover streaks, forecast, CSV and PDF generation.
