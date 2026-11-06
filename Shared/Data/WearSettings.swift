@@ -10,6 +10,8 @@ struct WearSettings: Sendable, Equatable {
     var onboardingDone: Bool = false
     /// When tracking really began (end of setup). Time before this is never counted as worn.
     var trackingStart: Date?
+    /// Next orthodontist visit, if the user entered one.
+    var nextAppointment: Date?
     /// Minutes after which to ask "still out?", per reason (OutReason raw value). 0 = off.
     var stillOutMinutes: [String: Int] = WearSettings.defaultStillOut
 
@@ -36,6 +38,7 @@ struct WearSettings: Sendable, Equatable {
         static let onboarded = "onboardingDone"
         static let tracking = "trackingStart"
         static let stillOut = "stillOutMinutes"
+        static let appointment = "nextAppointment"
     }
 
     private static var defaults: UserDefaults {
@@ -52,6 +55,7 @@ struct WearSettings: Sendable, Equatable {
         s.userName = d.string(forKey: Key.name) ?? ""
         s.onboardingDone = d.bool(forKey: Key.onboarded)
         if d.object(forKey: Key.tracking) != nil { s.trackingStart = Date(timeIntervalSince1970: d.double(forKey: Key.tracking)) }
+        if d.object(forKey: Key.appointment) != nil { s.nextAppointment = Date(timeIntervalSince1970: d.double(forKey: Key.appointment)) }
         if let saved = d.dictionary(forKey: Key.stillOut) as? [String: Int] {
             s.stillOutMinutes.merge(saved) { _, new in new }
         }
@@ -61,7 +65,7 @@ struct WearSettings: Sendable, Equatable {
     /// Forget everything (used by UI tests that need a first launch).
     static func reset() {
         let d = defaults
-        for k in [Key.goal, Key.total, Key.days, Key.reminders, Key.name, Key.onboarded, Key.tracking, Key.stillOut] { d.removeObject(forKey: k) }
+        for k in [Key.goal, Key.total, Key.days, Key.reminders, Key.name, Key.onboarded, Key.tracking, Key.stillOut, Key.appointment] { d.removeObject(forKey: k) }
     }
 
     func save() {
@@ -73,6 +77,7 @@ struct WearSettings: Sendable, Equatable {
         d.set(userName, forKey: Key.name)
         d.set(onboardingDone, forKey: Key.onboarded)
         d.set(stillOutMinutes, forKey: Key.stillOut)
+        if let nextAppointment { d.set(nextAppointment.timeIntervalSince1970, forKey: Key.appointment) } else { d.removeObject(forKey: Key.appointment) }
         if let trackingStart { d.set(trackingStart.timeIntervalSince1970, forKey: Key.tracking) } else { d.removeObject(forKey: Key.tracking) }
     }
 }

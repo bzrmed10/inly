@@ -1,0 +1,183 @@
+import PhotosUI
+import SwiftData
+import SwiftUI
+import UIKit
+
+/// One tray: progress photo and notes ("sore teeth", "attachment came off").
+struct TrayDetailSheet: View {
+    let tray: Tray
+    @Query private var notes: [TrayNote]
+    @Environment(\.dismiss) private var dismiss
+
+    @State private var pickerItem: PhotosPickerItem?
+    @State private var draft = ""
+    @FocusState private var focused: Bool
+
+    private let quick = ["Sore teeth", "Pressure", "Tight fit", "Attachment loose", "Lisp", "All good"]
+
+    init(tray: Tray) {
+        self.tray = tray
+        let number = tray.number
+        _notes = Query(filter: #Predicate<TrayNote> { $0.trayNumber == number }, sort: \.date, order: .reverse)
+    }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                HStack(alignment: .firstTextBaseline) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Tray \(tray.number)").font(Theme.font(32, .heavy))
+                        Text(tray.startDate.formatted(.dateTime.month(.wide).day()))
+                            .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
+                    }
+                    Spacer()
+                    Button("Done") { dismiss() }.font(Theme.font(16, .heavy))
+                }
+
+                photoSection
+                notesSection
+            }
+            .padding(.horizontal, 20)
+            .padding(.top, 24)
+            .padding(.bottom, 30)
+        }
+        .scrollDismissesKeyboard(.interactively)
+        .presentationDetents([.large])
+        .presentationDragIndicator(.visible)
+        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationCornerRadius(34)
+        .preferredColorScheme(.dark)
+        .onChange(of: pickerItem) { _, item in
+            guard let item else { return }
+            Task { await loadPhoto(item) }
+        }
+    }
+
+    // MARK: Photo
+
+    private var photoSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("Progress photo").font(Theme.font(17, .heavy))
+            if let data = tray.photoData, let image = UIImage(data: data) {
+                Image(uiImage: image)
+                    .resizable().scaledToFill()
+                    .frame(maxWidth: .infinity).frame(height: 240)
+                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .accessibilityLabel("Progress photo for tray \(tray.number)")
+                HStack(spacing: 10) {
+                    PhotosPicker(selection: $pickerItem, matching: .images) {
+                        Label("Replace", systemImage: "photo").frame(maxWidth: .infinity, minHeight: 46)
+                    }
+                    .buttonStyle(.plain)
+                    .background(Theme.raised, in: Capsule())
+                    Button(role: .destructive) { SessionService.shared.setPhoto(nil, for: tray); pickerItem = nil } label: {
+                        Label("Remove", systemImage: "trash").frame(maxWidth: .infinity, minHeight: 46)
+                    }
+                    .buttonStyle(.plain)
+                    .background(Theme.raised, in: Capsule())
+                }
+                .font(Theme.font(15, .heavy))
+            } else {
+                PhotosPicker(selection: $pickerItem, matching: .images) {
+                    VStack(spacing: 8) {
+                        Image(systemName: "camera.fill").font(.title)
+                        Text("Add a photo of your teeth in this tray").font(Theme.font(15, .bold))
+                    }
+                    .foregroundStyle(Theme.muted)
+                    .frame(maxWidth: .infinity).frame(height: 150)
+                    .background(Theme.raised, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private func loadPhoto(_ item: PhotosPickerItem) async {
+        guard let raw = try? await item.loadTransferable(type: Data.self),
+              let jpeg = Self.downsized(raw) else { return }
+        SessionService.shared.setPhoto(jpeg, for: tray)
+    }
+
+    /// Keeps photos small (max 1600 px, JPEG) so the database stays light.
+    static func downsized(_ data: Data, maxSide: CGFloat = 1600) -> Data? {
+        guard let image = UIImage(data: data) else { return nil }
+        let longest = max(image.size.width, image.size.height)
+        let scale = min(1, maxSide / max(1, longest))
+        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        let rendered = UIGraphicsImageRenderer(size: size, format: format).image { _ in
+            image.draw(in: CGRect(origin: .zero, size: size))
+        }
+        return rendered.jpegData(compressionQuality: 0.8)
+    }
+
+    // MARK: Notes
+
+    private var notesSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Notes").font(Theme.font(17, .heavy))
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(quick, id: \.self) { text in
+                        Button { SessionService.shared.addNote(trayNumber: tray.number, text: text) } label: {
+                            Text(text).font(Theme.font(14, .heavy))
+                                .padding(.horizontal, 14).padding(.vertical, 9)
+                                .background(Theme.raised, in: Capsule())
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            HStack(spacing: 10) {
+                TextField("Write a note", text: $draft, axis: .vertical)
+                    .focused($focused)
+                    .font(Theme.font(16, .semibold))
+                    .padding(.horizontal, 16).padding(.vertical, 12)
+                    .background(Theme.raised, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                Button { addDraft() } label: {
+                    Image(systemName: "arrow.up").font(.headline.weight(.heavy))
+                        .frame(width: 44, height: 44)
+                        .background(draft.trimmingCharacters(in: .whitespaces).isEmpty ? Theme.raised : Theme.inColor, in: Circle())
+                        .foregroundStyle(Theme.night)
+                }
+                .buttonStyle(.plain)
+                .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty)
+                .accessibilityLabel("Add note")
+            }
+
+            if notes.isEmpty {
+                Text("No notes yet. Tap a suggestion above or write your own.")
+                    .font(Theme.font(14, .medium)).foregroundStyle(Theme.muted)
+            } else {
+                VStack(spacing: 8) {
+                    ForEach(notes) { note in
+                        HStack(alignment: .top, spacing: 12) {
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(note.text).font(Theme.font(16, .bold))
+                                Text(note.date.formatted(.dateTime.month(.abbreviated).day().hour().minute()))
+                                    .font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
+                            }
+                            Spacer(minLength: 8)
+                            Button { SessionService.shared.deleteNote(note) } label: {
+                                Image(systemName: "xmark.circle.fill").foregroundStyle(Theme.muted).font(.title3)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Delete note")
+                        }
+                        .padding(14)
+                        .background(Theme.raised, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                    }
+                }
+            }
+        }
+    }
+
+    private func addDraft() {
+        SessionService.shared.addNote(trayNumber: tray.number, text: draft)
+        draft = ""
+        focused = false
+    }
+}

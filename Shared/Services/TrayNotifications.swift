@@ -32,3 +32,41 @@ enum TrayNotifications {
         center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: trigger))
     }
 }
+
+
+/// Reminders for the next orthodontist visit: the evening before and the morning of.
+enum AppointmentReminders {
+    private static let ids = ["appt-eve", "appt-morning"]
+
+    struct Planned: Equatable, Sendable { let id: String; let date: Date; let title: String; let body: String }
+
+    static func plan(for appointment: Date, now: Date = .now, calendar: Calendar = .current) -> [Planned] {
+        var result: [Planned] = []
+        let time = appointment.formatted(date: .omitted, time: .shortened)
+        let dayBefore = calendar.date(byAdding: .day, value: -1, to: calendar.startOfDay(for: appointment))
+        if let dayBefore, let eve = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: dayBefore), eve > now {
+            result.append(Planned(id: "appt-eve", date: eve, title: "Orthodontist tomorrow",
+                                  body: "Your appointment is at \(time). Bring your current and previous trays."))
+        }
+        if let morning = calendar.date(bySettingHour: 8, minute: 0, second: 0, of: appointment),
+           morning > now, morning < appointment.addingTimeInterval(-30 * 60) {
+            result.append(Planned(id: "appt-morning", date: morning, title: "Orthodontist today",
+                                  body: "Appointment at \(time). Keep your aligners in until you arrive."))
+        }
+        return result
+    }
+
+    static func schedule(_ appointment: Date?) {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: ids)
+        guard let appointment else { return }
+        for p in plan(for: appointment) {
+            let content = UNMutableNotificationContent()
+            content.title = p.title
+            content.body = p.body
+            content.sound = .default
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(1, p.date.timeIntervalSinceNow), repeats: false)
+            center.add(UNNotificationRequest(identifier: p.id, content: content, trigger: trigger))
+        }
+    }
+}

@@ -2,7 +2,7 @@ import Foundation
 import SwiftData
 
 enum DataStore {
-    static let schema = Schema([WearSession.self, Tray.self])
+    static let schema = Schema([WearSession.self, Tray.self, TrayNote.self])
 
     /// Shared container so the app, widgets and intents read the same store.
     /// Crashes only if the store can never be opened (app); widgets use `makeContainerIfPossible`.

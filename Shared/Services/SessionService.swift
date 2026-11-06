@@ -257,6 +257,25 @@ final class SessionService {
         }
     }
 
+    // MARK: Notes and photo
+
+    func addNote(trayNumber: Int, text: String) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return }
+        context.insert(TrayNote(trayNumber: trayNumber, text: trimmed))
+        try? context.save()
+    }
+
+    func deleteNote(_ note: TrayNote) {
+        context.delete(note)
+        try? context.save()
+    }
+
+    func setPhoto(_ data: Data?, for tray: Tray) {
+        tray.photoData = data
+        try? context.save()
+    }
+
     /// Copies what the widgets need into the App Group so they never have to open the database.
     func writeWidgetSnapshot() {
         let all = (try? context.fetch(FetchDescriptor<WearSession>())) ?? []

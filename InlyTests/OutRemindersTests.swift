@@ -39,3 +39,26 @@ struct OutRemindersTests {
         #expect(s.stillOut(for: .meal) == 45)
     }
 }
+
+struct AppointmentReminderTests {
+    private var cal: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "UTC")!
+        return c
+    }
+
+    @Test func remindsEveningBeforeAndMorningOf() {
+        let appt = cal.date(from: DateComponents(year: 2026, month: 12, day: 10, hour: 14))!
+        let now = cal.date(from: DateComponents(year: 2026, month: 12, day: 1, hour: 9))!
+        let plan = AppointmentReminders.plan(for: appt, now: now, calendar: cal)
+        #expect(plan.map(\.id) == ["appt-eve", "appt-morning"])
+        #expect(plan[0].date == cal.date(from: DateComponents(year: 2026, month: 12, day: 9, hour: 18)))
+        #expect(plan[1].date == cal.date(from: DateComponents(year: 2026, month: 12, day: 10, hour: 8)))
+    }
+
+    @Test func skipsRemindersAlreadyInThePast() {
+        let appt = cal.date(from: DateComponents(year: 2026, month: 12, day: 10, hour: 14))!
+        let now = cal.date(from: DateComponents(year: 2026, month: 12, day: 10, hour: 9))!
+        #expect(AppointmentReminders.plan(for: appt, now: now, calendar: cal).isEmpty)
+    }
+}

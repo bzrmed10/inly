@@ -49,11 +49,27 @@ final class Tray {
     var startDate: Date = Date.now
     var endDate: Date?
     var plannedDays: Int = 14
+    /// Progress photo for this tray (stored outside the database file).
+    @Attribute(.externalStorage) var photoData: Data?
 
     init(number: Int, startDate: Date, endDate: Date? = nil, plannedDays: Int = 14) {
         self.number = number
         self.startDate = startDate
         self.endDate = endDate
         self.plannedDays = plannedDays
+    }
+}
+
+/// A short note about a tray, e.g. "sore teeth". Linked by tray number so deleting a tray never loses notes by accident.
+@Model
+final class TrayNote {
+    var trayNumber: Int = 1
+    var date: Date = Date.now
+    var text: String = ""
+
+    init(trayNumber: Int, text: String, date: Date = .now) {
+        self.trayNumber = trayNumber
+        self.text = text
+        self.date = date
     }
 }

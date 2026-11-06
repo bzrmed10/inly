@@ -15,6 +15,8 @@ struct TraysView: View {
     @State private var settings = WearSettings.load()
     @State private var showStart = false
     @State private var showExtend = false
+    @State private var showAppointment = false
+    @State private var detailTray: Tray?
     @State private var toast: ToastData?
     @State private var toastTask: Task<Void, Never>?
 
@@ -31,6 +33,7 @@ struct TraysView: View {
             List {
                 header.row(insets)
                 progress.row(insets)
+                appointmentCard.row(insets)
                 if let current {
                     currentCard(current).row(insets)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -43,6 +46,8 @@ struct TraysView: View {
                     historyHeader.row(EdgeInsets(top: 12, leading: 20, bottom: 4, trailing: 20))
                     ForEach(finished) { tray in
                         historyRow(tray).row(insets)
+                            .contentShape(Rectangle())
+                            .onTapGesture { detailTray = tray }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) { delete(tray) } label: { Label("Delete", systemImage: "trash") }
                             }
@@ -83,6 +88,15 @@ struct TraysView: View {
                 }
             }
         }
+        .sheet(item: $detailTray) { tray in TrayDetailSheet(tray: tray) }
+        .sheet(isPresented: $showAppointment) {
+            AppointmentSheet(initial: settings.nextAppointment) { date in
+                if date != nil { TrayNotifications.requestPermission() }
+                settings.nextAppointment = date
+                settings.save()
+                AppointmentReminders.schedule(date)
+            }
+        }
         .sensoryFeedback(.success, trigger: toast?.id)
     }
 
@@ -116,6 +130,33 @@ struct TraysView: View {
                 }
             }
         }
+    }
+
+    private var appointmentCard: some View {
+        let appt = settings.nextAppointment.flatMap { $0 > .now ? $0 : nil }
+        return Button { showAppointment = true } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "calendar.badge.clock")
+                    .font(.title3).foregroundStyle(Theme.inColor)
+                    .frame(width: 40, height: 40).background(Theme.raised, in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Orthodontist visit").font(Theme.font(15, .heavy))
+                    if let appt {
+                        let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: .now), to: Calendar.current.startOfDay(for: appt)).day ?? 0
+                        Text("\(appt.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day().hour().minute())) · \(days == 0 ? "today" : (days == 1 ? "tomorrow" : "in \(days) days"))")
+                            .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+                    } else {
+                        Text("Add your next appointment").font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+                    }
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(Theme.muted)
+            }
+            .padding(14)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(appt == nil ? "Add orthodontist visit" : "Edit orthodontist visit")
     }
 
     private func currentCard(_ tray: Tray) -> some View {
@@ -153,6 +194,13 @@ struct TraysView: View {
                 Label("Start tray \(tray.number + 1)", systemImage: "plus")
             }
             .buttonStyle(PillButtonStyle(color: .white, height: 54))
+            Button { detailTray = tray } label: {
+                Label(tray.photoData == nil ? "Photo & notes" : "Photo & notes ✓", systemImage: "camera")
+            }
+            .font(Theme.font(15, .heavy))
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .background(Theme.raised, in: Capsule())
+            .buttonStyle(.plain)
             Button { showExtend = true } label: { Text("Extend plan") }
                 .font(Theme.font(15, .heavy))
                 .frame(maxWidth: .infinity, minHeight: 44)
@@ -219,7 +267,7 @@ struct TraysView: View {
                 .background(Theme.raised, in: Circle())
             VStack(spacing: 5) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("Tray \(tray.number) · \(md(tray.startDate)) – \(md(tray.endDate ?? .now))")
+                    Text("Tray \(tray.number) · \(md(tray.startDate)) – \(md(tray.endDate ?? .now))\(tray.photoData == nil ? "" : "  📷")")
                         .font(Theme.font(15, .heavy)).lineLimit(1).minimumScaleFactor(0.8)
                     Spacer(minLength: 6)
                     Text("\(days) day\(days == 1 ? "" : "s")").font(Theme.font(15, .heavy))
