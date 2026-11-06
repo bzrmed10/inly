@@ -85,3 +85,13 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - "Put back in" from the widget / Dynamic Island: faster (widget reload first, the Live Activity update is awaited before the process sleeps).
 - Not possible: haptics on widget or Dynamic Island buttons (WidgetKit has no API). Control Center toggle and the Action Button give the system haptic.
 - Build signing: certificate is kept until the next run (fixes 90721).
+
+## Milestones 6–8 (builds 18–19)
+
+**M6 fixes (build 18):** "Still out?" reminders now have a one-tap switch per reason plus time presets; the notification handler was rewritten (completion-handler delegate) after a tap crash; Settings icon is a gear; widgets read a small App Group snapshot (`WidgetSnapshot`) instead of opening SwiftData.
+
+**Widget empty while out (still open):** build 18 still showed an empty widget during Take out. New theory: widgets and the Live Activity share one extension process, so the out-state timeline was trimmed to ≤7 entries. Needs device confirmation.
+
+**M7 Apple Watch:** `InlyWatch` target (bundle `com.bzrmed.inly.watchkitapp`), WatchConnectivity (application context for state, `sendMessage`/`transferUserInfo` for explicit takeOut/putBackIn commands). CI registers the bundle ID and creates the profile. Limit: a Live Activity cannot be *started* while the app is in the background, so Take out from the watch may not start the Dynamic Island. No complications yet.
+
+**M8 Tray photos, notes, appointment:** `Tray.photoData` (external storage), `TrayNote` model, `TrayDetailSheet` (PhotosPicker + quick-note chips), `AppointmentSheet` with evening-before and morning-of reminders. Unit tests for the reminder planning.
