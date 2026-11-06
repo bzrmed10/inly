@@ -17,7 +17,7 @@ struct RootView: View {
                     Tab("Trays", systemImage: "square.stack.3d.up.fill", value: AppTab.trays) { TraysView() }
                     Tab("History", systemImage: "chart.bar.fill", value: AppTab.history) { HistoryView() }
                     // role .search makes iOS 26 draw this as the detached glass circle next to the tab bar.
-                    Tab("Settings", systemImage: "person.fill", value: AppTab.settings, role: .search) {
+                    Tab("Settings", systemImage: "gearshape.fill", value: AppTab.settings, role: .search) {
                         SettingsView { withAnimation(.smooth) { setupDone = false } }
                     }
                 }

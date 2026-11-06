@@ -55,20 +55,24 @@ struct SettingsView: View {
                 }
 
                 section("Still out? reminders") {
-                    Text("Get a nudge when you've been out longer than this, with a Put back in button.")
+                    Text("A nudge when you've been out for a while, with a Put back in button.")
                         .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
                         .frame(maxWidth: .infinity, alignment: .leading)
-                    ForEach(OutReason.allCases, id: \.self) { reason in
-                        StepperRow(
-                            title: reason.title,
-                            valueText: settings.stillOut(for: reason) == 0 ? "Off" : "After \(settings.stillOut(for: reason)) min",
-                            value: Binding(
-                                get: { settings.stillOut(for: reason) },
-                                set: { settings.setStillOut($0, for: reason) }
-                            ),
-                            range: 0...120, step: 5
-                        )
+                    VStack(spacing: 0) {
+                        ForEach(Array(OutReason.allCases.enumerated()), id: \.element) { index, reason in
+                            StillOutRow(
+                                reason: reason,
+                                minutes: Binding(
+                                    get: { settings.stillOut(for: reason) },
+                                    set: { settings.setStillOut($0, for: reason) }
+                                )
+                            )
+                            if index < OutReason.allCases.count - 1 {
+                                Divider().overlay(Theme.surface)
+                            }
+                        }
                     }
+                    .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                 }
                 .opacity(settings.remindersEnabled ? 1 : 0.45)
                 .disabled(!settings.remindersEnabled)
@@ -124,5 +128,56 @@ struct SettingsView: View {
 
     private func note(_ text: String) -> some View {
         Text(text).font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted).padding(.horizontal, 4)
+    }
+}
+
+
+/// One reason: a switch to turn the nudge on or off in one tap, and quick time choices when it's on.
+private struct StillOutRow: View {
+    let reason: OutReason
+    @Binding var minutes: Int
+    private let choices = [5, 10, 15, 20, 30, 45, 60]
+
+    private var isOn: Binding<Bool> {
+        Binding(
+            get: { minutes > 0 },
+            set: { minutes = $0 ? (WearSettings.defaultStillOut[reason.rawValue] ?? 30) : 0 }
+        )
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Toggle(isOn: isOn) {
+                HStack(spacing: 12) {
+                    Image(systemName: reason.symbol).frame(width: 24).foregroundStyle(Theme.outColor)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(reason.title).font(Theme.font(16, .heavy))
+                        Text(minutes > 0 ? "Ask after \(minutes) min" : "Off")
+                            .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
+                    }
+                }
+            }
+            .tint(Theme.trayColor)
+
+            if minutes > 0 {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 8) {
+                        ForEach(choices, id: \.self) { m in
+                            Button { minutes = m } label: {
+                                Text("\(m)m").font(Theme.font(14, .heavy)).monospacedDigit()
+                                    .padding(.horizontal, 14).padding(.vertical, 8)
+                                    .background(m == minutes ? Theme.inColor : Theme.surface, in: Capsule())
+                                    .foregroundStyle(m == minutes ? Theme.night : .primary)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("\(m) minutes")
+                            .accessibilityAddTraits(m == minutes ? .isSelected : [])
+                        }
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .animation(.snappy, value: minutes > 0)
     }
 }

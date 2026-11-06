@@ -230,6 +230,7 @@ final class SessionService {
 
     /// Align the Live Activity with stored state (call on launch, foreground and after changes).
     func reconcileLiveActivity(now: Date = .now) {
+        writeWidgetSnapshot()
         let open = openSession()
         var left: TimeInterval = 0
         if let open {
@@ -256,8 +257,19 @@ final class SessionService {
         }
     }
 
+    /// Copies what the widgets need into the App Group so they never have to open the database.
+    func writeWidgetSnapshot() {
+        let all = (try? context.fetch(FetchDescriptor<WearSession>())) ?? []
+        let tray = currentTray().map { WidgetSnapshot.TrayInfo(number: $0.number, startDate: $0.startDate, plannedDays: $0.plannedDays) }
+        WidgetSnapshot.make(
+            sessions: all.map { SessionSpan(start: $0.start, end: $0.end) },
+            firstSessionStart: all.map(\.start).min(), tray: tray
+        ).save()
+    }
+
     private func save() {
         try? context.save()
+        writeWidgetSnapshot()
         WidgetCenter.shared.reloadAllTimelines()
         reconcileLiveActivity()
         ControlCenter.shared.reloadAllControls()

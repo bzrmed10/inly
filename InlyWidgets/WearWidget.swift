@@ -74,18 +74,17 @@ struct WearProvider: TimelineProvider {
         )
     }
 
+    /// Reads the small snapshot the app keeps in the App Group (no database access).
     static func load(now: Date) -> WearEntry? {
-        guard let container = DataStore.makeContainerIfPossible(attempts: 6) else { return nil }
-        let context = ModelContext(container)
-        let sessions = (try? context.fetch(FetchDescriptor<WearSession>())) ?? []
-        let spans = sessions.map { SessionSpan(start: $0.start, end: $0.end) }
+        guard let data = WidgetSnapshot.load() else { return nil }
+        let spans = data.spans.map { SessionSpan(start: $0.start, end: $0.end) }
         let settings = WearSettings.load()
-        let tracking = settings.resolvedTrackingStart(firstSession: sessions.map(\.start).min())
+        let tracking = settings.resolvedTrackingStart(firstSession: data.firstSessionStart)
         let snap = WearCalculator.snapshot(
             sessions: spans, now: now, budgetSeconds: settings.budgetSeconds, calendar: .current, trackingStart: tracking
         )
 
-        let open = sessions.first(where: { $0.end == nil })
+        let open = spans.first(where: { $0.end == nil })
         var budgetEnd = now.addingTimeInterval(snap.leftSeconds)
         if let open {
             let others = spans.filter { $0.start != open.start }
@@ -94,9 +93,7 @@ struct WearProvider: TimelineProvider {
         }
 
         var tray: String?
-        var d = FetchDescriptor<Tray>(predicate: #Predicate { $0.endDate == nil }, sortBy: [SortDescriptor(\.startDate, order: .reverse)])
-        d.fetchLimit = 1
-        if let t = try? context.fetch(d).first {
+        if let t = data.tray {
             let day = TrayLogic.dayNumber(start: t.startDate, now: now, calendar: .current)
             tray = "Tray \(t.number) · Day \(day) of \(t.plannedDays)"
         }
@@ -194,7 +191,7 @@ private struct WearWidgetView: View {
                     Text("Over budget")
                 } else {
                     HStack(spacing: 4) {
-                        Text(timerInterval: Date.now...max(entry.budgetEnd, Date.now.addingTimeInterval(1)), countsDown: true)
+                        Text(timerInterval: outRange, countsDown: true)
                             .monospacedDigit()
                             .fixedSize()
                         Text("left")

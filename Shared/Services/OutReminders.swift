@@ -1,5 +1,5 @@
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
 
 /// One reminder to schedule. Pure data so the timing can be unit-tested.
 struct PlannedReminder: Equatable, Sendable {
@@ -91,19 +91,31 @@ enum OutReminders {
 }
 
 /// Handles taps on the "Put back in" button, and shows reminders even while the app is open.
+/// Uses the completion-handler methods and hops to the main actor by hand: the async variants
+/// trapped on a background executor when a notification opened the app.
 final class NotificationDelegate: NSObject, UNUserNotificationCenterDelegate, @unchecked Sendable {
     static let shared = NotificationDelegate()
 
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse
-    ) async {
-        guard response.actionIdentifier == OutReminders.putBackActionID else { return }
-        await MainActor.run { SessionService.shared.putBackIn() }
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let action = response.actionIdentifier
+        nonisolated(unsafe) let done = completionHandler
+        if action == OutReminders.putBackActionID {
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated { SessionService.shared.putBackIn() }
+                done()
+            }
+        } else {
+            done()
+        }
     }
 
-    func userNotificationCenter(
-        _ center: UNUserNotificationCenter, willPresent notification: UNNotification
-    ) async -> UNNotificationPresentationOptions {
-        [.banner, .sound]
+    nonisolated func userNotificationCenter(
+        _ center: UNUserNotificationCenter, willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .sound])
     }
 }
