@@ -1,5 +1,4 @@
 import AppIntents
-import SwiftData
 import SwiftUI
 import WidgetKit
 
@@ -52,11 +51,12 @@ struct WearProvider: TimelineProvider {
         var refresh = Date.now.addingTimeInterval(15 * 60)
 
         if first.isOut, first.budgetEnd > .now {
-            // While out, add an entry every 5 minutes so the ring keeps filling, plus one at the budget end.
-            var t = Date.now.addingTimeInterval(5 * 60)
-            while t < first.budgetEnd, entries.count < 36 {
+            // Keep it light while a Live Activity is running (they share one extension process):
+            // live timers do the ticking, so only a few ring updates plus one at the budget end.
+            var t = Date.now.addingTimeInterval(15 * 60)
+            while t < first.budgetEnd, entries.count < 6 {
                 entries.append(Self.entry(from: first, at: t))
-                t = t.addingTimeInterval(5 * 60)
+                t = t.addingTimeInterval(15 * 60)
             }
             entries.append(Self.entry(from: first, at: first.budgetEnd))
             refresh = first.budgetEnd.addingTimeInterval(15 * 60)
@@ -77,31 +77,11 @@ struct WearProvider: TimelineProvider {
     /// Reads the small snapshot the app keeps in the App Group (no database access).
     static func load(now: Date) -> WearEntry? {
         guard let data = WidgetSnapshot.load() else { return nil }
-        let spans = data.spans.map { SessionSpan(start: $0.start, end: $0.end) }
-        let settings = WearSettings.load()
-        let tracking = settings.resolvedTrackingStart(firstSession: data.firstSessionStart)
-        let snap = WearCalculator.snapshot(
-            sessions: spans, now: now, budgetSeconds: settings.budgetSeconds, calendar: .current, trackingStart: tracking
-        )
-
-        let open = spans.first(where: { $0.end == nil })
-        var budgetEnd = now.addingTimeInterval(snap.leftSeconds)
-        if let open {
-            let others = spans.filter { $0.start != open.start }
-            let before = WearCalculator.snapshot(sessions: others, now: open.start, budgetSeconds: settings.budgetSeconds, calendar: .current)
-            budgetEnd = open.start.addingTimeInterval(max(1, before.leftSeconds))
-        }
-
-        var tray: String?
-        if let t = data.tray {
-            let day = TrayLogic.dayNumber(start: t.startDate, now: now, calendar: .current)
-            tray = "Tray \(t.number) · Day \(day) of \(t.plannedDays)"
-        }
-
+        let st = WearStatus.make(from: data, settings: WearSettings.load(), now: now)
         return WearEntry(
-            date: now, isOut: open != nil, outStart: open?.start ?? now, budgetEnd: budgetEnd,
-            wornSeconds: snap.wornSeconds, wornFraction: snap.goalProgress, leftSeconds: snap.leftSeconds,
-            goalHours: settings.goalHours, trayLine: tray
+            date: now, isOut: st.isOut, outStart: st.outStart, budgetEnd: st.budgetEnd,
+            wornSeconds: st.wornSeconds, wornFraction: st.wornFraction, leftSeconds: st.leftSeconds,
+            goalHours: st.goalHours, trayLine: st.trayLine
         )
     }
 }

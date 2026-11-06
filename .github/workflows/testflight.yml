@@ -84,6 +84,7 @@ jobs:
             <dict>
               <key>com.bzrmed.inly</key><string>Inly CI AppStore</string>
               <key>com.bzrmed.inly.widgets</key><string>Inly CI Widgets AppStore</string>
+              <key>com.bzrmed.inly.watchkitapp</key><string>Inly CI Watch AppStore</string>
             </dict>
             <key>uploadSymbols</key><true/>
           </dict>

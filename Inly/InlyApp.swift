@@ -9,6 +9,7 @@ struct InlyApp: App {
     init() {
         SessionService.shared.ensureTray()
         OutReminders.registerCategory()
+        PhoneConnectivity.shared.start()
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
     }
 

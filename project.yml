@@ -54,6 +54,36 @@ targets:
     dependencies:
       - target: InlyWidgets
         embed: true
+      - target: InlyWatch
+        embed: true
+  InlyWatch:
+    type: application
+    platform: watchOS
+    deploymentTarget: "26.0"
+    sources:
+      - path: InlyWatch
+      - path: Shared/Watch
+      - path: Shared/DesignSystem/Theme.swift
+      - path: Shared/DesignSystem/TimeFormat.swift
+    info:
+      path: InlyWatch/Info.plist
+      properties:
+        CFBundleDisplayName: Inly
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        WKApplication: true
+        WKCompanionAppBundleIdentifier: com.bzrmed.inly
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly.watchkitapp
+        TARGETED_DEVICE_FAMILY: "4"
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        SKIP_INSTALL: YES
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+          PROVISIONING_PROFILE_SPECIFIER: "Inly CI Watch AppStore"
   InlyWidgets:
     type: app-extension
     platform: iOS
@@ -113,6 +143,7 @@ schemes:
       targets:
         Inly: all
         InlyWidgets: all
+        InlyWatch: all
     test:
       targets:
         - InlyUITests
@@ -121,6 +152,7 @@ schemes:
       targets:
         Inly: all
         InlyWidgets: all
+        InlyWatch: all
     test:
       targets:
         - InlyTests

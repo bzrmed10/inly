@@ -261,10 +261,25 @@ final class SessionService {
     func writeWidgetSnapshot() {
         let all = (try? context.fetch(FetchDescriptor<WearSession>())) ?? []
         let tray = currentTray().map { WidgetSnapshot.TrayInfo(number: $0.number, startDate: $0.startDate, plannedDays: $0.plannedDays) }
-        WidgetSnapshot.make(
+        let snapshot = WidgetSnapshot.make(
             sessions: all.map { SessionSpan(start: $0.start, end: $0.end) },
             firstSessionStart: all.map(\.start).min(), tray: tray
-        ).save()
+        )
+        snapshot.save()
+        PhoneConnectivity.shared.push(WearStatus.make(from: snapshot, settings: WearSettings.load(), now: .now))
+    }
+
+    /// Runs a command that came from the Apple Watch and returns the resulting state.
+    /// Commands are explicit (not "toggle") so a late or repeated delivery can't flip the wrong way.
+    func handleWatchCommand(_ command: String?) -> WearStatus? {
+        switch command {
+        case WatchPayload.takeOutCommand: takeOut()
+        case WatchPayload.putBackCommand: putBackIn()
+        default: break
+        }
+        writeWidgetSnapshot()
+        guard let snapshot = WidgetSnapshot.load() else { return nil }
+        return WearStatus.make(from: snapshot, settings: WearSettings.load(), now: .now)
     }
 
     private func save() {

@@ -25,6 +25,7 @@ API = "https://api.appstoreconnect.apple.com/v1"
 PROFILES = {
     "com.bzrmed.inly": "Inly CI AppStore",
     "com.bzrmed.inly.widgets": "Inly CI Widgets AppStore",
+    "com.bzrmed.inly.watchkitapp": "Inly CI Watch AppStore",
 }
 WORK = pathlib.Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "signing"
 STATE = WORK / "state.json"
@@ -83,7 +84,12 @@ def bundle_id_resource(identifier: str) -> str:
     for item in listing.get("data", []):
         if item["attributes"]["identifier"] == identifier:
             return item["id"]
-    raise RuntimeError(f"Bundle ID {identifier} not found in the developer account")
+    # Not registered yet (e.g. the watch app's ID): register it.
+    body = {"data": {"type": "bundleIds", "attributes": {
+        "identifier": identifier, "name": "Inly " + identifier.rsplit(".", 1)[-1], "platform": "IOS"}}}
+    created = call("POST", "/bundleIds", json=body)["data"]
+    print("Registered bundle ID", identifier)
+    return created["id"]
 
 
 def delete_profiles_named(name: str) -> None:
