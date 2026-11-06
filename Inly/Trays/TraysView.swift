@@ -16,6 +16,7 @@ struct TraysView: View {
     @State private var showStart = false
     @State private var showExtend = false
     @State private var showAppointment = false
+    @State private var showCompare = false
     @State private var detailTray: Tray?
     @State private var toast: ToastData?
     @State private var toastTask: Task<Void, Never>?
@@ -41,6 +42,9 @@ struct TraysView: View {
                 header.row(insets)
                 progress.row(insets)
                 appointmentCard.row(insets)
+                if trays.filter({ $0.photoData != nil }).count >= 2 {
+                    compareButton.row(insets)
+                }
                 if let current {
                     currentCard(current).row(insets)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
@@ -95,6 +99,7 @@ struct TraysView: View {
                 }
             }
         }
+        .sheet(isPresented: $showCompare) { CompareSheet() }
         .sheet(item: $detailTray) { tray in TrayDetailSheet(tray: tray) }
         .sheet(isPresented: $showAppointment) {
             AppointmentSheet(initial: settings.nextAppointment) { date in
@@ -149,6 +154,25 @@ struct TraysView: View {
                 .accessibilityElement(children: .combine)
             }
         }
+    }
+
+    private var compareButton: some View {
+        Button { showCompare = true } label: {
+            HStack(spacing: 14) {
+                Image(systemName: "rectangle.split.2x1")
+                    .font(.title3).foregroundStyle(Theme.trayColor)
+                    .frame(width: 40, height: 40).background(Theme.raised, in: Circle())
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Compare photos").font(Theme.font(15, .heavy))
+                    Text("See how your smile has moved").font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(Theme.muted)
+            }
+            .padding(14)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     private var appointmentCard: some View {

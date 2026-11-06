@@ -33,6 +33,7 @@ targets:
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         NSSupportsLiveActivities: true
+        NSCameraUsageDescription: Inly uses the camera to take progress photos of your teeth. Photos stay on your iPhone.
         ITSAppUsesNonExemptEncryption: false
     entitlements:
       path: Inly/Inly.entitlements

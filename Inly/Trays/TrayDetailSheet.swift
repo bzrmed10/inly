@@ -10,6 +10,7 @@ struct TrayDetailSheet: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var pickerItem: PhotosPickerItem?
+    @State private var showCamera = false
     @State private var draft = ""
     @FocusState private var focused: Bool
 
@@ -64,43 +65,65 @@ struct TrayDetailSheet: View {
                     .frame(maxWidth: .infinity).frame(height: 240)
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                     .accessibilityLabel("Progress photo for tray \(tray.number)")
-                HStack(spacing: 10) {
-                    PhotosPicker(selection: $pickerItem, matching: .images) {
-                        Label("Replace", systemImage: "photo").frame(maxWidth: .infinity, minHeight: 46)
-                    }
-                    .buttonStyle(.plain)
-                    .background(Theme.raised, in: Capsule())
-                    Button(role: .destructive) { SessionService.shared.setPhoto(nil, for: tray); pickerItem = nil } label: {
-                        Label("Remove", systemImage: "trash").frame(maxWidth: .infinity, minHeight: 46)
-                    }
-                    .buttonStyle(.plain)
-                    .background(Theme.raised, in: Capsule())
-                }
-                .font(Theme.font(15, .heavy))
+                photoButtons(hasPhoto: true)
             } else {
-                PhotosPicker(selection: $pickerItem, matching: .images) {
-                    VStack(spacing: 8) {
-                        Image(systemName: "camera.fill").font(.title)
-                        Text("Add a photo of your teeth in this tray").font(Theme.font(15, .bold))
-                    }
-                    .foregroundStyle(Theme.muted)
-                    .frame(maxWidth: .infinity).frame(height: 150)
-                    .background(Theme.raised, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                VStack(spacing: 10) {
+                    Image(systemName: "camera.fill").font(.title).foregroundStyle(Theme.muted)
+                    Text("Add a photo of your teeth in this tray")
+                        .font(Theme.font(15, .bold)).foregroundStyle(Theme.muted)
                 }
-                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity).frame(height: 120)
+                .background(Theme.raised, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                photoButtons(hasPhoto: false)
             }
         }
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraPicker { image in savePhoto(Self.downsized(image)) }
+                .ignoresSafeArea()
+        }
+    }
+
+    private func photoButtons(hasPhoto: Bool) -> some View {
+        HStack(spacing: 10) {
+            if CameraPicker.isAvailable {
+                Button { showCamera = true } label: {
+                    Label("Camera", systemImage: "camera").frame(maxWidth: .infinity, minHeight: 46)
+                }
+                .buttonStyle(.plain)
+                .background(Theme.inColor, in: Capsule())
+                .foregroundStyle(Theme.night)
+            }
+            PhotosPicker(selection: $pickerItem, matching: .images) {
+                Label("Library", systemImage: "photo").frame(maxWidth: .infinity, minHeight: 46)
+            }
+            .buttonStyle(.plain)
+            .background(CameraPicker.isAvailable ? Theme.raised : Theme.inColor, in: Capsule())
+            .foregroundStyle(CameraPicker.isAvailable ? Color.white : Theme.night)
+            if hasPhoto {
+                Button(role: .destructive) { SessionService.shared.setPhoto(nil, for: tray); pickerItem = nil } label: {
+                    Image(systemName: "trash").frame(width: 46, height: 46)
+                }
+                .buttonStyle(.plain)
+                .background(Theme.raised, in: Circle())
+                .accessibilityLabel("Remove photo")
+            }
+        }
+        .font(Theme.font(15, .heavy))
+    }
+
+    private func savePhoto(_ data: Data?) {
+        guard let data else { return }
+        SessionService.shared.setPhoto(data, for: tray)
     }
 
     private func loadPhoto(_ item: PhotosPickerItem) async {
         guard let raw = try? await item.loadTransferable(type: Data.self),
-              let jpeg = Self.downsized(raw) else { return }
-        SessionService.shared.setPhoto(jpeg, for: tray)
+              let image = UIImage(data: raw) else { return }
+        savePhoto(Self.downsized(image))
     }
 
     /// Keeps photos small (max 1600 px, JPEG) so the database stays light.
-    static func downsized(_ data: Data, maxSide: CGFloat = 1600) -> Data? {
-        guard let image = UIImage(data: data) else { return nil }
+    static func downsized(_ image: UIImage, maxSide: CGFloat = 1600) -> Data? {
         let longest = max(image.size.width, image.size.height)
         let scale = min(1, maxSide / max(1, longest))
         let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
