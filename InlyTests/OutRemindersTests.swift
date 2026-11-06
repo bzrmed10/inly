@@ -62,3 +62,27 @@ struct AppointmentReminderTests {
         #expect(AppointmentReminders.plan(for: appt, now: now, calendar: cal).isEmpty)
     }
 }
+
+struct WearStatusTests {
+    @Test func buildsStatusWhileOut() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        let snap = WidgetSnapshot(
+            spans: [
+                .init(start: now.addingTimeInterval(-86_400 * 2), end: now.addingTimeInterval(-86_400 * 2 + 3600)),
+                .init(start: now.addingTimeInterval(-600), end: nil),
+            ],
+            firstSessionStart: now.addingTimeInterval(-86_400 * 2),
+            tray: .init(number: 3, startDate: now.addingTimeInterval(-86_400 * 4), plannedDays: 14)
+        )
+        let status = WearStatus.make(from: snap, settings: WearSettings(), now: now)
+        #expect(status.isOut)
+        #expect(status.budgetEnd > now)
+        #expect(status.trayLine?.hasPrefix("Tray 3") == true)
+    }
+
+    @Test func snapshotRoundTrips() throws {
+        let snap = WidgetSnapshot(spans: [.init(start: .now, end: nil)], firstSessionStart: .now, tray: nil)
+        let data = try JSONEncoder().encode(snap)
+        #expect(try JSONDecoder().decode(WidgetSnapshot.self, from: data).spans.count == 1)
+    }
+}

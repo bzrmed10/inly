@@ -47,19 +47,13 @@ struct WearProvider: TimelineProvider {
             completion(Timeline(entries: [.placeholder], policy: .after(.now.addingTimeInterval(20))))
             return
         }
-        var entries = [first]
+        let entries = [first]
         var refresh = Date.now.addingTimeInterval(15 * 60)
 
         if first.isOut, first.budgetEnd > .now {
-            // Keep it light while a Live Activity is running (they share one extension process):
-            // live timers do the ticking, so only a few ring updates plus one at the budget end.
-            var t = Date.now.addingTimeInterval(15 * 60)
-            while t < first.budgetEnd, entries.count < 6 {
-                entries.append(Self.entry(from: first, at: t))
-                t = t.addingTimeInterval(15 * 60)
-            }
-            entries.append(Self.entry(from: first, at: first.budgetEnd))
-            refresh = first.budgetEnd.addingTimeInterval(15 * 60)
+            // One entry, same shape as the "in" state. The live timers tick on their own;
+            // refresh when the budget ends (or in 15 minutes) so the colour and label change.
+            refresh = min(first.budgetEnd, Date.now.addingTimeInterval(15 * 60))
         }
         completion(Timeline(entries: entries, policy: .after(refresh)))
     }
@@ -133,7 +127,7 @@ private struct WearWidgetView: View {
     private var centerValue: some View {
         Group {
             if entry.isOut {
-                Text(timerInterval: entry.outStart...entry.outStart.addingTimeInterval(86_400), countsDown: false)
+                Text(entry.outStart, style: .timer)
                     .monospacedDigit()
                     .multilineTextAlignment(.center)
                     .frame(maxWidth: .infinity)
@@ -171,9 +165,10 @@ private struct WearWidgetView: View {
                     Text("Over budget")
                 } else {
                     HStack(spacing: 4) {
-                        Text(timerInterval: outRange, countsDown: true)
+                        Text(entry.budgetEnd, style: .timer)
                             .monospacedDigit()
-                            .fixedSize()
+                            .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 70, alignment: .trailing)
                         Text("left")
                     }
                 }
@@ -241,7 +236,7 @@ private struct WearWidgetView: View {
             Text(entry.isOut ? "Aligners OUT" : "Aligners IN")
                 .font(.system(.headline, design: .rounded, weight: .heavy))
             if entry.isOut {
-                Text(timerInterval: entry.outStart...entry.outStart.addingTimeInterval(86_400), countsDown: false)
+                Text(entry.outStart, style: .timer)
                     .font(.system(.title3, design: .rounded, weight: .heavy)).monospacedDigit()
                 ProgressView(timerInterval: outRange, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
                 leftLabel(font: .system(.caption, design: .rounded, weight: .semibold))
