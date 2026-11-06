@@ -70,7 +70,9 @@ struct TrayDetailSheet: View {
                 Image(uiImage: image)
                     .resizable().scaledToFill()
                     .frame(maxWidth: .infinity).frame(height: 240)
+                    .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                    .allowsHitTesting(false)
                     .accessibilityLabel("Progress photo for tray \(tray.number)")
                 photoButtons(hasPhoto: true)
             } else {

@@ -87,6 +87,8 @@ struct CompareSheet: View {
                 Theme.raised
             }
         }
+        // A filled photo is bigger than its frame; without this it would catch taps meant for the buttons above it.
+        .allowsHitTesting(false)
     }
 
     private func sideBySide(_ l: Tray?, _ r: Tray?) -> some View {
@@ -97,6 +99,7 @@ struct CompareSheet: View {
                         .font(Theme.font(14, .heavy))
                     photo(t)
                         .frame(maxWidth: .infinity).frame(height: 260)
+                        .clipped()
                         .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 }
             }
