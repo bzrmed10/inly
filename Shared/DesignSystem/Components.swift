@@ -98,6 +98,7 @@ struct StepperRow: View {
     let valueText: String
     @Binding var value: Int
     var range: ClosedRange<Int>
+    var step: Int = 1
 
     var body: some View {
         HStack {
@@ -108,9 +109,9 @@ struct StepperRow: View {
             }
             Spacer()
             HStack(spacing: 8) {
-                roundButton("minus", label: "One less") { value = max(range.lowerBound, value - 1) }
+                roundButton("minus", label: "One less") { value = max(range.lowerBound, value - step) }
                     .disabled(value <= range.lowerBound)
-                roundButton("plus", label: "One more") { value = min(range.upperBound, value + 1) }
+                roundButton("plus", label: "One more") { value = min(range.upperBound, value + step) }
                     .disabled(value >= range.upperBound)
             }
         }
@@ -124,8 +125,8 @@ struct StepperRow: View {
         .accessibilityValue(valueText)
         .accessibilityAdjustableAction { direction in
             switch direction {
-            case .increment: value = min(range.upperBound, value + 1)
-            case .decrement: value = max(range.lowerBound, value - 1)
+            case .increment: value = min(range.upperBound, value + step)
+            case .decrement: value = max(range.lowerBound, value - step)
             @unknown default: break
             }
         }

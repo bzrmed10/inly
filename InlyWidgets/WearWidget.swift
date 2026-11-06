@@ -39,11 +39,15 @@ struct WearProvider: TimelineProvider {
     func placeholder(in context: Context) -> WearEntry { .placeholder }
 
     func getSnapshot(in context: Context, completion: @escaping @Sendable (WearEntry) -> Void) {
-        completion(context.isPreview ? .placeholder : Self.load(now: .now))
+        completion(context.isPreview ? .placeholder : (Self.load(now: .now) ?? .placeholder))
     }
 
     func getTimeline(in context: Context, completion: @escaping @Sendable (Timeline<WearEntry>) -> Void) {
-        let first = Self.load(now: .now)
+        guard let first = Self.load(now: .now) else {
+            // Store busy: show something sensible and try again shortly instead of an empty widget.
+            completion(Timeline(entries: [.placeholder], policy: .after(.now.addingTimeInterval(20))))
+            return
+        }
         var entries = [first]
         var refresh = Date.now.addingTimeInterval(15 * 60)
 
@@ -70,8 +74,9 @@ struct WearProvider: TimelineProvider {
         )
     }
 
-    static func load(now: Date) -> WearEntry {
-        let context = ModelContext(DataStore.makeContainer())
+    static func load(now: Date) -> WearEntry? {
+        guard let container = DataStore.makeContainerIfPossible(attempts: 6) else { return nil }
+        let context = ModelContext(container)
         let sessions = (try? context.fetch(FetchDescriptor<WearSession>())) ?? []
         let spans = sessions.map { SessionSpan(start: $0.start, end: $0.end) }
         let settings = WearSettings.load()

@@ -1,5 +1,6 @@
 import SwiftData
 import SwiftUI
+import UserNotifications
 
 @main
 struct InlyApp: App {
@@ -7,6 +8,8 @@ struct InlyApp: App {
 
     init() {
         SessionService.shared.ensureTray()
+        OutReminders.registerCategory()
+        UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
     }
 
     var body: some Scene {

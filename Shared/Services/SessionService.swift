@@ -247,7 +247,10 @@ final class SessionService {
             await LiveActivityController.reconcile(outStart: start, reasonRaw: reason, budgetLeftAtStart: left)
         }
         if let open {
-            OutReminders.schedule(budgetEnd: open.start.addingTimeInterval(max(1, left)), now: now)
+            OutReminders.schedule(
+                outStart: open.start, reason: OutReason(rawValue: reason) ?? .other,
+                budgetEnd: open.start.addingTimeInterval(max(1, left)), now: now
+            )
         } else {
             OutReminders.cancel()
         }

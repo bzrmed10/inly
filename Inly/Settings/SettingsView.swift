@@ -54,6 +54,25 @@ struct SettingsView: View {
                     .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
                 }
 
+                section("Still out? reminders") {
+                    Text("Get a nudge when you've been out longer than this, with a Put back in button.")
+                        .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    ForEach(OutReason.allCases, id: \.self) { reason in
+                        StepperRow(
+                            title: reason.title,
+                            valueText: settings.stillOut(for: reason) == 0 ? "Off" : "After \(settings.stillOut(for: reason)) min",
+                            value: Binding(
+                                get: { settings.stillOut(for: reason) },
+                                set: { settings.setStillOut($0, for: reason) }
+                            ),
+                            range: 0...120, step: 5
+                        )
+                    }
+                }
+                .opacity(settings.remindersEnabled ? 1 : 0.45)
+                .disabled(!settings.remindersEnabled)
+
                 section("Setup") {
                     Button { confirmRedo = true } label: {
                         Text("Redo first-time setup")

@@ -10,6 +10,18 @@ struct WearSettings: Sendable, Equatable {
     var onboardingDone: Bool = false
     /// When tracking really began (end of setup). Time before this is never counted as worn.
     var trackingStart: Date?
+    /// Minutes after which to ask "still out?", per reason (OutReason raw value). 0 = off.
+    var stillOutMinutes: [String: Int] = WearSettings.defaultStillOut
+
+    static let defaultStillOut: [String: Int] = ["meal": 45, "brushing": 10, "drink": 15, "other": 30]
+
+    func stillOut(for reason: OutReason) -> Int {
+        stillOutMinutes[reason.rawValue] ?? Self.defaultStillOut[reason.rawValue] ?? 30
+    }
+
+    mutating func setStillOut(_ minutes: Int, for reason: OutReason) {
+        stillOutMinutes[reason.rawValue] = minutes
+    }
 
     var goalSeconds: TimeInterval { TimeInterval(goalHours) * 3600 }
     /// Allowed time out of the mouth per day.
@@ -23,6 +35,7 @@ struct WearSettings: Sendable, Equatable {
         static let name = "userName"
         static let onboarded = "onboardingDone"
         static let tracking = "trackingStart"
+        static let stillOut = "stillOutMinutes"
     }
 
     private static var defaults: UserDefaults {
@@ -39,13 +52,16 @@ struct WearSettings: Sendable, Equatable {
         s.userName = d.string(forKey: Key.name) ?? ""
         s.onboardingDone = d.bool(forKey: Key.onboarded)
         if d.object(forKey: Key.tracking) != nil { s.trackingStart = Date(timeIntervalSince1970: d.double(forKey: Key.tracking)) }
+        if let saved = d.dictionary(forKey: Key.stillOut) as? [String: Int] {
+            s.stillOutMinutes.merge(saved) { _, new in new }
+        }
         return s
     }
 
     /// Forget everything (used by UI tests that need a first launch).
     static func reset() {
         let d = defaults
-        for k in [Key.goal, Key.total, Key.days, Key.reminders, Key.name, Key.onboarded, Key.tracking] { d.removeObject(forKey: k) }
+        for k in [Key.goal, Key.total, Key.days, Key.reminders, Key.name, Key.onboarded, Key.tracking, Key.stillOut] { d.removeObject(forKey: k) }
     }
 
     func save() {
@@ -56,6 +72,7 @@ struct WearSettings: Sendable, Equatable {
         d.set(remindersEnabled, forKey: Key.reminders)
         d.set(userName, forKey: Key.name)
         d.set(onboardingDone, forKey: Key.onboarded)
+        d.set(stillOutMinutes, forKey: Key.stillOut)
         if let trackingStart { d.set(trackingStart.timeIntervalSince1970, forKey: Key.tracking) } else { d.removeObject(forKey: Key.tracking) }
     }
 }
