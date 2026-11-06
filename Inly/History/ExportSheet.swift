@@ -8,7 +8,7 @@ struct ExportSheet: View {
     @Query(sort: \TrayNote.date) private var notes: [TrayNote]
     @Environment(\.dismiss) private var dismiss
 
-    enum Range: String, CaseIterable, Identifiable {
+    enum Period: String, CaseIterable, Identifiable {
         case week = "7 days", month = "30 days", all = "Everything"
         var id: String { rawValue }
     }
@@ -18,7 +18,7 @@ struct ExportSheet: View {
         var ext: String { self == .pdf ? "pdf" : "csv" }
     }
 
-    @State private var range: Range = .month
+    @State private var range: Period = .month
     @State private var format: Format = .pdf
     @State private var fileURL: URL?
     @State private var settings = WearSettings.load()
@@ -48,7 +48,7 @@ struct ExportSheet: View {
             Text("Wear time, trays and notes in one file you can send by email or message.")
                 .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
 
-            picker("Period", selection: $range, options: Range.allCases) { $0.rawValue }
+            picker("Period", selection: $range, options: Period.allCases) { $0.rawValue }
             picker("Format", selection: $format, options: Format.allCases) { $0.rawValue }
 
             Spacer(minLength: 0)

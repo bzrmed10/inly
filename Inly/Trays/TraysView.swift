@@ -25,6 +25,13 @@ struct TraysView: View {
     private var spans: [SessionSpan] { sessions.map { SessionSpan(start: $0.start, end: $0.end) } }
     private var trackingMoment: Date? { settings.resolvedTrackingStart(firstSession: sessions.map(\.start).min()) }
     private func from(_ tray: Tray) -> Date { max(tray.startDate, trackingMoment ?? tray.startDate) }
+    private var forecast: Insights.Forecast? {
+        guard let current else { return nil }
+        return Insights.forecast(
+            currentStart: current.startDate, plannedDays: current.plannedDays, currentNumber: current.number,
+            totalTrays: max(settings.totalTrays, current.number), defaultDays: settings.defaultTrayDays, now: .now, calendar: .current
+        )
+    }
     private var nextNumber: Int { (trays.first?.number ?? 0) + 1 }
     private let insets = EdgeInsets(top: 4, leading: 20, bottom: 4, trailing: 20)
 
@@ -128,6 +135,18 @@ struct TraysView: View {
                         .fill(i < cur ? Theme.trayColor : (i == cur ? Color.white : Color(hex: 0x2A2A33)))
                         .frame(height: 8)
                 }
+            }
+            if let f = forecast {
+                HStack {
+                    Image(systemName: "flag.checkered").foregroundStyle(Theme.trayColor)
+                    Text("Estimated finish \(f.finishDate.formatted(.dateTime.month(.abbreviated).day().year()))")
+                        .font(Theme.font(14, .heavy))
+                    Spacer()
+                    Text(f.daysLeft == 0 ? "today" : "in \(f.daysLeft) days")
+                        .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+                }
+                .padding(.top, 4)
+                .accessibilityElement(children: .combine)
             }
         }
     }
