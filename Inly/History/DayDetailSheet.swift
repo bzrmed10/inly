@@ -13,6 +13,7 @@ struct DayDetailSheet: View {
 
     private var sessions: [WearSession] {
         allSessions.filter { $0.start < interval.end && ($0.end ?? .now) > interval.start }
+            .sorted { $0.start > $1.start }
     }
 
     var body: some View {

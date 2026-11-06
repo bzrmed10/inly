@@ -24,17 +24,17 @@ struct WatchHomeView: View {
         let range = p.outStart...max(p.budgetEnd, p.outStart.addingTimeInterval(1))
         return VStack(spacing: 6) {
             ZStack {
-                Circle().stroke(Theme.raised, lineWidth: 9)
+                Circle().stroke(Theme.raised, lineWidth: 8)
                 if p.isOut {
                     // The timer text ticks by itself; the ring is the budget used when this screen was drawn.
                     Circle()
                         .trim(from: 0, to: outFraction(p))
-                        .stroke(color, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                        .stroke(color, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                 } else {
                     Circle()
                         .trim(from: 0, to: max(0.001, p.wornFraction))
-                        .stroke(color, style: StrokeStyle(lineWidth: 9, lineCap: .round))
+                        .stroke(color, style: StrokeStyle(lineWidth: 8, lineCap: .round))
                         .rotationEffect(.degrees(-90))
                 }
                 VStack(spacing: 0) {
@@ -42,15 +42,15 @@ struct WatchHomeView: View {
                         .font(Theme.font(11, .heavy)).tracking(1).foregroundStyle(color)
                     if p.isOut {
                         Text(timerInterval: p.outStart...p.outStart.addingTimeInterval(86_400), countsDown: false)
-                            .font(Theme.font(24, .heavy)).monospacedDigit().minimumScaleFactor(0.6).lineLimit(1)
+                            .font(Theme.font(19, .heavy)).monospacedDigit().minimumScaleFactor(0.5).lineLimit(1)
                     } else {
                         Text(TimeFormat.hoursMinutes(p.wornSeconds))
-                            .font(Theme.font(24, .heavy)).minimumScaleFactor(0.6).lineLimit(1)
+                            .font(Theme.font(19, .heavy)).minimumScaleFactor(0.5).lineLimit(1)
                     }
                 }
-                .padding(.horizontal, 14)
+                .padding(.horizontal, 24)
             }
-            .frame(maxWidth: 120, maxHeight: 120)
+            .frame(maxWidth: 124, maxHeight: 124)
 
             Group {
                 if p.isOut {

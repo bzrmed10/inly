@@ -13,7 +13,7 @@ struct ExportSheet: View {
         var id: String { rawValue }
     }
     enum Format: String, CaseIterable, Identifiable {
-        case pdf = "PDF report", daily = "CSV · per day", breaks = "CSV · every break"
+        case pdf = "PDF report", daily = "CSV · per day"
         var id: String { rawValue }
         var ext: String { self == .pdf ? "pdf" : "csv" }
     }
@@ -35,7 +35,6 @@ struct ExportSheet: View {
         return ReportBuilder.Input(
             name: settings.userName, goalHours: settings.goalHours, from: from, now: now, trackingStart: tracking,
             spans: sessions.map { SessionSpan(start: $0.start, end: $0.end) },
-            breaks: sessions.map { .init(start: $0.start, end: $0.end, reason: $0.reason.title) },
             trays: trays.map { .init(number: $0.number, start: $0.startDate, end: $0.endDate, plannedDays: $0.plannedDays) },
             notes: notes.map { .init(trayNumber: $0.trayNumber, date: $0.date, text: $0.text) },
             appointment: settings.nextAppointment
@@ -101,13 +100,12 @@ struct ExportSheet: View {
 
     private func build() {
         let data = input
-        let name = "Inly-\(format == .pdf ? "report" : (format == .daily ? "daily" : "breaks"))-\(Date.now.formatted(.iso8601.year().month().day())).\(format.ext)"
+        let name = "Inly-\(format == .pdf ? "report" : "daily")-\(Date.now.formatted(.iso8601.year().month().day())).\(format.ext)"
         let url = FileManager.default.temporaryDirectory.appending(path: name)
         let bytes: Data
         switch format {
         case .pdf: bytes = ReportBuilder.pdf(data)
         case .daily: bytes = Data(ReportBuilder.dailyCSV(data).utf8)
-        case .breaks: bytes = Data(ReportBuilder.breaksCSV(data).utf8)
         }
         do {
             try bytes.write(to: url, options: .atomic)

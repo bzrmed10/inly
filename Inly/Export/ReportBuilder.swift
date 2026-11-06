@@ -3,11 +3,6 @@ import UIKit
 
 /// Builds the CSV and PDF files that can be shared with an orthodontist.
 enum ReportBuilder {
-    struct BreakRow: Equatable {
-        var start: Date
-        var end: Date?
-        var reason: String
-    }
     struct TrayRow: Equatable {
         var number: Int
         var start: Date
@@ -27,7 +22,6 @@ enum ReportBuilder {
         var now: Date
         var trackingStart: Date?
         var spans: [SessionSpan]
-        var breaks: [BreakRow]
         var trays: [TrayRow]
         var notes: [NoteRow]
         var appointment: Date?
@@ -62,13 +56,6 @@ enum ReportBuilder {
         return f
     }
 
-    private static func escape(_ s: String) -> String {
-        if s.contains(",") || s.contains("\"") || s.contains("\n") {
-            return "\"" + s.replacingOccurrences(of: "\"", with: "\"\"") + "\""
-        }
-        return s
-    }
-
     /// One line per day: hours worn, hours out, and whether the goal was met.
     static func dailyCSV(_ input: Input) -> String {
         let f = formatter("yyyy-MM-dd", input.calendar)
@@ -85,24 +72,6 @@ enum ReportBuilder {
                 "\(input.goalHours)",
                 met ? "yes" : "no",
                 complete ? "yes" : "no",
-            ].joined(separator: ","))
-        }
-        return lines.joined(separator: "\n") + "\n"
-    }
-
-    /// One line per time the aligners were out.
-    static func breaksCSV(_ input: Input) -> String {
-        let f = formatter("yyyy-MM-dd HH:mm", input.calendar)
-        var lines = ["start,end,minutes,reason"]
-        let lower = input.from
-        for b in input.breaks.sorted(by: { $0.start < $1.start }) where (b.end ?? input.now) >= lower {
-            let end = b.end ?? input.now
-            let minutes = Int((end.timeIntervalSince(b.start) / 60).rounded())
-            lines.append([
-                f.string(from: b.start),
-                b.end == nil ? "" : f.string(from: end),
-                "\(minutes)",
-                escape(b.reason),
             ].joined(separator: ","))
         }
         return lines.joined(separator: "\n") + "\n"

@@ -20,6 +20,7 @@ struct CompareSheet: View {
         let left = tray(leftNumber ?? withPhotos.first?.number)
         let right = tray(rightNumber ?? withPhotos.last?.number)
 
+        ScrollView {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
                 Text("Compare").font(Theme.font(28, .heavy))
@@ -38,7 +39,7 @@ struct CompareSheet: View {
 
                 Picker("Style", selection: $slider) {
                     Text("Slider").tag(true)
-                    Text("Side by side").tag(false)
+                    Text("Stacked").tag(false)
                 }
                 .pickerStyle(.segmented)
 
@@ -54,6 +55,9 @@ struct CompareSheet: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 24)
+        .padding(.bottom, 30)
+        }
+        .scrollIndicators(.hidden)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Color(hex: 0x1C1C22))
@@ -86,13 +90,14 @@ struct CompareSheet: View {
     }
 
     private func sideBySide(_ l: Tray?, _ r: Tray?) -> some View {
-        HStack(spacing: 8) {
+        VStack(spacing: 14) {
             ForEach(Array([l, r].enumerated()), id: \.offset) { _, t in
-                VStack(spacing: 6) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(t.map { "Tray \($0.number) · \($0.startDate.formatted(.dateTime.month(.abbreviated).day()))" } ?? "")
+                        .font(Theme.font(14, .heavy))
                     photo(t)
-                        .frame(maxWidth: .infinity).frame(height: 330)
-                        .clipShape(RoundedRectangle(cornerRadius: 20, style: .continuous))
-                    Text(t.map { "Tray \($0.number)" } ?? "").font(Theme.font(13, .heavy))
+                        .frame(maxWidth: .infinity).frame(height: 260)
+                        .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                 }
             }
         }

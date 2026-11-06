@@ -144,7 +144,7 @@ struct ReportBuilderTests {
         let spans = [SessionSpan(start: breakStart, end: breakStart.addingTimeInterval(3600))]
         let input = ReportBuilder.Input(
             name: "A", goalHours: 22, from: start, now: now, trackingStart: start, spans: spans,
-            breaks: [], trays: [], notes: [], appointment: nil, calendar: cal
+            trays: [], notes: [], appointment: nil, calendar: cal
         )
         let lines = ReportBuilder.dailyCSV(input).split(separator: "\n").map(String.init)
         #expect(lines.first == "date,hours_worn,hours_out,goal_hours,goal_met,day_complete")
@@ -152,22 +152,11 @@ struct ReportBuilderTests {
         #expect(lines[2].hasPrefix("2026-03-08,23.00,1.00,22,yes,yes"))
     }
 
-    @Test func breaksCSVListsMinutesAndEscapes() {
-        let now = cal.date(from: DateComponents(year: 2026, month: 3, day: 10, hour: 12))!
-        let s = cal.date(from: DateComponents(year: 2026, month: 3, day: 9, hour: 8))!
-        let input = ReportBuilder.Input(
-            name: "", goalHours: 22, from: s.addingTimeInterval(-86_400), now: now, trackingStart: nil, spans: [],
-            breaks: [.init(start: s, end: s.addingTimeInterval(1800), reason: "Meal, lunch")], trays: [], notes: [], appointment: nil, calendar: cal
-        )
-        let csv = ReportBuilder.breaksCSV(input)
-        #expect(csv.contains("2026-03-09 08:00,2026-03-09 08:30,30,\"Meal, lunch\""))
-    }
-
     @Test func pdfIsGenerated() {
         let now = Date.now
         let input = ReportBuilder.Input(
             name: "Test", goalHours: 22, from: now.addingTimeInterval(-5 * 86_400), now: now,
-            trackingStart: now.addingTimeInterval(-5 * 86_400), spans: [], breaks: [],
+            trackingStart: now.addingTimeInterval(-5 * 86_400), spans: [],
             trays: [.init(number: 1, start: now.addingTimeInterval(-5 * 86_400), end: nil, plannedDays: 14)],
             notes: [.init(trayNumber: 1, date: now, text: "Sore teeth")], appointment: nil
         )

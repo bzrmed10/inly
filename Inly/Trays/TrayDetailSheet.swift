@@ -6,6 +6,8 @@ import UIKit
 /// One tray: progress photo and notes ("sore teeth", "attachment came off").
 struct TrayDetailSheet: View {
     let tray: Tray
+    /// Closes the sheet from the parent (the environment's dismiss stops working after a picker was used).
+    var onClose: () -> Void = {}
     @Query private var notes: [TrayNote]
     @Environment(\.dismiss) private var dismiss
 
@@ -32,7 +34,7 @@ struct TrayDetailSheet: View {
                             .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
                     }
                     Spacer()
-                    Button("Done") { dismiss() }.font(Theme.font(16, .heavy))
+                    Button("Done") { onClose(); dismiss() }.font(Theme.font(16, .heavy))
                 }
 
                 photoSection
@@ -43,6 +45,10 @@ struct TrayDetailSheet: View {
             .padding(.bottom, 30)
         }
         .scrollDismissesKeyboard(.interactively)
+        .fullScreenCover(isPresented: $showCamera) {
+            CameraPicker { image in savePhoto(Self.downsized(image)) }
+                .ignoresSafeArea()
+        }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Color(hex: 0x1C1C22))
@@ -76,10 +82,6 @@ struct TrayDetailSheet: View {
                 .background(Theme.raised, in: RoundedRectangle(cornerRadius: 24, style: .continuous))
                 photoButtons(hasPhoto: false)
             }
-        }
-        .fullScreenCover(isPresented: $showCamera) {
-            CameraPicker { image in savePhoto(Self.downsized(image)) }
-                .ignoresSafeArea()
         }
     }
 

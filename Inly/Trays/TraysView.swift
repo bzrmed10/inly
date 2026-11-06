@@ -100,7 +100,7 @@ struct TraysView: View {
             }
         }
         .sheet(isPresented: $showCompare) { CompareSheet() }
-        .sheet(item: $detailTray) { tray in TrayDetailSheet(tray: tray) }
+        .sheet(item: $detailTray) { tray in TrayDetailSheet(tray: tray, onClose: { detailTray = nil }) }
         .sheet(isPresented: $showAppointment) {
             AppointmentSheet(initial: settings.nextAppointment) { date in
                 if date != nil { TrayNotifications.requestPermission() }
