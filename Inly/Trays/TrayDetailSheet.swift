@@ -18,8 +18,9 @@ struct TrayDetailSheet: View {
 
     private let quick = ["Sore teeth", "Pressure", "Tight fit", "Attachment loose", "Lisp", "All good"]
 
-    init(tray: Tray) {
+    init(tray: Tray, onClose: @escaping () -> Void = {}) {
         self.tray = tray
+        self.onClose = onClose
         let number = tray.number
         _notes = Query(filter: #Predicate<TrayNote> { $0.trayNumber == number }, sort: \.date, order: .reverse)
     }
