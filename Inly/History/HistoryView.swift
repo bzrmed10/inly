@@ -8,6 +8,7 @@ struct HistoryView: View {
     @State private var settings = WearSettings.load()
     @State private var month = Calendar.current.date(from: Calendar.current.dateComponents([.year, .month], from: .now)) ?? .now
     @State private var selectedDay: DayID?
+    @State private var showExport = false
 
     private var spans: [SessionSpan] { sessions.map { SessionSpan(start: $0.start, end: $0.end) } }
 
@@ -29,7 +30,14 @@ struct HistoryView: View {
             }
             .background(Theme.night.ignoresSafeArea())
             .navigationTitle("History")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button { showExport = true } label: { Image(systemName: "square.and.arrow.up") }
+                        .accessibilityLabel("Share with your orthodontist")
+                }
+            }
         }
+        .sheet(isPresented: $showExport) { ExportSheet() }
         .onAppear { settings = WearSettings.load() }
         .sheet(item: $selectedDay) { id in
             DayDetailSheet(day: id.date)
@@ -52,6 +60,7 @@ struct HistoryView: View {
                     stat("Daily average", String(format: "%.1fh", avg), Theme.inColor)
                     stat("Goal met", "\(metCount) of \(finished.count)", Theme.trayColor)
                 }
+                streakRow(now: now)
                 weekChart(week, goal: goal)
                 calendarCard(now: now, goal: goal)
             }
@@ -59,6 +68,15 @@ struct HistoryView: View {
             .padding(.bottom, 24)
         }
         .scrollIndicators(.hidden)
+    }
+
+    private func streakRow(now: Date) -> some View {
+        let days = WearCalculator.dailyWear(endingOn: now, days: 120, sessions: spans, calendar: .current, trackingStart: trackingMoment)
+        let streak = Insights.streak(days: days, goalHours: settings.goalHours, today: now, calendar: .current)
+        return HStack(spacing: 12) {
+            stat("Streak", "\(streak.current) day\(streak.current == 1 ? "" : "s")", Theme.outColor)
+            stat("Best streak", "\(streak.best) day\(streak.best == 1 ? "" : "s")", Theme.inColor)
+        }
     }
 
     private func stat(_ title: String, _ value: String, _ color: Color) -> some View {

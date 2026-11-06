@@ -86,3 +86,93 @@ struct WearStatusTests {
         #expect(try JSONDecoder().decode(WidgetSnapshot.self, from: data).spans.count == 1)
     }
 }
+
+struct InsightsTests {
+    private var cal: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "UTC")!
+        return c
+    }
+    private func day(_ n: Int, worn: Double, elapsed: Double = 24) -> DayWear {
+        DayWear(day: cal.date(from: DateComponents(year: 2026, month: 3, day: n))!, wornSeconds: worn * 3600, elapsedSeconds: elapsed * 3600)
+    }
+    private var today: Date { cal.date(from: DateComponents(year: 2026, month: 3, day: 10, hour: 15))! }
+
+    @Test func streakCountsDaysMeetingTheGoal() {
+        let days = [day(5, worn: 20), day(6, worn: 22.5), day(7, worn: 23), day(8, worn: 22), day(9, worn: 22.1), day(10, worn: 5, elapsed: 15)]
+        let s = Insights.streak(days: days, goalHours: 22, today: today, calendar: cal)
+        #expect(s.current == 4)
+        #expect(s.best == 4)
+    }
+
+    @Test func missedDayBreaksTheStreakButTodayInProgressDoesNot() {
+        let days = [day(6, worn: 23), day(7, worn: 23), day(8, worn: 18), day(9, worn: 23), day(10, worn: 4, elapsed: 15)]
+        let s = Insights.streak(days: days, goalHours: 22, today: today, calendar: cal)
+        #expect(s.current == 1)
+        #expect(s.best == 2)
+    }
+
+    @Test func finishDateAddsRemainingTrays() throws {
+        let start = cal.date(from: DateComponents(year: 2026, month: 3, day: 1))!
+        let f = try #require(Insights.forecast(
+            currentStart: start, plannedDays: 14, currentNumber: 3, totalTrays: 5, defaultDays: 14, now: today, calendar: cal
+        ))
+        #expect(f.traysLeft == 2)
+        #expect(f.finishDate == cal.date(from: DateComponents(year: 2026, month: 4, day: 12)))
+    }
+
+    @Test func overdueTrayIsAssumedSwitchedToday() throws {
+        let start = cal.date(from: DateComponents(year: 2026, month: 1, day: 1))!
+        let f = try #require(Insights.forecast(
+            currentStart: start, plannedDays: 14, currentNumber: 4, totalTrays: 4, defaultDays: 14, now: today, calendar: cal
+        ))
+        #expect(f.finishDate == cal.startOfDay(for: today))
+    }
+}
+
+struct ReportBuilderTests {
+    private var cal: Calendar {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "UTC")!
+        return c
+    }
+
+    @Test func dailyCSVHasHeaderAndOneRowPerDay() {
+        let now = cal.date(from: DateComponents(year: 2026, month: 3, day: 10, hour: 12))!
+        let start = cal.date(from: DateComponents(year: 2026, month: 3, day: 7))!
+        let breakStart = cal.date(from: DateComponents(year: 2026, month: 3, day: 8, hour: 12))!
+        let spans = [SessionSpan(start: breakStart, end: breakStart.addingTimeInterval(3600))]
+        let input = ReportBuilder.Input(
+            name: "A", goalHours: 22, from: start, now: now, trackingStart: start, spans: spans,
+            breaks: [], trays: [], notes: [], appointment: nil, calendar: cal
+        )
+        let lines = ReportBuilder.dailyCSV(input).split(separator: "\n").map(String.init)
+        #expect(lines.first == "date,hours_worn,hours_out,goal_hours,goal_met,day_complete")
+        #expect(lines.count == 5)
+        #expect(lines[2].hasPrefix("2026-03-08,23.00,1.00,22,yes,yes"))
+    }
+
+    @Test func breaksCSVListsMinutesAndEscapes() {
+        let now = cal.date(from: DateComponents(year: 2026, month: 3, day: 10, hour: 12))!
+        let s = cal.date(from: DateComponents(year: 2026, month: 3, day: 9, hour: 8))!
+        let input = ReportBuilder.Input(
+            name: "", goalHours: 22, from: s.addingTimeInterval(-86_400), now: now, trackingStart: nil, spans: [],
+            breaks: [.init(start: s, end: s.addingTimeInterval(1800), reason: "Meal, lunch")], trays: [], notes: [], appointment: nil, calendar: cal
+        )
+        let csv = ReportBuilder.breaksCSV(input)
+        #expect(csv.contains("2026-03-09 08:00,2026-03-09 08:30,30,\"Meal, lunch\""))
+    }
+
+    @Test func pdfIsGenerated() {
+        let now = Date.now
+        let input = ReportBuilder.Input(
+            name: "Test", goalHours: 22, from: now.addingTimeInterval(-5 * 86_400), now: now,
+            trackingStart: now.addingTimeInterval(-5 * 86_400), spans: [], breaks: [],
+            trays: [.init(number: 1, start: now.addingTimeInterval(-5 * 86_400), end: nil, plannedDays: 14)],
+            notes: [.init(trayNumber: 1, date: now, text: "Sore teeth")], appointment: nil
+        )
+        let data = ReportBuilder.pdf(input)
+        #expect(data.count > 1000)
+        #expect(String(decoding: data.prefix(4), as: UTF8.self) == "%PDF")
+    }
+}
