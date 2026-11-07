@@ -110,3 +110,8 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 ## Milestones 15-16: watch hero timer, guided camera
 - Watch: the screen edge is the progress ring; large timer, time left, one big button.
 - Camera: custom camera with smile guide, faint ghost of the previous tray's photo, 3-second timer, front/back switch, retake/use review.
+
+## Milestones 17-18: camera fixes, languages
+- Camera: controls respect safe areas; X, Retake and Use photo respond; saved photo is cropped to the frame; ghost of the last photo shows inside the same frame.
+- Languages: English, Français, العربية (right-to-left), Español. Default follows the phone (English if unsupported); Settings > Language overrides it. Widgets, Live Activity, notifications, PDF report and the Apple Watch follow the same choice (the watch gets it from the iPhone). Translations live in Shared/L10n/Strings.swift (JSON); a unit test checks every key has all languages and matching placeholders.
+- Not translated: Shortcuts/Control Center names and widget gallery descriptions (they follow the phone language only through the system).

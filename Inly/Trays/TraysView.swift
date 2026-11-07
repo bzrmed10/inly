@@ -238,7 +238,7 @@ struct TraysView: View {
             }
             .buttonStyle(PillButtonStyle(color: .white, height: 54))
             Button { detailTray = tray } label: {
-                Label(tray.photoData == nil ? "Photo & notes" : "Photo & notes ✓", systemImage: "camera")
+                Label(tray.photoData == nil ? L10n.t("Photo & notes") : L10n.t("Photo & notes ✓"), systemImage: "camera")
             }
             .font(Theme.font(15, .heavy))
             .frame(maxWidth: .infinity, minHeight: 44)

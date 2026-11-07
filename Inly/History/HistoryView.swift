@@ -120,8 +120,12 @@ struct HistoryView: View {
                         }
                     }
                     .chartXAxis {
-                        AxisMarks(values: .stride(by: .day)) { _ in
-                            AxisValueLabel(format: .dateTime.weekday(.narrow)).foregroundStyle(Theme.muted)
+                        AxisMarks(values: .stride(by: .day)) { value in
+                            AxisValueLabel {
+                                if let day = value.as(Date.self) {
+                                    Text(L10n.date(day, .dateTime.weekday(.narrow))).foregroundStyle(Theme.muted)
+                                }
+                            }
                         }
                     }
                     .frame(height: 180)

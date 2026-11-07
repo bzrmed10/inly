@@ -881,6 +881,16 @@ enum Strings {
   "es": "Idioma del teléfono",
   "fr": "Langue du téléphone"
  },
+ "Photo & notes": {
+  "ar": "صورة وملاحظات",
+  "es": "Foto y notas",
+  "fr": "Photo et notes"
+ },
+ "Photo & notes ✓": {
+  "ar": "صورة وملاحظات ✓",
+  "es": "Foto y notas ✓",
+  "fr": "Photo et notes ✓"
+ },
  "Pick an iCloud Drive folder once; Inly keeps it up to date": {
   "ar": "اختر مجلدًا في iCloud Drive مرة واحدة وسيُبقيه Inly محدّثًا",
   "es": "Elige una carpeta de iCloud Drive una vez; Inly la mantiene al día",
