@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 import WidgetKit
 
 /// Settings tab (the detached glass circle next to the tab bar).
@@ -7,6 +8,14 @@ struct SettingsView: View {
 
     @State private var settings = WearSettings.load()
     @State private var confirmRedo = false
+    @State private var backupDoc: BackupDocument?
+    @State private var exportingBackup = false
+    @State private var importingBackup = false
+    @State private var pickingFolder = false
+    @State private var pendingRestore: Data?
+    @State private var backupMessage: String?
+    @State private var lastBackup = BackupService.shared.lastBackup
+    @State private var folderName = BackupService.shared.folderName
 
     private var version: String {
         let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
@@ -77,6 +86,36 @@ struct SettingsView: View {
                 .opacity(settings.remindersEnabled ? 1 : 0.45)
                 .disabled(!settings.remindersEnabled)
 
+                section("Backup") {
+                    VStack(alignment: .leading, spacing: 0) {
+                        backupRow(icon: "icloud.and.arrow.up.fill", title: "Back up now", subtitle: "Save a file to iCloud Drive or Files") {
+                            do {
+                                backupDoc = BackupDocument(data: try BackupService.shared.makeBackupData())
+                                exportingBackup = true
+                            } catch { backupMessage = error.localizedDescription }
+                        }
+                        Divider().overlay(Theme.surface)
+                        backupRow(icon: "icloud.and.arrow.down.fill", title: "Restore from backup", subtitle: "Replaces everything in Inly with a backup file") {
+                            importingBackup = true
+                        }
+                        Divider().overlay(Theme.surface)
+                        backupRow(
+                            icon: "arrow.triangle.2.circlepath.icloud.fill",
+                            title: folderName.map { "Automatic backup · \($0)" } ?? "Automatic backup",
+                            subtitle: folderName == nil ? "Pick an iCloud Drive folder once; Inly keeps it up to date" : (lastBackup.map { "Last backup \($0.formatted(date: .abbreviated, time: .shortened))" } ?? "Waiting for first backup")
+                        ) { pickingFolder = true }
+                        if folderName != nil {
+                            Divider().overlay(Theme.surface)
+                            backupRow(icon: "xmark.circle.fill", title: "Turn off automatic backup", subtitle: "Existing backup files stay where they are") {
+                                BackupService.shared.clearFolder()
+                                folderName = nil
+                            }
+                        }
+                    }
+                    .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                    note("Backups include your history, trays, photos, notes and settings.")
+                }
+
                 section("Setup") {
                     Button { confirmRedo = true } label: {
                         Text("Redo first-time setup")
@@ -88,7 +127,7 @@ struct SettingsView: View {
                     note("Lets you pick your current tray and day again. Your wear history stays.")
                 }
 
-                Text("Inly \(version) · Your data stays on this iPhone.")
+                Text("Inly \(version) · Your data stays on your devices.")
                     .font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted)
                     .frame(maxWidth: .infinity)
                     .padding(.bottom, 100)
@@ -106,6 +145,49 @@ struct SettingsView: View {
             SessionService.shared.reconcileLiveActivity()
             WidgetCenter.shared.reloadAllTimelines()
         }
+        .fileExporter(isPresented: $exportingBackup, document: backupDoc, contentType: .json, defaultFilename: "Inly Backup") { result in
+            switch result {
+            case .success: backupMessage = "Backup saved."
+            case .failure(let e): backupMessage = e.localizedDescription
+            }
+        }
+        .fileImporter(isPresented: $importingBackup, allowedContentTypes: [.json]) { result in
+            guard case .success(let url) = result else { return }
+            let access = url.startAccessingSecurityScopedResource()
+            defer { if access { url.stopAccessingSecurityScopedResource() } }
+            do {
+                let data = try Data(contentsOf: url)
+                _ = try BackupFile.decode(data)
+                pendingRestore = data
+            } catch { backupMessage = error.localizedDescription }
+        }
+        .fileImporter(isPresented: $pickingFolder, allowedContentTypes: [.folder]) { result in
+            guard case .success(let url) = result else { return }
+            do {
+                try BackupService.shared.setFolder(url)
+                folderName = BackupService.shared.folderName
+                lastBackup = BackupService.shared.lastBackup
+                backupMessage = "Automatic backup is on."
+            } catch { backupMessage = error.localizedDescription }
+        }
+        .confirmationDialog("Replace everything with this backup?", isPresented: Binding(get: { pendingRestore != nil }, set: { if !$0 { pendingRestore = nil } }), titleVisibility: .visible) {
+            Button("Restore", role: .destructive) {
+                if let data = pendingRestore {
+                    do {
+                        try BackupService.shared.restore(data)
+                        settings = WearSettings.load()
+                        backupMessage = "Backup restored."
+                    } catch { backupMessage = error.localizedDescription }
+                }
+                pendingRestore = nil
+            }
+            Button("Cancel", role: .cancel) { pendingRestore = nil }
+        } message: {
+            Text("Your current history, trays, photos and notes are replaced.")
+        }
+        .alert("Backup", isPresented: Binding(get: { backupMessage != nil }, set: { if !$0 { backupMessage = nil } })) {
+            Button("OK") { backupMessage = nil }
+        } message: { Text(backupMessage ?? "") }
         .confirmationDialog("Redo setup?", isPresented: $confirmRedo, titleVisibility: .visible) {
             Button("Redo setup", role: .destructive) {
                 var s = WearSettings.load()
@@ -124,6 +206,22 @@ struct SettingsView: View {
             Text(title).font(Theme.font(17, .heavy))
             content()
         }
+    }
+
+    private func backupRow(icon: String, title: String, subtitle: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: icon).font(.system(size: 20, weight: .bold)).foregroundStyle(Theme.inColor).frame(width: 28)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(Theme.font(16, .heavy))
+                    Text(subtitle).font(Theme.font(13, .medium)).foregroundStyle(Theme.muted).multilineTextAlignment(.leading)
+                }
+                Spacer(minLength: 0)
+            }
+            .padding(16)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func note(_ text: String) -> some View {

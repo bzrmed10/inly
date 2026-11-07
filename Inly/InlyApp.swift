@@ -19,6 +19,7 @@ struct InlyApp: App {
                 .modelContainer(SessionService.shared.container)
                 .onChange(of: scenePhase) { _, phase in
                     if phase == .active { SessionService.shared.reconcileLiveActivity() }
+                    if phase == .background { BackupService.shared.autoBackupIfDue() }
                 }
         }
     }
