@@ -106,3 +106,7 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - Animated onboarding (welcome, Dynamic Island, widgets, name, tray, goal, reminders, done).
 - New app icon: white rounded "inly" wordmark with blue dot on Night (app + watch).
 - Backup: Settings > Backup. Back up now / Restore (JSON file via Files or iCloud Drive) and an optional automatic backup into a chosen iCloud Drive folder (at most hourly, when the app goes to background). Restore replaces all data after confirmation. Real-time CloudKit sync is not built (needs iCloud container setup in the Apple developer portal).
+
+## Milestones 15-16: watch hero timer, guided camera
+- Watch: the screen edge is the progress ring; large timer, time left, one big button.
+- Camera: custom camera with smile guide, faint ghost of the previous tray's photo, 3-second timer, front/back switch, retake/use review.
