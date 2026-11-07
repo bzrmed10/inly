@@ -71,28 +71,28 @@ private struct CameraPreview: UIViewRepresentable {
     func updateUIView(_ uiView: UIView, context: Context) {}
 }
 
-/// Outline of a smile plus a centre line, to line the teeth up the same way every time.
+/// Mouth outline, centre line and bite line, drawn inside the photo frame.
 private struct SmileGuide: View {
     var body: some View {
         GeometryReader { geo in
             let w = geo.size.width, h = geo.size.height
-            let mouth = CGRect(x: w * 0.09, y: h * 0.36, width: w * 0.82, height: h * 0.2)
+            let mouth = CGRect(x: w * 0.1, y: h * 0.27, width: w * 0.8, height: h * 0.46)
             ZStack {
                 RoundedRectangle(cornerRadius: mouth.height / 2, style: .continuous)
                     .path(in: mouth)
                     .stroke(style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
                 Path { p in
-                    p.move(to: CGPoint(x: w / 2, y: mouth.minY - 24))
-                    p.addLine(to: CGPoint(x: w / 2, y: mouth.maxY + 24))
+                    p.move(to: CGPoint(x: w / 2, y: h * 0.12))
+                    p.addLine(to: CGPoint(x: w / 2, y: h * 0.88))
                 }
-                .stroke(style: StrokeStyle(lineWidth: 2, dash: [8, 6]))
+                .stroke(style: StrokeStyle(lineWidth: 1.5, dash: [8, 6]))
                 Path { p in
                     p.move(to: CGPoint(x: mouth.minX, y: mouth.midY))
                     p.addLine(to: CGPoint(x: mouth.maxX, y: mouth.midY))
                 }
                 .stroke(style: StrokeStyle(lineWidth: 1, dash: [4, 8]))
             }
-            .foregroundStyle(.white.opacity(0.75))
+            .foregroundStyle(.white.opacity(0.8))
         }
         .allowsHitTesting(false)
     }
@@ -113,6 +113,7 @@ struct GuidedCameraView: View {
     @State private var countdown: Int?
     @State private var captured: UIImage?
     @State private var countdownTask: Task<Void, Never>?
+    @State private var screen: CGSize = .zero
 
     var body: some View {
         ZStack {
@@ -133,28 +134,58 @@ struct GuidedCameraView: View {
         }
     }
 
+    // MARK: Frame
+
+    /// The photo frame in full-screen coordinates. Only what is inside it is saved.
+    private func frame(in size: CGSize) -> CGRect {
+        let w = max(1, size.width - 32)
+        let h = w * 0.75
+        return CGRect(x: 16, y: size.height * 0.40 - h / 2, width: w, height: h)
+    }
+
     // MARK: Live
 
     private var liveView: some View {
         ZStack {
-            CameraPreview(session: controller.session).ignoresSafeArea()
-            if showGhost, let ghost {
-                Image(uiImage: ghost)
-                    .resizable().scaledToFill()
-                    .ignoresSafeArea()
-                    .opacity(0.35)
-                    .allowsHitTesting(false)
+            // Visual layer: full screen, never takes touches.
+            GeometryReader { geo in
+                let cut = frame(in: geo.size)
+                ZStack {
+                    CameraPreview(session: controller.session)
+                    Path { p in
+                        p.addRect(CGRect(origin: .zero, size: geo.size))
+                        p.addRoundedRect(in: cut, cornerSize: CGSize(width: 22, height: 22))
+                    }
+                    .fill(.black.opacity(0.6), style: FillStyle(eoFill: true))
+                    if showGhost, let ghost {
+                        Image(uiImage: ghost).resizable().scaledToFill()
+                            .frame(width: cut.width, height: cut.height).clipped()
+                            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                            .opacity(0.35)
+                            .position(x: cut.midX, y: cut.midY)
+                    }
+                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                        .stroke(.white.opacity(0.9), lineWidth: 2)
+                        .frame(width: cut.width, height: cut.height)
+                        .position(x: cut.midX, y: cut.midY)
+                    SmileGuide()
+                        .frame(width: cut.width, height: cut.height)
+                        .position(x: cut.midX, y: cut.midY)
+                    if let countdown {
+                        Text("\(countdown)")
+                            .font(Theme.font(120, .heavy)).foregroundStyle(.white)
+                            .shadow(radius: 12)
+                            .position(x: cut.midX, y: cut.midY)
+                    }
+                }
+                .onAppear { screen = geo.size }
+                .onChange(of: geo.size) { _, new in screen = new }
             }
-            SmileGuide().padding(.vertical, 60)
+            .ignoresSafeArea()
+            .allowsHitTesting(false)
 
-            if let countdown {
-                Text("\(countdown)")
-                    .font(Theme.font(120, .heavy)).foregroundStyle(.white)
-                    .shadow(radius: 12)
-                    .allowsHitTesting(false)
-            }
-
-            VStack {
+            // Controls layer: respects the safe areas.
+            VStack(spacing: 10) {
                 HStack {
                     circleButton("xmark", label: "Close") { onClose() }
                     Spacer()
@@ -166,7 +197,6 @@ struct GuidedCameraView: View {
                     .font(Theme.font(14, .bold)).foregroundStyle(.white)
                     .padding(.horizontal, 14).padding(.vertical, 8)
                     .background(.black.opacity(0.45), in: Capsule())
-                    .padding(.top, 6)
                 Spacer()
                 HStack {
                     circleButton(useTimer ? "timer" : "timer.slash", label: useTimer ? "Timer on" : "Timer off") { useTimer.toggle() }
@@ -176,7 +206,9 @@ struct GuidedCameraView: View {
                             Circle().stroke(.white, lineWidth: 4).frame(width: 78, height: 78)
                             Circle().fill(.white).frame(width: 62, height: 62)
                         }
+                        .contentShape(Circle())
                     }
+                    .buttonStyle(.plain)
                     .accessibilityLabel("Take photo")
                     Spacer()
                     circleButton("arrow.triangle.2.circlepath.camera", label: "Switch camera") { flip() }
@@ -189,23 +221,30 @@ struct GuidedCameraView: View {
     // MARK: Review
 
     private func reviewView(_ image: UIImage) -> some View {
-        ZStack {
-            Image(uiImage: image).resizable().scaledToFill().ignoresSafeArea().allowsHitTesting(false)
-            VStack {
-                Spacer()
-                HStack(spacing: 12) {
-                    Button { captured = nil } label: {
-                        Text("Retake").font(Theme.font(17, .heavy)).frame(maxWidth: .infinity, minHeight: 54)
-                            .background(.black.opacity(0.55), in: Capsule())
-                    }
-                    Button { onUse(image); onClose() } label: {
-                        Text("Use photo").font(Theme.font(17, .heavy)).foregroundStyle(Theme.night)
-                            .frame(maxWidth: .infinity, minHeight: 54).background(Theme.inColor, in: Capsule())
-                    }
+        VStack(spacing: 24) {
+            Spacer()
+            Image(uiImage: image)
+                .resizable().scaledToFill()
+                .frame(width: max(1, screen.width - 32), height: max(1, screen.width - 32) * 0.75)
+                .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .allowsHitTesting(false)
+            Spacer()
+            HStack(spacing: 12) {
+                Button { captured = nil } label: {
+                    Text("Retake").font(Theme.font(17, .heavy)).foregroundStyle(.white)
+                        .frame(maxWidth: .infinity, minHeight: 54)
+                        .background(Theme.raised, in: Capsule())
+                        .contentShape(Capsule())
                 }
-                .buttonStyle(.plain).foregroundStyle(.white)
-                .padding(.horizontal, 20).padding(.bottom, 20)
+                Button { onUse(image); onClose() } label: {
+                    Text("Use photo").font(Theme.font(17, .heavy)).foregroundStyle(Theme.night)
+                        .frame(maxWidth: .infinity, minHeight: 54)
+                        .background(Theme.inColor, in: Capsule())
+                        .contentShape(Capsule())
+                }
             }
+            .buttonStyle(.plain)
+            .padding(.horizontal, 20).padding(.bottom, 12)
         }
     }
 
@@ -273,10 +312,31 @@ struct GuidedCameraView: View {
         }
     }
 
+    /// Cuts out exactly what the frame showed. The preview fills the screen, so the same scale and offset map frame to photo pixels.
+    static func crop(_ image: UIImage, to frame: CGRect, screen: CGSize) -> UIImage {
+        guard screen.width > 0, screen.height > 0 else { return image }
+        let format = UIGraphicsImageRendererFormat.default()
+        format.scale = 1
+        let upright = UIGraphicsImageRenderer(size: image.size, format: format).image { _ in image.draw(at: .zero) }
+        guard let cg = upright.cgImage else { return image }
+        let iw = CGFloat(cg.width), ih = CGFloat(cg.height)
+        let scale = max(screen.width / iw, screen.height / ih)
+        let offX = (screen.width - iw * scale) / 2
+        let offY = (screen.height - ih * scale) / 2
+        let rect = CGRect(
+            x: (frame.minX - offX) / scale, y: (frame.minY - offY) / scale,
+            width: frame.width / scale, height: frame.height / scale
+        ).intersection(CGRect(x: 0, y: 0, width: iw, height: ih)).integral
+        guard rect.width > 1, rect.height > 1, let cropped = cg.cropping(to: rect) else { return image }
+        return UIImage(cgImage: cropped)
+    }
+
     private func takePhoto() {
+        let screen = self.screen
         controller.capture { data in
             Task { @MainActor in
-                if let data, let image = UIImage(data: data) { captured = image }
+                guard let data, let image = UIImage(data: data) else { return }
+                captured = Self.crop(image, to: frame(in: screen), screen: screen)
             }
         }
     }

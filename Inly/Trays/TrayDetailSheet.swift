@@ -53,7 +53,6 @@ struct TrayDetailSheet: View {
                 onUse: { image in savePhoto(Self.downsized(image)) },
                 onClose: { showCamera = false }
             )
-            .ignoresSafeArea()
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
