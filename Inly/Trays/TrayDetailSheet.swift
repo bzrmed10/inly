@@ -9,6 +9,7 @@ struct TrayDetailSheet: View {
     /// Closes the sheet from the parent (the environment's dismiss stops working after a picker was used).
     var onClose: () -> Void = {}
     @Query private var notes: [TrayNote]
+    @Query(sort: \Tray.number, order: .reverse) private var allTrays: [Tray]
     @Environment(\.dismiss) private var dismiss
 
     @State private var pickerItem: PhotosPickerItem?
@@ -47,8 +48,12 @@ struct TrayDetailSheet: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .fullScreenCover(isPresented: $showCamera) {
-            CameraPicker { image in savePhoto(Self.downsized(image)) }
-                .ignoresSafeArea()
+            GuidedCameraView(
+                ghost: previousPhoto,
+                onUse: { image in savePhoto(Self.downsized(image)) },
+                onClose: { showCamera = false }
+            )
+            .ignoresSafeArea()
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
@@ -114,6 +119,13 @@ struct TrayDetailSheet: View {
             }
         }
         .font(Theme.font(15, .heavy))
+    }
+
+    /// Photo from the closest earlier tray, used as the faint guide in the camera.
+    private var previousPhoto: UIImage? {
+        allTrays.first { $0.number < tray.number && $0.photoData != nil }
+            .flatMap { $0.photoData }
+            .flatMap { UIImage(data: $0) }
     }
 
     private func savePhoto(_ data: Data?) {
