@@ -1,0 +1,13 @@
+name: Render app icon
+on: workflow_dispatch
+jobs:
+  icon:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: Draw icon
+        run: swift scripts/make_icon.swift AppIcon.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-icon
+          path: AppIcon.png
