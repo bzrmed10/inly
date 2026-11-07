@@ -1,5 +1,7 @@
 name: Render app icon
 on: workflow_dispatch
+permissions:
+  contents: write
 jobs:
   icon:
     runs-on: macos-26
@@ -7,7 +9,11 @@ jobs:
       - uses: actions/checkout@v4
       - name: Draw icon
         run: swift scripts/make_icon.swift AppIcon.png
-      - uses: actions/upload-artifact@v4
-        with:
-          name: app-icon
-          path: AppIcon.png
+      - name: Publish to ci-icon branch
+        run: |
+          mkdir -p /tmp/out && cp AppIcon.png /tmp/out/
+          cd /tmp/out
+          git init -q -b ci-icon
+          git config user.name "ci"; git config user.email "ci@example.com"
+          git add AppIcon.png && git commit -qm "icon"
+          git push -f "https://x-access-token:${{ github.token }}@github.com/${{ github.repository }}.git" ci-icon

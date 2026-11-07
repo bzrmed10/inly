@@ -109,6 +109,7 @@ struct OnboardingView: View {
     // MARK: Pages
 
     private func page(for s: Step) -> some View {
+        GeometryReader { geo in
         ScrollView {
             VStack(spacing: 22) {
                 visual(for: s)
@@ -122,10 +123,12 @@ struct OnboardingView: View {
                 controls(for: s)
             }
             .padding(.horizontal, 20)
-            .padding(.bottom, 24)
+            .padding(.vertical, 16)
+            .frame(maxWidth: .infinity, minHeight: geo.size.height)
         }
         .scrollIndicators(.hidden)
         .scrollDismissesKeyboard(.interactively)
+        }
     }
 
     @ViewBuilder

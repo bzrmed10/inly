@@ -182,6 +182,7 @@ struct ReminderVisual: View {
                     Text("Still out?").font(Theme.font(15, .heavy))
                     Text("Your aligners have been out for 45 minutes.")
                         .font(Theme.font(12, .medium)).foregroundStyle(Theme.muted)
+                        .fixedSize(horizontal: false, vertical: true)
                 }
             }
             Text("Put back in").font(Theme.font(13, .heavy)).foregroundStyle(Theme.night)
@@ -189,7 +190,7 @@ struct ReminderVisual: View {
                 .background(Theme.outColor, in: Capsule())
         }
         .padding(14)
-        .frame(width: 290, alignment: .leading)
+        .frame(width: 310, alignment: .leading)
         .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .offset(y: shown ? 0 : -14)
         .opacity(shown ? 1 : 0.35)
