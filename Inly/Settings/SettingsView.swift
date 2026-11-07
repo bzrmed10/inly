@@ -133,7 +133,7 @@ struct SettingsView: View {
 
 
 /// One reason: a switch to turn the nudge on or off in one tap, and quick time choices when it's on.
-private struct StillOutRow: View {
+struct StillOutRow: View {
     let reason: OutReason
     @Binding var minutes: Int
     private let choices = [5, 10, 15, 20, 30, 45, 60]

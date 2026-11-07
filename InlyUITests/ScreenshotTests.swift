@@ -91,4 +91,18 @@ extension ScreenshotTests {
             save("09-day-detail")
         }
     }
+
+    func testOnboardingTour() {
+        let app = XCUIApplication()
+        app.launchArguments = ["-freshStart"]
+        app.launch()
+        sleep(1)
+        save("10-onboarding-welcome")
+        for (i, name) in ["11-onboarding-island", "12-onboarding-widgets", "13-onboarding-name", "14-onboarding-tray", "15-onboarding-goal", "16-onboarding-reminders", "17-onboarding-done"].enumerated() {
+            let next = app.buttons[i == 0 ? "Get started" : "Next"]
+            if next.waitForExistence(timeout: 3) { next.tap() }
+            sleep(1)
+            save(name)
+        }
+    }
 }
