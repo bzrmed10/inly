@@ -106,3 +106,36 @@ extension ScreenshotTests {
         }
     }
 }
+
+extension ScreenshotTests {
+    private func localized(_ code: String, start: String, next: String) {
+        let app = XCUIApplication()
+        app.launchArguments = ["-demoData", "-appLanguage", code]
+        app.launch()
+        sleep(2)
+        save("20-\(code)-today")
+        let tabs = app.tabBars.buttons
+        for (i, name) in ["trays", "history", "settings"].enumerated() where tabs.count > i + 1 {
+            tabs.element(boundBy: i + 1).tap()
+            sleep(2)
+            save("2\(i + 1)-\(code)-\(name)")
+        }
+
+        let fresh = XCUIApplication()
+        fresh.launchArguments = ["-freshStart", "-appLanguage", code]
+        fresh.launch()
+        sleep(1)
+        save("25-\(code)-onboarding-welcome")
+        for step in 0..<6 {
+            let button = fresh.buttons[step == 0 ? start : next]
+            if button.waitForExistence(timeout: 3) { button.tap() }
+            sleep(1)
+            if step == 3 { save("26-\(code)-onboarding-goal") }
+            if step == 4 { save("27-\(code)-onboarding-reminders") }
+        }
+    }
+
+    func testFrench() { localized("fr", start: "Commencer", next: "Suivant") }
+    func testArabic() { localized("ar", start: "ابدأ", next: "التالي") }
+    func testSpanish() { localized("es", start: "Empezar", next: "Siguiente") }
+}

@@ -3,11 +3,7 @@ import Foundation
 enum TimeFormat {
     /// "21h 40m" / "45m" / "0m"
     static func hoursMinutes(_ seconds: TimeInterval) -> String {
-        let total = max(0, Int(seconds.rounded(.down)))
-        let h = total / 3600
-        let m = (total % 3600) / 60
-        if h > 0 { return "\(h)h \(String(format: "%02d", m))m" }
-        return "\(m)m"
+        L10n.hoursMinutes(seconds)
     }
 
     /// "1:05:09" or "05:09"

@@ -23,23 +23,23 @@ struct CompareSheet: View {
         ScrollView {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Compare").font(Theme.font(28, .heavy))
+                Text(L10n.t("Compare")).font(Theme.font(28, .heavy))
                 Spacer()
-                Button("Done") { dismiss() }.font(Theme.font(16, .heavy))
+                Button(L10n.t("Done")) { dismiss() }.font(Theme.font(16, .heavy))
             }
 
             if withPhotos.count < 2 {
-                Text("Add a photo to at least two trays to compare them.")
+                Text(L10n.t("Add a photo to at least two trays to compare them."))
                     .font(Theme.font(15, .semibold)).foregroundStyle(Theme.muted)
             } else {
                 HStack(spacing: 10) {
-                    trayMenu("Before", selection: Binding(get: { left?.number ?? 0 }, set: { leftNumber = $0 }))
-                    trayMenu("After", selection: Binding(get: { right?.number ?? 0 }, set: { rightNumber = $0 }))
+                    trayMenu(L10n.t("Before"), selection: Binding(get: { left?.number ?? 0 }, set: { leftNumber = $0 }))
+                    trayMenu(L10n.t("After"), selection: Binding(get: { right?.number ?? 0 }, set: { rightNumber = $0 }))
                 }
 
-                Picker("Style", selection: $slider) {
-                    Text("Slider").tag(true)
-                    Text("Stacked").tag(false)
+                Picker(L10n.t("Style"), selection: $slider) {
+                    Text(L10n.t("Slider")).tag(true)
+                    Text(L10n.t("Stacked")).tag(false)
                 }
                 .pickerStyle(.segmented)
 
@@ -47,7 +47,7 @@ struct CompareSheet: View {
 
                 if let l = left, let r = right {
                     let days = Calendar.current.dateComponents([.day], from: l.startDate, to: r.startDate).day ?? 0
-                    Text("Tray \(l.number) to tray \(r.number) · \(abs(days)) days apart")
+                    Text(L10n.t("Tray %d to tray %d · %@ apart", l.number, r.number, L10n.days(abs(days))))
                         .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
                 }
             }
@@ -69,7 +69,7 @@ struct CompareSheet: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title).font(Theme.font(12, .bold)).foregroundStyle(Theme.muted)
             Picker(title, selection: selection) {
-                ForEach(withPhotos, id: \.number) { Text("Tray \($0.number)").tag($0.number) }
+                ForEach(withPhotos, id: \.number) { Text(L10n.t("Tray %d", $0.number)).tag($0.number) }
             }
             .pickerStyle(.menu)
             .tint(.white)
@@ -95,7 +95,7 @@ struct CompareSheet: View {
         VStack(spacing: 14) {
             ForEach(Array([l, r].enumerated()), id: \.offset) { _, t in
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(t.map { "Tray \($0.number) · \($0.startDate.formatted(.dateTime.month(.abbreviated).day()))" } ?? "")
+                    Text(t.map { L10n.t("Tray %d", $0.number) + " · " + L10n.shortDate($0.startDate) } ?? "")
                         .font(Theme.font(14, .heavy))
                     photo(t)
                         .frame(maxWidth: .infinity).frame(height: 260)
@@ -119,9 +119,9 @@ struct CompareSheet: View {
                     .offset(x: width * split - 19)
                 VStack {
                     HStack {
-                        label("Tray \(l?.number ?? 0)")
+                        label(L10n.t("Tray %d", l?.number ?? 0))
                         Spacer()
-                        label("Tray \(r?.number ?? 0)")
+                        label(L10n.t("Tray %d", r?.number ?? 0))
                     }
                     Spacer()
                 }
@@ -134,8 +134,8 @@ struct CompareSheet: View {
                 split = min(1, max(0, v.location.x / max(1, width)))
             })
             .accessibilityElement()
-            .accessibilityLabel("Before and after slider")
-            .accessibilityValue("\(Int(split * 100)) percent")
+            .accessibilityLabel(L10n.t("Before and after slider"))
+            .accessibilityValue(L10n.t("%d percent", Int(split * 100)))
             .accessibilityAdjustableAction { dir in
                 switch dir {
                 case .increment: split = min(1, split + 0.1)

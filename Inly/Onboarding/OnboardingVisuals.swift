@@ -35,7 +35,7 @@ struct WelcomeVisual: View {
                 .trim(from: 0, to: filled ? 0.78 : 0.04)
                 .stroke(Theme.inColor, style: StrokeStyle(lineWidth: 14, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-            Text("inly").font(Theme.font(50, .heavy))
+            Text(L10n.t("inly")).font(Theme.font(50, .heavy))
         }
         .frame(width: 200, height: 200)
         .loop($filled, animate: animate, every: 2.2)
@@ -57,7 +57,7 @@ struct IslandVisual: View {
                     Circle().stroke(Theme.outColor, lineWidth: 4).frame(width: 22, height: 22)
                     if open {
                         Spacer(minLength: 0)
-                        Text("1:01").font(Theme.timerFont(20)).foregroundStyle(Theme.outColor)
+                        Text(L10n.t("1:01")).font(Theme.timerFont(20)).foregroundStyle(Theme.outColor)
                             .transition(.opacity)
                     }
                 }
@@ -66,9 +66,9 @@ struct IslandVisual: View {
             .frame(width: open ? 250 : 110, height: 46)
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("OUT").font(Theme.font(11, .heavy)).tracking(1).foregroundStyle(Theme.outColor)
-                Text("1:01").font(Theme.timerFont(30)).foregroundStyle(Theme.outColor)
-                Text("Put back in")
+                Text(L10n.t("OUT")).font(Theme.font(11, .heavy)).tracking(1).foregroundStyle(Theme.outColor)
+                Text(L10n.t("1:01")).font(Theme.timerFont(30)).foregroundStyle(Theme.outColor)
+                Text(L10n.t("Put back in"))
                     .font(Theme.font(15, .heavy)).foregroundStyle(Theme.night)
                     .frame(maxWidth: .infinity).frame(height: 38)
                     .background(Theme.outColor, in: Capsule())
@@ -103,9 +103,9 @@ struct WidgetsVisual: View {
                 .background(Theme.raised, in: RoundedRectangle(cornerRadius: 26, style: .continuous))
 
                 VStack(alignment: .leading, spacing: 3) {
-                    Text("WORN").font(Theme.font(11, .heavy)).tracking(1).foregroundStyle(Theme.inColor)
-                    Text("11h 36m").font(Theme.font(22, .heavy))
-                    Text("1h 35m left").font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
+                    Text(L10n.t("WORN")).font(Theme.font(11, .heavy)).tracking(1).foregroundStyle(Theme.inColor)
+                    Text(L10n.t("11h 36m")).font(Theme.font(22, .heavy))
+                    Text(L10n.t("1h 35m left")).font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
                 }
                 .padding(16)
                 .frame(width: 126, height: 110, alignment: .leading)
@@ -113,11 +113,11 @@ struct WidgetsVisual: View {
             }
             HStack {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Today").font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
-                    Text("11h 36m").font(Theme.font(22, .heavy))
+                    Text(L10n.t("Today")).font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
+                    Text(L10n.t("11h 36m")).font(Theme.font(22, .heavy))
                 }
                 Spacer()
-                Text("Take out").font(Theme.font(15, .heavy)).foregroundStyle(Theme.night)
+                Text(L10n.t("Take out")).font(Theme.font(15, .heavy)).foregroundStyle(Theme.night)
                     .padding(.horizontal, 18).frame(height: 38)
                     .background(Theme.inColor, in: Capsule())
                     .scaleEffect(filled ? 1.06 : 1)
@@ -139,7 +139,7 @@ struct GreetingVisual: View {
         VStack(spacing: 6) {
             Text(Greeting.phrase(for: .now) + ",")
                 .font(Theme.font(22, .semibold)).foregroundStyle(Theme.muted)
-            Text(name.trimmingCharacters(in: .whitespaces).isEmpty ? "friend" : name)
+            Text(name.trimmingCharacters(in: .whitespaces).isEmpty ? L10n.t("friend") : name)
                 .font(Theme.font(44, .heavy))
                 .lineLimit(1).minimumScaleFactor(0.5)
                 .contentTransition(.interpolate)
@@ -157,7 +157,7 @@ struct GoalVisual: View {
     @State private var big = false
 
     var body: some View {
-        Text("\(hours)h")
+        Text("\(hours)" + L10n.t("unit.h"))
             .font(Theme.font(76, .heavy)).foregroundStyle(Theme.inColor)
             .contentTransition(.numericText())
             .animation(.snappy, value: hours)
@@ -177,15 +177,15 @@ struct ReminderVisual: View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 10) {
                 RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Theme.inColor).frame(width: 28, height: 28)
-                    .overlay(Text("i").font(Theme.font(16, .heavy)).foregroundStyle(Theme.night))
+                    .overlay(Text(L10n.t("i")).font(Theme.font(16, .heavy)).foregroundStyle(Theme.night))
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("Still out?").font(Theme.font(15, .heavy))
-                    Text("Your aligners have been out for 45 minutes.")
+                    Text(L10n.t("Still out?")).font(Theme.font(15, .heavy))
+                    Text(L10n.t("Your aligners have been out for 45 minutes."))
                         .font(Theme.font(12, .medium)).foregroundStyle(Theme.muted)
                         .fixedSize(horizontal: false, vertical: true)
                 }
             }
-            Text("Put back in").font(Theme.font(13, .heavy)).foregroundStyle(Theme.night)
+            Text(L10n.t("Put back in")).font(Theme.font(13, .heavy)).foregroundStyle(Theme.night)
                 .padding(.horizontal, 14).frame(height: 30)
                 .background(Theme.outColor, in: Capsule())
         }
@@ -211,7 +211,7 @@ struct DoneVisual: View {
             Circle().trim(from: 0, to: 0.82)
                 .stroke(Theme.inColor, style: StrokeStyle(lineWidth: 16, lineCap: .round))
                 .rotationEffect(.degrees(-90))
-            Text("Day 1").font(Theme.font(28, .heavy))
+            Text(L10n.t("Day 1")).font(Theme.font(28, .heavy))
         }
         .frame(width: 170, height: 170)
         .scaleEffect(pop ? 1.05 : 0.97)

@@ -66,6 +66,8 @@ targets:
       - path: Shared/Watch
       - path: Shared/DesignSystem/Theme.swift
       - path: Shared/DesignSystem/TimeFormat.swift
+      - path: Shared/L10n
+      - path: Shared/AppGroup.swift
     info:
       path: InlyWatch/Info.plist
       properties:

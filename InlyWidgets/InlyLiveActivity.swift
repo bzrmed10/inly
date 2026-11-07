@@ -7,6 +7,7 @@ struct InlyLiveActivity: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: InlyActivityAttributes.self) { context in
             LockScreenView(context: context)
+                .environment(\.layoutDirection, L10n.layoutDirection)
                 .activityBackgroundTint(Theme.night)
                 .activitySystemActionForegroundColor(.white)
         } dynamicIsland: { context in
@@ -24,7 +25,7 @@ struct InlyLiveActivity: Widget {
                             .font(Theme.timerFont(30))
                             .foregroundStyle(tint)
                             .multilineTextAlignment(.trailing)
-                        Text("out")
+                        Text(L10n.t("out"))
                             .font(Theme.font(12, .semibold))
                             .foregroundStyle(Theme.muted)
                     }
@@ -42,7 +43,7 @@ struct InlyLiveActivity: Widget {
                                 .foregroundStyle(Theme.muted)
                             Spacer()
                             Button(intent: PutBackInIntent()) {
-                                Text("Put back in")
+                                Text(L10n.t("Put back in"))
                                     .font(Theme.font(15, .heavy))
                                     .padding(.horizontal, 16)
                                     .padding(.vertical, 8)
@@ -86,8 +87,8 @@ private enum LiveStyle {
     }
 
     static func backBy(_ context: ActivityViewContext<InlyActivityAttributes>) -> String {
-        let t = context.attributes.budgetEnd.formatted(date: .omitted, time: .shortened)
-        return context.isStale ? "Over budget" : "Back in by \(t)"
+        let t = L10n.time(context.attributes.budgetEnd)
+        return context.isStale ? L10n.t("Over budget") : L10n.t("Back in by %@", t)
     }
 
     static func range(_ context: ActivityViewContext<InlyActivityAttributes>) -> ClosedRange<Date> {
@@ -136,7 +137,7 @@ private struct LockScreenView: View {
                 LiveRing(context: context)
                     .frame(width: 52, height: 52)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("ALIGNERS OUT · \(LiveStyle.reason(context).title.uppercased())")
+                    Text(L10n.t("ALIGNERS OUT · %@", LiveStyle.reason(context).title.uppercased()))
                         .font(Theme.font(11, .heavy))
                         .tracking(1)
                         .foregroundStyle(tint)
@@ -154,7 +155,7 @@ private struct LockScreenView: View {
                     .foregroundStyle(Theme.muted)
                 Spacer()
                 Button(intent: PutBackInIntent()) {
-                    Text("Put back in")
+                    Text(L10n.t("Put back in"))
                         .font(Theme.font(15, .heavy))
                         .padding(.horizontal, 18)
                         .padding(.vertical, 9)

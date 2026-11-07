@@ -23,6 +23,7 @@ final class WatchModel: NSObject {
     func apply(_ data: Data?) {
         guard let new = WatchPayload.decode(data) else { return }
         payload = new
+        if let language = new.language { UserDefaults.standard.set(language, forKey: L10n.storageKey) }
         UserDefaults.standard.set(data, forKey: storeKey)
     }
 

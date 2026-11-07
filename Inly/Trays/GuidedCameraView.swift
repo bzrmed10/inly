@@ -187,19 +187,19 @@ struct GuidedCameraView: View {
             // Controls layer: respects the safe areas.
             VStack(spacing: 10) {
                 HStack {
-                    circleButton("xmark", label: "Close") { onClose() }
+                    circleButton("xmark", label: L10n.t("Close")) { onClose() }
                     Spacer()
                     if ghost != nil {
-                        pill(showGhost ? "Last photo: on" : "Last photo: off", icon: "square.on.square") { showGhost.toggle() }
+                        pill(showGhost ? L10n.t("Last photo: on") : L10n.t("Last photo: off"), icon: "square.on.square") { showGhost.toggle() }
                     }
                 }
-                Text("Smile and line your teeth up with the guide")
+                Text(L10n.t("Smile and line your teeth up with the guide"))
                     .font(Theme.font(14, .bold)).foregroundStyle(.white)
                     .padding(.horizontal, 14).padding(.vertical, 8)
                     .background(.black.opacity(0.45), in: Capsule())
                 Spacer()
                 HStack {
-                    circleButton(useTimer ? "timer" : "timer.slash", label: useTimer ? "Timer on" : "Timer off") { useTimer.toggle() }
+                    circleButton(useTimer ? "timer" : "timer.slash", label: useTimer ? L10n.t("Timer on") : L10n.t("Timer off")) { useTimer.toggle() }
                     Spacer()
                     Button(action: shutter) {
                         ZStack {
@@ -209,9 +209,9 @@ struct GuidedCameraView: View {
                         .contentShape(Circle())
                     }
                     .buttonStyle(.plain)
-                    .accessibilityLabel("Take photo")
+                    .accessibilityLabel(L10n.t("Take photo"))
                     Spacer()
-                    circleButton("arrow.triangle.2.circlepath.camera", label: "Switch camera") { flip() }
+                    circleButton("arrow.triangle.2.circlepath.camera", label: L10n.t("Switch camera") { flip() }
                 }
             }
             .padding(.horizontal, 20).padding(.vertical, 12)
@@ -231,13 +231,13 @@ struct GuidedCameraView: View {
             Spacer()
             HStack(spacing: 12) {
                 Button { captured = nil } label: {
-                    Text("Retake").font(Theme.font(17, .heavy)).foregroundStyle(.white)
+                    Text(L10n.t("Retake")).font(Theme.font(17, .heavy)).foregroundStyle(.white)
                         .frame(maxWidth: .infinity, minHeight: 54)
                         .background(Theme.raised, in: Capsule())
                         .contentShape(Capsule())
                 }
                 Button { onUse(image); onClose() } label: {
-                    Text("Use photo").font(Theme.font(17, .heavy)).foregroundStyle(Theme.night)
+                    Text(L10n.t("Use photo")).font(Theme.font(17, .heavy)).foregroundStyle(Theme.night)
                         .frame(maxWidth: .infinity, minHeight: 54)
                         .background(Theme.inColor, in: Capsule())
                         .contentShape(Capsule())
@@ -251,14 +251,14 @@ struct GuidedCameraView: View {
     private var deniedView: some View {
         VStack(spacing: 14) {
             Image(systemName: "camera.fill").font(.system(size: 36)).foregroundStyle(Theme.muted)
-            Text("Camera access is off").font(Theme.font(20, .heavy))
-            Text("Turn it on in Settings to take progress photos.")
+            Text(L10n.t("Camera access is off")).font(Theme.font(20, .heavy))
+            Text(L10n.t("Turn it on in Settings to take progress photos."))
                 .font(Theme.font(15, .medium)).foregroundStyle(Theme.muted).multilineTextAlignment(.center)
-            Button("Open Settings") {
+            Button(L10n.t("Open Settings")) {
                 if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
             }
             .font(Theme.font(16, .heavy))
-            Button("Close") { onClose() }.font(Theme.font(16, .semibold)).foregroundStyle(Theme.muted)
+            Button(L10n.t("Close")) { onClose() }.font(Theme.font(16, .semibold)).foregroundStyle(Theme.muted)
         }
         .padding(30)
     }

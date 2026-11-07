@@ -11,10 +11,12 @@ struct ExportSheet: View {
     enum Period: String, CaseIterable, Identifiable {
         case week = "7 days", month = "30 days", all = "Everything"
         var id: String { rawValue }
+        var title: String { L10n.t(rawValue) }
     }
     enum Format: String, CaseIterable, Identifiable {
         case pdf = "PDF report", daily = "CSV · per day"
         var id: String { rawValue }
+        var title: String { L10n.t(rawValue) }
         var ext: String { self == .pdf ? "pdf" : "csv" }
     }
 
@@ -43,24 +45,24 @@ struct ExportSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("Share with your orthodontist").font(Theme.font(26, .heavy))
-            Text("Wear time, trays and notes in one file you can send by email or message.")
+            Text(L10n.t("Share with your orthodontist")).font(Theme.font(26, .heavy))
+            Text(L10n.t("Wear time, trays and notes in one file you can send by email or message."))
                 .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
 
-            picker("Period", selection: $range, options: Period.allCases) { $0.rawValue }
-            picker("Format", selection: $format, options: Format.allCases) { $0.rawValue }
+            picker(L10n.t("Period"), selection: $range, options: Period.allCases) { $0.title }
+            picker(L10n.t("Format"), selection: $format, options: Format.allCases) { $0.title }
 
             Spacer(minLength: 0)
 
             if let fileURL {
                 ShareLink(item: fileURL) {
-                    Label("Share \(format.ext.uppercased())", systemImage: "square.and.arrow.up")
+                    Label(L10n.t("Share %@", format.ext.uppercased()), systemImage: "square.and.arrow.up")
                 }
                 .buttonStyle(PillButtonStyle(color: Theme.inColor))
             } else {
                 ProgressView().frame(maxWidth: .infinity, minHeight: 60)
             }
-            Button("Done") { dismiss() }
+            Button(L10n.t("Done")) { dismiss() }
                 .font(Theme.font(16, .heavy)).foregroundStyle(Color(hex: 0xC9C9D2))
                 .frame(maxWidth: .infinity, minHeight: 48)
         }

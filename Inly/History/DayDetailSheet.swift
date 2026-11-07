@@ -26,19 +26,19 @@ struct DayDetailSheet: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(day.formatted(.dateTime.weekday(.wide)).uppercased())
+                    Text(L10n.date(day, .dateTime.weekday(.wide)).uppercased())
                         .font(Theme.font(12, .semibold)).tracking(1).foregroundStyle(Theme.muted)
-                    Text(day.formatted(.dateTime.month(.wide).day().year()))
+                    Text(L10n.date(day, .dateTime.month(.wide).day().year()))
                         .font(Theme.font(28, .heavy))
                 }
                 HStack(spacing: 12) {
-                    stat("Worn", TimeFormat.hoursMinutes(wear.wornSeconds), Theme.inColor)
-                    stat("Out", TimeFormat.hoursMinutes(out), Theme.outColor)
+                    stat(L10n.t("Worn"), TimeFormat.hoursMinutes(wear.wornSeconds), Theme.inColor)
+                    stat(L10n.t("Out"), TimeFormat.hoursMinutes(out), Theme.outColor)
                 }
 
-                Text("Out periods").font(Theme.font(17, .heavy))
+                Text(L10n.t("Out periods")).font(Theme.font(17, .heavy))
                 if sessions.isEmpty {
-                    Text("No breaks recorded this day.")
+                    Text(L10n.t("No breaks recorded this day."))
                         .font(Theme.font(15, .semibold)).foregroundStyle(Theme.muted)
                 } else {
                     VStack(spacing: 8) {
@@ -50,7 +50,7 @@ struct DayDetailSheet: View {
                 }
 
                 Button { editing = EditTarget(session: nil) } label: {
-                    Label("Add a missed break", systemImage: "plus")
+                    Label(L10n.t("Add a missed break"), systemImage: "plus")
                         .font(Theme.font(16, .heavy))
                         .frame(maxWidth: .infinity, minHeight: 52)
                         .background(Theme.raised, in: Capsule())
@@ -85,7 +85,7 @@ struct DayDetailSheet: View {
 
     private func row(_ s: WearSession, now: Date) -> some View {
         let end = s.end ?? now
-        let time = "\(s.start.formatted(date: .omitted, time: .shortened)) – \(s.end == nil ? "now" : end.formatted(date: .omitted, time: .shortened))"
+        let time = "\(L10n.time(s.start)) – \(s.end == nil ? L10n.t("now") : L10n.time(end))"
         return HStack(spacing: 12) {
             Image(systemName: s.reason.symbol)
                 .font(.system(size: 16, weight: .bold))
@@ -105,7 +105,7 @@ struct DayDetailSheet: View {
         .padding(12)
         .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         .accessibilityElement(children: .combine)
-        .accessibilityHint("Edit this break")
+        .accessibilityHint(L10n.t("Edit this break"))
     }
 }
 
@@ -149,7 +149,7 @@ struct SessionEditSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(session == nil ? "Add a missed break" : "Edit break")
+            Text(session == nil ? L10n.t("Add a missed break") : L10n.t("Edit break"))
                 .font(Theme.font(28, .heavy))
 
             ScrollView(.horizontal) {
@@ -163,15 +163,15 @@ struct SessionEditSheet: View {
             .scrollIndicators(.hidden)
 
             VStack(spacing: 0) {
-                DatePicker("Out at", selection: $start, in: ...Date.now, displayedComponents: [.date, .hourAndMinute])
+                DatePicker(L10n.t("Out at"), selection: $start, in: ...Date.now, displayedComponents: [.date, .hourAndMinute])
                     .padding(.vertical, 8)
                 Divider().overlay(Theme.surface)
                 if isOpen {
-                    Text("Still out. Put your aligners back in from Today to finish this break.")
+                    Text(L10n.t("Still out. Put your aligners back in from Today to finish this break."))
                         .font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted)
                         .padding(.vertical, 10)
                 } else {
-                    DatePicker("Back in at", selection: $end, in: start...Date.now, displayedComponents: [.date, .hourAndMinute])
+                    DatePicker(L10n.t("Back in at"), selection: $end, in: start...Date.now, displayedComponents: [.date, .hourAndMinute])
                         .padding(.vertical, 8)
                 }
             }
@@ -184,14 +184,14 @@ struct SessionEditSheet: View {
             }
 
             VStack(spacing: 6) {
-                Button("Save") { save() }
+                Button(L10n.t("Save")) { save() }
                     .buttonStyle(PillButtonStyle(color: Theme.inColor))
                 if session != nil {
-                    Button("Delete this break", role: .destructive) { confirmDelete = true }
+                    Button(L10n.t("Delete this break"), role: .destructive) { confirmDelete = true }
                         .font(Theme.font(16, .heavy))
                         .frame(maxWidth: .infinity, minHeight: 48)
                 }
-                Button("Cancel") { dismiss() }
+                Button(L10n.t("Cancel")) { dismiss() }
                     .font(Theme.font(16, .heavy))
                     .foregroundStyle(Color(hex: 0xC9C9D2))
                     .frame(maxWidth: .infinity, minHeight: 44)
@@ -205,12 +205,12 @@ struct SessionEditSheet: View {
         .presentationBackground(Color(hex: 0x1C1C22))
         .presentationCornerRadius(34)
         .preferredColorScheme(.dark)
-        .confirmationDialog("Delete this break?", isPresented: $confirmDelete, titleVisibility: .visible) {
-            Button("Delete", role: .destructive) {
+        .confirmationDialog(L10n.t("Delete this break?"), isPresented: $confirmDelete, titleVisibility: .visible) {
+            Button(L10n.t("Delete"), role: .destructive) {
                 if let session { SessionService.shared.delete(session) }
                 dismiss()
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.t("Cancel"), role: .cancel) {}
         }
     }
 
@@ -222,7 +222,7 @@ struct SessionEditSheet: View {
 
         if isOpen {
             if WearCalculator.hasOverlap(start: start, end: now, others: others, now: now) {
-                error = "That overlaps another break."
+                error = L10n.t("That overlaps another break.")
                 return
             }
             session?.start = start
@@ -232,10 +232,10 @@ struct SessionEditSheet: View {
             return
         }
 
-        guard end > start else { error = "\"Back in\" has to be after \"out\"."; return }
-        guard end <= now else { error = "You can't log a break in the future."; return }
+        guard end > start else { error = L10n.t("\"Back in\" has to be after \"out\"."); return }
+        guard end <= now else { error = L10n.t("You can't log a break in the future."); return }
         if WearCalculator.hasOverlap(start: start, end: end, others: others, now: now) {
-            error = "That overlaps another break."
+            error = L10n.t("That overlaps another break.")
             return
         }
         if let session {

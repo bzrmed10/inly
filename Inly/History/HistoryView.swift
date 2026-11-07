@@ -29,11 +29,11 @@ struct HistoryView: View {
                 content(now: timeline.date)
             }
             .background(Theme.night.ignoresSafeArea())
-            .navigationTitle("History")
+            .navigationTitle(L10n.t("History"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { showExport = true } label: { Image(systemName: "square.and.arrow.up") }
-                        .accessibilityLabel("Share with your orthodontist")
+                        .accessibilityLabel(L10n.t("Share with your orthodontist"))
                 }
             }
         }
@@ -57,8 +57,8 @@ struct HistoryView: View {
         ScrollView {
             VStack(spacing: 18) {
                 HStack(spacing: 12) {
-                    stat("Daily average", String(format: "%.1fh", avg), Theme.inColor)
-                    stat("Goal met", "\(metCount) of \(finished.count)", Theme.trayColor)
+                    stat(L10n.t("Daily average"), String(format: "%.1f", avg) + L10n.t("unit.h"), Theme.inColor)
+                    stat(L10n.t("Goal met"), L10n.t("%d of %d", metCount, finished.count), Theme.trayColor)
                 }
                 streakRow(now: now)
                 weekChart(week, goal: goal)
@@ -74,8 +74,8 @@ struct HistoryView: View {
         let days = WearCalculator.dailyWear(endingOn: now, days: 120, sessions: spans, calendar: .current, trackingStart: trackingMoment)
         let streak = Insights.streak(days: days, goalHours: settings.goalHours, today: now, calendar: .current)
         return HStack(spacing: 12) {
-            stat("Streak", "\(streak.current) day\(streak.current == 1 ? "" : "s")", Theme.outColor)
-            stat("Best streak", "\(streak.best) day\(streak.best == 1 ? "" : "s")", Theme.inColor)
+            stat(L10n.t("Streak"), L10n.days(streak.current), Theme.outColor)
+            stat(L10n.t("Best streak"), L10n.days(streak.best), Theme.inColor)
         }
     }
 
@@ -92,9 +92,9 @@ struct HistoryView: View {
     private func weekChart(_ week: [DayWear], goal: Double) -> some View {
         Card {
             VStack(alignment: .leading, spacing: 12) {
-                Text("Last 7 days").font(Theme.font(17, .heavy))
+                Text(L10n.t("Last 7 days")).font(Theme.font(17, .heavy))
                 if week.isEmpty {
-                    Text("Your days will show up here.").foregroundStyle(Theme.muted)
+                    Text(L10n.t("Your days will show up here.")).foregroundStyle(Theme.muted)
                 } else {
                     Chart {
                         ForEach(week) { d in
@@ -109,7 +109,7 @@ struct HistoryView: View {
                             .foregroundStyle(Theme.outColor)
                             .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
                             .annotation(position: .top, alignment: .trailing) {
-                                Text("Goal \(Int(goal))h").font(Theme.font(11, .heavy)).foregroundStyle(Theme.outColor)
+                                Text(L10n.t("Goal %d", Int(goal)) + L10n.t("unit.h")).font(Theme.font(11, .heavy)).foregroundStyle(Theme.outColor)
                             }
                     }
                     .chartYScale(domain: 0...24)
@@ -125,7 +125,7 @@ struct HistoryView: View {
                         }
                     }
                     .frame(height: 180)
-                    .accessibilityLabel("Hours worn per day over the last 7 days, goal \(Int(goal)) hours")
+                    .accessibilityLabel(L10n.t("Hours worn per day over the last 7 days, goal %d hours", Int(goal)))
                 }
             }
         }
@@ -141,7 +141,8 @@ struct DayID: Identifiable, Hashable {
 
 extension HistoryView {
     fileprivate func calendarCard(now: Date, goal: Double) -> some View {
-        let cal = Calendar.current
+        var cal = Calendar.current
+        cal.locale = L10n.locale
         let thisMonth = cal.date(from: cal.dateComponents([.year, .month], from: now)) ?? now
         let firstMonth = cal.date(from: cal.dateComponents([.year, .month], from: trackingStart)) ?? thisMonth
         let canGoBack = month > firstMonth
@@ -160,13 +161,13 @@ extension HistoryView {
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    navButton("chevron.left", enabled: canGoBack) { shift(-1) }
+                    navButton("chevron.backward", enabled: canGoBack) { shift(-1) }
                     Spacer()
-                    Text(month.formatted(.dateTime.month(.wide).year()))
+                    Text(L10n.date(month, .dateTime.month(.wide).year()))
                         .font(Theme.font(17, .heavy))
                         .contentTransition(.numericText())
                     Spacer()
-                    navButton("chevron.right", enabled: canGoForward) { shift(1) }
+                    navButton("chevron.forward", enabled: canGoForward) { shift(1) }
                 }
                 HStack(spacing: 6) {
                     ForEach(Array(order.enumerated()), id: \.offset) { _, s in
@@ -188,13 +189,13 @@ extension HistoryView {
                     }
                 }
                 HStack(spacing: 14) {
-                    key(Theme.trayColor, "Goal met")
-                    key(Theme.outColor, "Close")
-                    key(Theme.overColor, "Missed")
+                    key(Theme.trayColor, L10n.t("Goal met"))
+                    key(Theme.outColor, L10n.t("Close"))
+                    key(Theme.overColor, L10n.t("Missed"))
                 }
                 HStack(spacing: 14) {
-                    dot(Theme.trayColor, "Tray started")
-                    dot(.white, "Switch day")
+                    dot(Theme.trayColor, L10n.t("Tray started"))
+                    dot(.white, L10n.t("Switch day"))
                 }
             }
         }
@@ -222,7 +223,7 @@ extension HistoryView {
         .buttonStyle(.plain)
         .disabled(!enabled)
         .opacity(enabled ? 1 : 0.3)
-        .accessibilityLabel(symbol == "chevron.left" ? "Previous month" : "Next month")
+        .accessibilityLabel(symbol == "chevron.backward" ? L10n.t("Previous month") : L10n.t("Next month"))
     }
 
     private func dayCell(number: Int, day: Date, now: Date, goal: Double, tracked: Bool, isStart: Bool, isDue: Bool) -> some View {
@@ -238,7 +239,7 @@ extension HistoryView {
             if wear.wornHours >= goal - 2 { return Theme.outColor }
             return Theme.overColor
         }()
-        let label = day.formatted(.dateTime.month().day())
+        let label = L10n.date(day, .dateTime.month().day())
         return Button {
             selectedDay = DayID(date: day)
         } label: {
@@ -259,8 +260,8 @@ extension HistoryView {
         .buttonStyle(.plain)
         .accessibilityIdentifier("day-\(number)")
         .accessibilityLabel(
-            filled ? "\(label): \(String(format: "%.1f", wear.wornHours)) hours worn" + (isStart ? ", tray started" : "") + (isDue ? ", switch day" : "")
-                   : "\(label): no data"
+            filled ? L10n.t("%@: %@ hours worn", label, String(format: "%.1f", wear.wornHours)) + (isStart ? ", " + L10n.t("tray started") : "") + (isDue ? ", " + L10n.t("switch day") : "")
+                   : L10n.t("%@: no data", label)
         )
     }
 

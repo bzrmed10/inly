@@ -10,6 +10,8 @@ struct WatchPayload: Codable, Sendable, Equatable {
     var leftSeconds: TimeInterval
     var goalHours: Int
     var trayLine: String?
+    /// Language code (en, fr, ar, es) the watch should use, so it matches the iPhone.
+    var language: String?
 
     static let payloadKey = "payload"
     static let commandKey = "command"
@@ -17,10 +19,11 @@ struct WatchPayload: Codable, Sendable, Equatable {
     static let putBackCommand = "putBackIn"
 
     init(isOut: Bool, outStart: Date, budgetEnd: Date, wornSeconds: TimeInterval, wornFraction: Double,
-         leftSeconds: TimeInterval, goalHours: Int, trayLine: String?) {
+         leftSeconds: TimeInterval, goalHours: Int, trayLine: String?, language: String? = nil) {
         self.isOut = isOut; self.outStart = outStart; self.budgetEnd = budgetEnd
         self.wornSeconds = wornSeconds; self.wornFraction = wornFraction
         self.leftSeconds = leftSeconds; self.goalHours = goalHours; self.trayLine = trayLine
+        self.language = language
     }
 
     var data: Data? { try? JSONEncoder().encode(self) }

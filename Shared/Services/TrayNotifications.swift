@@ -25,8 +25,8 @@ enum TrayNotifications {
 
         let next = tray.number + 1
         let content = UNMutableNotificationContent()
-        content.title = "Time for tray \(next)"
-        content.body = "Tray \(tray.number) has had its \(tray.plannedDays) days. Switch when you're ready, then log it in Inly."
+        content.title = L10n.t("Time for tray %d", next)
+        content.body = L10n.t("Tray %d has had its %d days. Switch when you're ready, then log it in Inly.", tray.number, tray.plannedDays)
         content.sound = .default
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
         center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: trigger))
@@ -42,16 +42,16 @@ enum AppointmentReminders {
 
     static func plan(for appointment: Date, now: Date = .now, calendar: Calendar = .current) -> [Planned] {
         var result: [Planned] = []
-        let time = appointment.formatted(date: .omitted, time: .shortened)
+        let time = L10n.time(appointment)
         let dayBefore = calendar.date(byAdding: .day, value: -1, to: calendar.startOfDay(for: appointment))
         if let dayBefore, let eve = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: dayBefore), eve > now {
-            result.append(Planned(id: "appt-eve", date: eve, title: "Orthodontist tomorrow",
-                                  body: "Your appointment is at \(time). Bring your current and previous trays."))
+            result.append(Planned(id: "appt-eve", date: eve, title: L10n.t("Orthodontist tomorrow"),
+                                  body: L10n.t("Your appointment is at %@. Bring your current and previous trays.", time)))
         }
         if let morning = calendar.date(bySettingHour: 8, minute: 0, second: 0, of: appointment),
            morning > now, morning < appointment.addingTimeInterval(-30 * 60) {
-            result.append(Planned(id: "appt-morning", date: morning, title: "Orthodontist today",
-                                  body: "Appointment at \(time). Keep your aligners in until you arrive."))
+            result.append(Planned(id: "appt-morning", date: morning, title: L10n.t("Orthodontist today"),
+                                  body: L10n.t("Appointment at %@. Keep your aligners in until you arrive.", time)))
         }
         return result
     }

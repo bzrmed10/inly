@@ -29,7 +29,7 @@ struct WearStatus: Sendable, Equatable {
         var tray: String?
         if let t = data.tray {
             let day = TrayLogic.dayNumber(start: t.startDate, now: now, calendar: .current)
-            tray = "Tray \(t.number) · Day \(day) of \(t.plannedDays)"
+            tray = L10n.t("Tray %d · Day %d of %d", t.number, day, t.plannedDays)
         }
         return WearStatus(
             isOut: open != nil, outStart: open?.start ?? now, budgetEnd: budgetEnd,
@@ -42,6 +42,7 @@ struct WearStatus: Sendable, Equatable {
 extension WatchPayload {
     init(_ s: WearStatus) {
         self.init(isOut: s.isOut, outStart: s.outStart, budgetEnd: s.budgetEnd, wornSeconds: s.wornSeconds,
-                  wornFraction: s.wornFraction, leftSeconds: s.leftSeconds, goalHours: s.goalHours, trayLine: s.trayLine)
+                  wornFraction: s.wornFraction, leftSeconds: s.leftSeconds, goalHours: s.goalHours, trayLine: s.trayLine,
+                  language: L10n.code)
     }
 }

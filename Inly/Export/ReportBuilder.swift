@@ -47,9 +47,9 @@ enum ReportBuilder {
 
     // MARK: CSV
 
-    private static func formatter(_ format: String, _ cal: Calendar) -> DateFormatter {
+    private static func formatter(_ format: String, _ cal: Calendar, locale: Locale = Locale(identifier: "en_US_POSIX")) -> DateFormatter {
         let f = DateFormatter()
-        f.locale = Locale(identifier: "en_US_POSIX")
+        f.locale = locale
         f.calendar = cal
         f.timeZone = cal.timeZone
         f.dateFormat = format
@@ -88,8 +88,8 @@ enum ReportBuilder {
         let full = days.filter { $0.elapsedSeconds >= 86_400 - 1 }
         let avg = full.isEmpty ? 0 : full.map(\.wornHours).reduce(0, +) / Double(full.count)
         let met = full.filter { $0.wornHours >= Double(input.goalHours) }.count
-        let dateFmt = formatter("d MMM yyyy", cal)
-        let shortFmt = formatter("EEE d MMM", cal)
+        let dateFmt = formatter("d MMM yyyy", cal, locale: L10n.locale)
+        let shortFmt = formatter("EEE d MMM", cal, locale: L10n.locale)
 
         let title = UIFont.systemFont(ofSize: 24, weight: .heavy)
         let h2 = UIFont.systemFont(ofSize: 14, weight: .heavy)
@@ -122,37 +122,37 @@ enum ReportBuilder {
             }
 
             newPage()
-            text("Aligner wear report", title)
+            text(L10n.t("Aligner wear report"), title)
             let who = input.name.trimmingCharacters(in: .whitespaces)
-            text("\(who.isEmpty ? "Patient" : who) · \(dateFmt.string(from: days.first?.day ?? input.from)) to \(dateFmt.string(from: input.now))", body, color: muted)
-            text("Created with Inly on \(dateFmt.string(from: input.now))", body, color: muted)
+            text("\(who.isEmpty ? L10n.t("Patient") : who) · " + L10n.t("%@ to %@", dateFmt.string(from: days.first?.day ?? input.from), dateFmt.string(from: input.now)), body, color: muted)
+            text(L10n.t("Created with Inly on %@", dateFmt.string(from: input.now)), body, color: muted)
             y += 8
 
-            text("Summary", h2)
-            text("Goal: \(input.goalHours) hours a day", body)
+            text(L10n.t("Summary"), h2)
+            text(L10n.t("Goal: %d hours a day", input.goalHours), body)
             if full.isEmpty {
-                text("Not enough complete days yet.", body)
+                text(L10n.t("Not enough complete days yet."), body)
             } else {
-                text(String(format: "Average wear: %.1f hours a day over %d complete days", avg, full.count), body)
-                text("Goal reached on \(met) of \(full.count) days (\(Int((Double(met) / Double(full.count) * 100).rounded()))%)", body)
+                text(L10n.t("Average wear: %@ hours a day over %d complete days", String(format: "%.1f", avg), full.count), body)
+                text(L10n.t("Goal reached on %d of %d days (%d%%)", met, full.count, Int((Double(met) / Double(full.count) * 100).rounded())), body)
             }
             let streak = Insights.streak(days: days, goalHours: input.goalHours, today: input.now, calendar: cal)
-            text("Current streak: \(streak.current) days · best: \(streak.best) days", body)
+            text(L10n.t("Current streak: %@ · best: %@", L10n.days(streak.current), L10n.days(streak.best)), body)
             if let appt = input.appointment, appt > input.now {
-                text("Next appointment: \(dateFmt.string(from: appt))", body)
+                text(L10n.t("Next appointment: %@", dateFmt.string(from: appt)), body)
             }
             y += 8
 
             if !input.trays.isEmpty {
-                text("Trays", h2)
+                text(L10n.t("Trays"), h2)
                 let w: [CGFloat] = [50, 110, 110, 110, 100]
-                row(["Tray", "Started", "Switched", "Days (plan)", "Avg wear"], widths: w, font: bold)
+                row([L10n.t("Tray"), L10n.t("Started"), L10n.t("Switched"), L10n.t("Days (plan)"), L10n.t("Avg wear")], widths: w, font: bold)
                 for t in input.trays.sorted(by: { $0.number < $1.number }) {
                     let spent = TrayLogic.daysSpent(start: t.start, end: t.end, now: input.now, calendar: cal)
                     let from = max(t.start, input.trackingStart ?? t.start)
                     let a = WearCalculator.averageWornHours(from: from, to: t.end ?? input.now, sessions: input.spans, now: input.now, calendar: cal)
                     row([
-                        "\(t.number)", dateFmt.string(from: t.start), t.end.map { dateFmt.string(from: $0) } ?? "current",
+                        "\(t.number)", dateFmt.string(from: t.start), t.end.map { dateFmt.string(from: $0) } ?? L10n.t("current"),
                         "\(spent) (\(t.plannedDays))", a > 0 ? String(format: "%.1f h", a) : "-",
                     ], widths: w, font: body)
                 }
@@ -161,29 +161,29 @@ enum ReportBuilder {
 
             if !input.notes.isEmpty {
                 ensure(40)
-                text("Notes", h2)
+                text(L10n.t("Notes"), h2)
                 for n in input.notes.sorted(by: { $0.date < $1.date }) {
                     ensure(18)
-                    text("Tray \(n.trayNumber) · \(dateFmt.string(from: n.date)): \(n.text)", body)
+                    text(L10n.t("Tray %d", n.trayNumber) + " · \(dateFmt.string(from: n.date)): \(n.text)", body)
                 }
                 y += 10
             }
 
             ensure(60)
-            text("Daily wear", h2)
+            text(L10n.t("Daily wear"), h2)
             let w: [CGFloat] = [130, 100, 100, 100]
-            row(["Day", "Worn", "Out", "Goal"], widths: w, font: bold)
+            row([L10n.t("Day"), L10n.t("Worn"), L10n.t("Out"), L10n.t("Goal")], widths: w, font: bold)
             for d in days.reversed() {
                 let out = max(0, d.elapsedSeconds - d.wornSeconds)
                 let ok = d.wornSeconds / max(1, d.elapsedSeconds) >= Double(input.goalHours) / 24 - 1e-9
                 let partial = d.elapsedSeconds < 86_400 - 1
                 row([
                     shortFmt.string(from: d.day), TimeFormat.hoursMinutes(d.wornSeconds), TimeFormat.hoursMinutes(out),
-                    partial ? "in progress" : (ok ? "met" : "missed"),
+                    partial ? L10n.t("in progress") : (ok ? L10n.t("met") : L10n.t("missed")),
                 ], widths: w, font: body)
             }
             y += 12
-            text("Wear times are recorded by the patient in the Inly app and are not a medical record.", UIFont.systemFont(ofSize: 9), color: muted)
+            text(L10n.t("Wear times are recorded by the patient in the Inly app and are not a medical record."), UIFont.systemFont(ofSize: 9), color: muted)
         }
     }
 }

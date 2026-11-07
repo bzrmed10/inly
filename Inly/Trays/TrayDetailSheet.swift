@@ -17,7 +17,8 @@ struct TrayDetailSheet: View {
     @State private var draft = ""
     @FocusState private var focused: Bool
 
-    private let quick = ["Sore teeth", "Pressure", "Tight fit", "Attachment loose", "Lisp", "All good"]
+    private let quickKeys = ["Sore teeth", "Pressure", "Tight fit", "Attachment loose", "Lisp", "All good"]
+    private var quick: [String] { quickKeys.map { L10n.t($0) } }
 
     init(tray: Tray, onClose: @escaping () -> Void = {}) {
         self.tray = tray
@@ -31,12 +32,12 @@ struct TrayDetailSheet: View {
             VStack(alignment: .leading, spacing: 20) {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("Tray \(tray.number)").font(Theme.font(32, .heavy))
-                        Text(tray.startDate.formatted(.dateTime.month(.wide).day()))
+                        Text(L10n.t("Tray %d", tray.number)).font(Theme.font(32, .heavy))
+                        Text(L10n.date(tray.startDate, .dateTime.month(.wide).day()))
                             .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
                     }
                     Spacer()
-                    Button("Done") { onClose(); dismiss() }.font(Theme.font(16, .heavy))
+                    Button(L10n.t("Done")) { onClose(); dismiss() }.font(Theme.font(16, .heavy))
                 }
 
                 photoSection
@@ -69,7 +70,7 @@ struct TrayDetailSheet: View {
 
     private var photoSection: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Text("Progress photo").font(Theme.font(17, .heavy))
+            Text(L10n.t("Progress photo")).font(Theme.font(17, .heavy))
             if let data = tray.photoData, let image = UIImage(data: data) {
                 Image(uiImage: image)
                     .resizable().scaledToFill()
@@ -77,12 +78,12 @@ struct TrayDetailSheet: View {
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                     .allowsHitTesting(false)
-                    .accessibilityLabel("Progress photo for tray \(tray.number)")
+                    .accessibilityLabel(L10n.t("Progress photo for tray %d", tray.number))
                 photoButtons(hasPhoto: true)
             } else {
                 VStack(spacing: 10) {
                     Image(systemName: "camera.fill").font(.title).foregroundStyle(Theme.muted)
-                    Text("Add a photo of your teeth in this tray")
+                    Text(L10n.t("Add a photo of your teeth in this tray"))
                         .font(Theme.font(15, .bold)).foregroundStyle(Theme.muted)
                 }
                 .frame(maxWidth: .infinity).frame(height: 120)
@@ -96,14 +97,14 @@ struct TrayDetailSheet: View {
         HStack(spacing: 10) {
             if CameraPicker.isAvailable {
                 Button { showCamera = true } label: {
-                    Label("Camera", systemImage: "camera").frame(maxWidth: .infinity, minHeight: 46)
+                    Label(L10n.t("Camera"), systemImage: "camera").frame(maxWidth: .infinity, minHeight: 46)
                 }
                 .buttonStyle(.plain)
                 .background(Theme.inColor, in: Capsule())
                 .foregroundStyle(Theme.night)
             }
             PhotosPicker(selection: $pickerItem, matching: .images) {
-                Label("Library", systemImage: "photo").frame(maxWidth: .infinity, minHeight: 46)
+                Label(L10n.t("Library"), systemImage: "photo").frame(maxWidth: .infinity, minHeight: 46)
             }
             .buttonStyle(.plain)
             .background(CameraPicker.isAvailable ? Theme.raised : Theme.inColor, in: Capsule())
@@ -114,7 +115,7 @@ struct TrayDetailSheet: View {
                 }
                 .buttonStyle(.plain)
                 .background(Theme.raised, in: Circle())
-                .accessibilityLabel("Remove photo")
+                .accessibilityLabel(L10n.t("Remove photo"))
             }
         }
         .font(Theme.font(15, .heavy))
@@ -155,7 +156,7 @@ struct TrayDetailSheet: View {
 
     private var notesSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("Notes").font(Theme.font(17, .heavy))
+            Text(L10n.t("Notes")).font(Theme.font(17, .heavy))
 
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
@@ -171,7 +172,7 @@ struct TrayDetailSheet: View {
             }
 
             HStack(spacing: 10) {
-                TextField("Write a note", text: $draft, axis: .vertical)
+                TextField(L10n.t("Write a note"), text: $draft, axis: .vertical)
                     .focused($focused)
                     .font(Theme.font(16, .semibold))
                     .padding(.horizontal, 16).padding(.vertical, 12)
@@ -184,11 +185,11 @@ struct TrayDetailSheet: View {
                 }
                 .buttonStyle(.plain)
                 .disabled(draft.trimmingCharacters(in: .whitespaces).isEmpty)
-                .accessibilityLabel("Add note")
+                .accessibilityLabel(L10n.t("Add note"))
             }
 
             if notes.isEmpty {
-                Text("No notes yet. Tap a suggestion above or write your own.")
+                Text(L10n.t("No notes yet. Tap a suggestion above or write your own."))
                     .font(Theme.font(14, .medium)).foregroundStyle(Theme.muted)
             } else {
                 VStack(spacing: 8) {
@@ -196,7 +197,7 @@ struct TrayDetailSheet: View {
                         HStack(alignment: .top, spacing: 12) {
                             VStack(alignment: .leading, spacing: 3) {
                                 Text(note.text).font(Theme.font(16, .bold))
-                                Text(note.date.formatted(.dateTime.month(.abbreviated).day().hour().minute()))
+                                Text(L10n.date(note.date, .dateTime.month(.abbreviated).day().hour().minute()))
                                     .font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
                             }
                             Spacer(minLength: 8)
@@ -204,7 +205,7 @@ struct TrayDetailSheet: View {
                                 Image(systemName: "xmark.circle.fill").foregroundStyle(Theme.muted).font(.title3)
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel("Delete note")
+                            .accessibilityLabel(L10n.t("Delete note"))
                         }
                         .padding(14)
                         .background(Theme.raised, in: RoundedRectangle(cornerRadius: 20, style: .continuous))

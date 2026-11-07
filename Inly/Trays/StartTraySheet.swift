@@ -32,22 +32,22 @@ struct StartTraySheet: View {
     private var warning: String? {
         guard let current, let saved = savedDays else { return nil }
         let plan = current.plannedDays
-        if saved < plan { return "\(plan - saved) day\(plan - saved == 1 ? "" : "s") earlier than planned (\(plan))" }
-        if saved > plan { return "\(saved - plan) day\(saved - plan == 1 ? "" : "s") later than planned (\(plan))" }
+        if saved < plan { return L10n.t("%@ earlier than planned (%d)", L10n.days(plan - saved), plan) }
+        if saved > plan { return L10n.t("%@ later than planned (%d)", L10n.days(saved - plan), plan) }
         return nil
     }
 
     private var reminderDate: String {
-        TrayLogic.switchDate(start: date, plannedDays: plannedDays, calendar: .current)
-            .formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+        L10n.date(TrayLogic.switchDate(start: date, plannedDays: plannedDays, calendar: .current),
+                  .dateTime.weekday(.abbreviated).month(.abbreviated).day())
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Start tray \(nextNumber)?").font(Theme.font(28, .heavy))
+                Text(L10n.t("Start tray %d?", nextNumber)).font(Theme.font(28, .heavy))
                 if let current, let saved = savedDays {
-                    Text("Tray \(current.number) will be saved with \(saved) day\(saved == 1 ? "" : "s").")
+                    Text(L10n.t("Tray %d will be saved with %@.", current.number, L10n.days(saved)))
                         .font(Theme.font(15, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
                 }
                 if let warning {
@@ -56,22 +56,22 @@ struct StartTraySheet: View {
             }
 
             VStack(alignment: .leading, spacing: 8) {
-                Text("Put it in").font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+                Text(L10n.t("Put it in")).font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
                 HStack(spacing: 8) {
-                    choice("Today", selected: !yesterday) { yesterday = false }
-                    choice("Yesterday", selected: yesterday) { yesterday = true }
+                    choice(L10n.t("Today"), selected: !yesterday) { yesterday = false }
+                    choice(L10n.t("Yesterday"), selected: yesterday) { yesterday = true }
                 }
             }
 
-            StepperRow(title: "Days on this tray", valueText: "\(plannedDays) days", value: $plannedDays, range: 1...30)
+            StepperRow(title: L10n.t("Days on this tray"), valueText: L10n.days(plannedDays), value: $plannedDays, range: 1...30)
 
-            Text("We'll remind you to switch on \(reminderDate).")
+            Text(L10n.t("We'll remind you to switch on %@.", reminderDate))
                 .font(Theme.font(14, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
 
             VStack(spacing: 6) {
-                Button("Start tray \(nextNumber)") { onStart(date, plannedDays); dismiss() }
+                Button(L10n.t("Start tray %d", nextNumber)) { onStart(date, plannedDays); dismiss() }
                     .buttonStyle(PillButtonStyle(color: Theme.trayColor, foreground: Color(hex: 0x062014)))
-                Button("Cancel") { dismiss() }
+                Button(L10n.t("Cancel")) { dismiss() }
                     .font(Theme.font(16, .heavy))
                     .foregroundStyle(Color(hex: 0xC9C9D2))
                     .frame(maxWidth: .infinity, minHeight: 48)
@@ -110,24 +110,24 @@ struct ExtendTraySheet: View {
 
     private var newPlan: Int { tray.plannedDays + extra }
     private var switchDate: String {
-        TrayLogic.switchDate(start: tray.startDate, plannedDays: newPlan, calendar: .current)
-            .formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
+        L10n.date(TrayLogic.switchDate(start: tray.startDate, plannedDays: newPlan, calendar: .current),
+                  .dateTime.weekday(.abbreviated).month(.abbreviated).day())
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
-                Text("Extend tray \(tray.number)").font(Theme.font(28, .heavy))
-                Text("Planned: \(tray.plannedDays) days. Use this when your orthodontist asks for more time on this tray.")
+                Text(L10n.t("Extend tray %d", tray.number)).font(Theme.font(28, .heavy))
+                Text(L10n.t("Planned: %@. Use this when your orthodontist asks for more time on this tray.", L10n.days(tray.plannedDays)))
                     .font(Theme.font(15, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
             }
-            StepperRow(title: "Add days", valueText: "+\(extra) day\(extra == 1 ? "" : "s")", value: $extra, range: 1...21)
-            Text("New plan: \(newPlan) days. Switch on \(switchDate).")
+            StepperRow(title: L10n.t("Add days"), valueText: "+" + L10n.days(extra), value: $extra, range: 1...21)
+            Text(L10n.t("New plan: %@. Switch on %@.", L10n.days(newPlan), switchDate))
                 .font(Theme.font(14, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
             VStack(spacing: 6) {
-                Button("Extend by \(extra) day\(extra == 1 ? "" : "s")") { onExtend(extra); dismiss() }
+                Button(L10n.t("Extend by %@", L10n.days(extra))) { onExtend(extra); dismiss() }
                     .buttonStyle(PillButtonStyle(color: Theme.trayColor, foreground: Color(hex: 0x062014)))
-                Button("Cancel") { dismiss() }
+                Button(L10n.t("Cancel")) { dismiss() }
                     .font(Theme.font(16, .heavy))
                     .foregroundStyle(Color(hex: 0xC9C9D2))
                     .frame(maxWidth: .infinity, minHeight: 48)

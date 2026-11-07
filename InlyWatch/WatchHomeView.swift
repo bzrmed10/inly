@@ -10,13 +10,15 @@ struct WatchHomeView: View {
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: "iphone.and.arrow.forward").font(.title2).foregroundStyle(Theme.inColor)
-                    Text("Open Inly on your iPhone once to connect.")
+                    Text(L10n.t("Open Inly on your iPhone once to connect."))
                         .font(Theme.font(14, .semibold)).multilineTextAlignment(.center).foregroundStyle(Theme.muted)
                 }
                 .padding()
             }
         }
         .containerBackground(Theme.night.gradient, for: .navigation)
+        .environment(\.layoutDirection, L10n.layoutDirection)
+        .environment(\.locale, L10n.locale)
     }
 
     private func content(_ p: WatchPayload) -> some View {
@@ -29,7 +31,7 @@ struct WatchHomeView: View {
                 .ignoresSafeArea()
 
             VStack(spacing: 2) {
-                Text(p.isOut ? "OUT" : "WORN")
+                Text(p.isOut ? L10n.t("OUT") : L10n.t("WORN"))
                     .font(Theme.font(12, .heavy)).tracking(1.5).foregroundStyle(color)
                 Group {
                     if p.isOut {
@@ -45,16 +47,16 @@ struct WatchHomeView: View {
                     if p.isOut {
                         HStack(spacing: 4) {
                             Text(timerInterval: range, countsDown: true).monospacedDigit()
-                            Text("left")
+                            Text(L10n.t("left"))
                         }
                     } else {
-                        Text("\(TimeFormat.hoursMinutes(p.leftSeconds)) left today")
+                        Text(L10n.t("%@ left today", TimeFormat.hoursMinutes(p.leftSeconds)))
                     }
                 }
                 .font(Theme.font(13, .heavy)).foregroundStyle(color).lineLimit(1).minimumScaleFactor(0.7)
 
                 Button { model.toggle() } label: {
-                    Text(p.isOut ? "Put back in" : "Take out")
+                    Text(p.isOut ? L10n.t("Put back in") : L10n.t("Take out"))
                         .font(Theme.font(16, .heavy)).frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)

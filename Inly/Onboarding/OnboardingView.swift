@@ -52,12 +52,12 @@ struct OnboardingView: View {
     private var topBar: some View {
         HStack {
             Button { go(-1) } label: {
-                Image(systemName: "chevron.left").font(.headline.weight(.bold))
+                Image(systemName: "chevron.backward").font(.headline.weight(.bold))
                     .frame(width: 44, height: 44)
             }
             .opacity(step == .welcome ? 0 : 1)
             .disabled(step == .welcome)
-            .accessibilityLabel("Back")
+            .accessibilityLabel(L10n.t("Back"))
             Spacer()
             HStack(spacing: 7) {
                 ForEach(Step.allCases, id: \.self) { s in
@@ -68,7 +68,7 @@ struct OnboardingView: View {
             }
             .animation(.snappy, value: step)
             .accessibilityElement()
-            .accessibilityLabel("Step \(step.rawValue + 1) of \(Step.allCases.count)")
+            .accessibilityLabel(L10n.t("Step %d of %d", step.rawValue + 1, Step.allCases.count))
             Spacer()
             Color.clear.frame(width: 44, height: 44)
         }
@@ -77,9 +77,9 @@ struct OnboardingView: View {
 
     private var buttonTitle: String {
         switch step {
-        case .welcome: "Get started"
-        case .done: "Open Inly"
-        default: "Next"
+        case .welcome: L10n.t("Get started")
+        case .done: L10n.t("Open Inly")
+        default: L10n.t("Next")
         }
     }
 
@@ -147,27 +147,27 @@ struct OnboardingView: View {
 
     private func title(for s: Step) -> String {
         switch s {
-        case .welcome: "Meet Inly"
-        case .island: "Always on top"
-        case .widgets: "Right on your Home Screen"
-        case .name: "What should we call you?"
-        case .tray: "Which tray are you on?"
-        case .goal: "Your daily goal"
-        case .reminders: "Never forget them"
-        case .done: name.trimmingCharacters(in: .whitespaces).isEmpty ? "You're all set" : "You're all set, \(name.trimmingCharacters(in: .whitespaces))"
+        case .welcome: L10n.t("Meet Inly")
+        case .island: L10n.t("Always on top")
+        case .widgets: L10n.t("Right on your Home Screen")
+        case .name: L10n.t("What should we call you?")
+        case .tray: L10n.t("Which tray are you on?")
+        case .goal: L10n.t("Your daily goal")
+        case .reminders: L10n.t("Never forget them")
+        case .done: name.trimmingCharacters(in: .whitespaces).isEmpty ? L10n.t("You're all set") : L10n.t("You're all set, %@", name.trimmingCharacters(in: .whitespaces))
         }
     }
 
     private func subtitle(for s: Step) -> String {
         switch s {
-        case .welcome: "The calm way to track your aligners. One tap out, one tap back in."
-        case .island: "Your timer lives in the Dynamic Island and on your Lock Screen, so you can put them back in without opening the app."
-        case .widgets: "Add a widget and log with one tap. It works on your Home Screen, Lock Screen and Apple Watch."
-        case .name: "We'll use it to say hello."
-        case .tray: "So we start counting from the right tray and the right day."
-        case .goal: "Most orthodontists ask for 20 to 22 hours a day. Use the number your orthodontist gave you."
-        case .reminders: "Get a nudge when your aligners have been out too long. Turn off what you don't need."
-        case .done: "Two quick things make Inly even better."
+        case .welcome: L10n.t("The calm way to track your aligners. One tap out, one tap back in.")
+        case .island: L10n.t("Your timer lives in the Dynamic Island and on your Lock Screen, so you can put them back in without opening the app.")
+        case .widgets: L10n.t("Add a widget and log with one tap. It works on your Home Screen, Lock Screen and Apple Watch.")
+        case .name: L10n.t("We'll use it to say hello.")
+        case .tray: L10n.t("So we start counting from the right tray and the right day.")
+        case .goal: L10n.t("Most orthodontists ask for 20 to 22 hours a day. Use the number your orthodontist gave you.")
+        case .reminders: L10n.t("Get a nudge when your aligners have been out too long. Turn off what you don't need.")
+        case .done: L10n.t("Two quick things make Inly even better.")
         }
     }
 
@@ -175,7 +175,7 @@ struct OnboardingView: View {
     private func controls(for s: Step) -> some View {
         switch s {
         case .name:
-            TextField("Your first name", text: $name)
+            TextField(L10n.t("Your first name"), text: $name)
                 .font(Theme.font(18, .semibold))
                 .textContentType(.givenName)
                 .submitLabel(.next)
@@ -185,7 +185,7 @@ struct OnboardingView: View {
                 .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         case .tray:
             VStack(alignment: .leading, spacing: 12) {
-                DatePicker("Started this tray", selection: $trayStart, in: ...Date.now, displayedComponents: .date)
+                DatePicker(L10n.t("Started this tray"), selection: $trayStart, in: ...Date.now, displayedComponents: .date)
                     .font(Theme.font(16, .heavy))
                     .tint(Theme.inColor)
                     .padding(16)
@@ -198,12 +198,12 @@ struct OnboardingView: View {
             VStack(spacing: 14) {
                 Slider(value: Binding(get: { Double(goalHours) }, set: { goalHours = Int($0.rounded()) }), in: 16...23, step: 1)
                     .tint(Theme.inColor)
-                    .accessibilityLabel("Hours a day")
-                    .accessibilityValue("\(goalHours) hours")
+                    .accessibilityLabel(L10n.t("Hours a day"))
+                    .accessibilityValue(L10n.t("%d hours", goalHours))
                 Toggle(isOn: $alignersIn) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text("My aligners are in right now").font(Theme.font(16, .heavy))
-                        Text(alignersIn ? "Counting starts as worn." : "Counting starts as out. Tap Put back in when they're in.")
+                        Text(L10n.t("My aligners are in right now")).font(Theme.font(16, .heavy))
+                        Text(alignersIn ? L10n.t("Counting starts as worn.") : L10n.t("Counting starts as out. Tap Put back in when they're in."))
                             .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
                     }
                 }
@@ -214,7 +214,7 @@ struct OnboardingView: View {
         case .reminders:
             VStack(spacing: 14) {
                 Toggle(isOn: $remindersOn) {
-                    Text("Reminders").font(Theme.font(16, .heavy))
+                    Text(L10n.t("Reminders")).font(Theme.font(16, .heavy))
                 }
                 .tint(Theme.trayColor)
                 .padding(16)
@@ -238,9 +238,9 @@ struct OnboardingView: View {
             }
         case .done:
             VStack(spacing: 10) {
-                tip("square.grid.2x2", "Add the widget", "Touch and hold your Home Screen, tap +, then pick Inly.")
-                tip("button.horizontal.top.press", "Use the Action Button", "Settings, Action Button, Shortcut, then choose Take out or Put back in.")
-                tip("applewatch", "Install the watch app", "Open the Watch app on your iPhone and install Inly.")
+                tip("square.grid.2x2", L10n.t("Add the widget"), L10n.t("Touch and hold your Home Screen, tap +, then pick Inly."))
+                tip("button.horizontal.top.press", L10n.t("Use the Action Button"), L10n.t("Settings, Action Button, Shortcut, then choose Take out or Put back in."))
+                tip("applewatch", L10n.t("Install the watch app"), L10n.t("Open the Watch app on your iPhone and install Inly."))
             }
         default:
             EmptyView()
@@ -266,9 +266,9 @@ struct OnboardingView: View {
 
     private var trayWheels: some View {
         HStack(spacing: 0) {
-            wheel("Tray", value: $currentTray, range: 1...80)
-            wheel("Of", value: $totalTrays, range: 1...80)
-            wheel("Days each", value: $plannedDays, range: 1...30)
+            wheel(L10n.t("Tray"), value: $currentTray, range: 1...80)
+            wheel(L10n.t("Of"), value: $totalTrays, range: 1...80)
+            wheel(L10n.t("Days each"), value: $plannedDays, range: 1...30)
         }
         .padding(.vertical, 6)
         .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
@@ -290,9 +290,9 @@ struct OnboardingView: View {
 
     private var traySummary: String {
         let left = plannedDays - dayOnTray
-        if left > 0 { return "Day \(dayOnTray) of \(plannedDays). Switch to tray \(currentTray + 1) in \(left) day\(left == 1 ? "" : "s")." }
-        if left == 0 { return "Day \(dayOnTray) of \(plannedDays). You're due to switch to tray \(currentTray + 1) today." }
+        if left > 0 { return L10n.t("Day %d of %d. Switch to tray %d in %@.", dayOnTray, plannedDays, currentTray + 1, L10n.days(left)) }
+        if left == 0 { return L10n.t("Day %d of %d. You're due to switch to tray %d today.", dayOnTray, plannedDays, currentTray + 1) }
         let over = -left
-        return "That's \(over) day\(over == 1 ? "" : "s") over the plan, shown as +\(over) until you start tray \(currentTray + 1)."
+        return L10n.t("That's %@ over the plan, shown as +%d until you start tray %d.", L10n.days(over), over, currentTray + 1)
     }
 }

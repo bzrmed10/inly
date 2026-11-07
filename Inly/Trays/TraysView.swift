@@ -48,7 +48,7 @@ struct TraysView: View {
                 if let current {
                     currentCard(current).row(insets)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) { delete(current) } label: { Label("Delete", systemImage: "trash") }
+                            Button(role: .destructive) { delete(current) } label: { Label(L10n.t("Delete"), systemImage: "trash") }
                         }
                 } else {
                     emptyCard.row(insets)
@@ -60,7 +60,7 @@ struct TraysView: View {
                             .contentShape(Rectangle())
                             .onTapGesture { detailTray = tray }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) { delete(tray) } label: { Label("Delete", systemImage: "trash") }
+                                Button(role: .destructive) { delete(tray) } label: { Label(L10n.t("Delete"), systemImage: "trash") }
                             }
                     }
                 }
@@ -86,8 +86,8 @@ struct TraysView: View {
                 let undo = SessionService.shared.startNextTray(on: date, plannedDays: days)
                 let started = nextNumber - 1
                 let due = TrayLogic.switchDate(start: date, plannedDays: days, calendar: .current)
-                    .formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day())
-                show(ToastData(title: "Tray \(started) started", subtitle: "Switch reminder \(due)") {
+                let dueText = L10n.date(due, .dateTime.weekday(.abbreviated).month(.abbreviated).day())
+                show(ToastData(title: L10n.t("Tray %d started", started), subtitle: L10n.t("Switch reminder %@", dueText)) {
                     SessionService.shared.undoStartTray(undo)
                 })
             }
@@ -116,9 +116,9 @@ struct TraysView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Treatment · \(max(settings.totalTrays, trays.first?.number ?? 0)) trays")
+            Text(L10n.t("Treatment · %@", L10n.trays(max(settings.totalTrays, trays.first?.number ?? 0))))
                 .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
-            Text("Trays").font(Theme.font(36, .heavy))
+            Text(L10n.t("Trays")).font(Theme.font(36, .heavy))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 8)
@@ -130,9 +130,9 @@ struct TraysView: View {
         let columns = Array(repeating: GridItem(.flexible(), spacing: 3), count: min(24, total))
         return VStack(spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
-                Text("Tray \(min(cur, total)) of \(total)").font(Theme.font(15, .heavy))
+                Text(L10n.t("Tray %d of %d", min(cur, total), total)).font(Theme.font(15, .heavy))
                 Spacer()
-                Text("\(max(0, total - cur)) trays to go").font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+                Text(L10n.t("%@ to go", L10n.trays(max(0, total - cur)))).font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
             }
             LazyVGrid(columns: columns, spacing: 3) {
                 ForEach(1...total, id: \.self) { i in
@@ -144,10 +144,10 @@ struct TraysView: View {
             if let f = forecast {
                 HStack {
                     Image(systemName: "flag.checkered").foregroundStyle(Theme.trayColor)
-                    Text("Estimated finish \(f.finishDate.formatted(.dateTime.month(.abbreviated).day().year()))")
+                    Text(L10n.t("Estimated finish %@", L10n.shortDate(f.finishDate, year: true)))
                         .font(Theme.font(14, .heavy))
                     Spacer()
-                    Text(f.daysLeft == 0 ? "today" : "in \(f.daysLeft) days")
+                    Text(f.daysLeft == 0 ? L10n.t("today") : L10n.t("in %@", L10n.days(f.daysLeft)))
                         .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
                 }
                 .padding(.top, 4)
@@ -163,8 +163,8 @@ struct TraysView: View {
                     .font(.title3).foregroundStyle(Theme.trayColor)
                     .frame(width: 40, height: 40).background(Theme.raised, in: Circle())
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Compare photos").font(Theme.font(15, .heavy))
-                    Text("See how your smile has moved").font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+                    Text(L10n.t("Compare photos")).font(Theme.font(15, .heavy))
+                    Text(L10n.t("See how your smile has moved")).font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
                 }
                 Spacer()
                 Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(Theme.muted)
@@ -183,13 +183,13 @@ struct TraysView: View {
                     .font(.title3).foregroundStyle(Theme.inColor)
                     .frame(width: 40, height: 40).background(Theme.raised, in: Circle())
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Orthodontist visit").font(Theme.font(15, .heavy))
+                    Text(L10n.t("Orthodontist visit")).font(Theme.font(15, .heavy))
                     if let appt {
                         let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: .now), to: Calendar.current.startOfDay(for: appt)).day ?? 0
-                        Text("\(appt.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day().hour().minute())) · \(days == 0 ? "today" : (days == 1 ? "tomorrow" : "in \(days) days"))")
+                        Text("\(L10n.date(appt, .dateTime.weekday(.abbreviated).month(.abbreviated).day().hour().minute())) · \(days == 0 ? L10n.t("today") : (days == 1 ? L10n.t("tomorrow") : L10n.t("in %@", L10n.days(days))))")
                             .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
                     } else {
-                        Text("Add your next appointment").font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+                        Text(L10n.t("Add your next appointment")).font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
                     }
                 }
                 Spacer()
@@ -199,7 +199,7 @@ struct TraysView: View {
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(appt == nil ? "Add orthodontist visit" : "Edit orthodontist visit")
+        .accessibilityLabel(appt == nil ? L10n.t("Add orthodontist visit") : L10n.t("Edit orthodontist visit"))
     }
 
     private func currentCard(_ tray: Tray) -> some View {
@@ -213,28 +213,28 @@ struct TraysView: View {
 
         return VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("Current tray").font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
+                Text(L10n.t("Current tray")).font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
                 Spacer()
-                Text("Day \(dayN) of \(tray.plannedDays)")
+                Text(L10n.t("Day %d of %d", dayN, tray.plannedDays))
                     .font(Theme.font(13, .heavy)).foregroundStyle(tint)
                     .padding(.horizontal, 12).frame(height: 28)
                     .background(tint.opacity(0.16), in: Capsule())
             }
-            Text("Tray \(tray.number)")
+            Text(L10n.t("Tray %d", tray.number))
                 .font(Theme.font(38, .heavy)).minimumScaleFactor(0.7).lineLimit(1)
             if over > 0 {
-                Text("+\(over) day\(over == 1 ? "" : "s") over the plan")
+                Text(L10n.t("+%@ over the plan", L10n.days(over)))
                     .font(Theme.font(15, .heavy)).foregroundStyle(Theme.outColor)
             }
             ProgressView(value: min(1, Double(dayN) / Double(max(1, tray.plannedDays))))
                 .tint(tint)
             HStack(alignment: .top) {
-                info("Started", tray.startDate.formatted(.dateTime.month(.abbreviated).day()))
-                info("Switch on", due.formatted(.dateTime.weekday(.abbreviated).month(.abbreviated).day()).replacingOccurrences(of: ",", with: ""))
-                info("Avg wear", TimeFormat.hoursMinutes(avg * 3600))
+                info(L10n.t("Started"), L10n.shortDate(tray.startDate))
+                info(L10n.t("Switch on"), L10n.date(due, .dateTime.weekday(.abbreviated).month(.abbreviated).day()).replacingOccurrences(of: ",", with: ""))
+                info(L10n.t("Avg wear"), TimeFormat.hoursMinutes(avg * 3600))
             }
             Button { showStart = true } label: {
-                Label("Start tray \(tray.number + 1)", systemImage: "plus")
+                Label(L10n.t("Start tray %d", tray.number + 1), systemImage: "plus")
             }
             .buttonStyle(PillButtonStyle(color: .white, height: 54))
             Button { detailTray = tray } label: {
@@ -244,7 +244,7 @@ struct TraysView: View {
             .frame(maxWidth: .infinity, minHeight: 44)
             .background(Theme.raised, in: Capsule())
             .buttonStyle(.plain)
-            Button { showExtend = true } label: { Text("Extend plan") }
+            Button { showExtend = true } label: { Text(L10n.t("Extend plan")) }
                 .font(Theme.font(15, .heavy))
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .background(Theme.raised, in: Capsule())
@@ -264,10 +264,10 @@ struct TraysView: View {
 
     private var emptyCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Text("No tray yet").font(Theme.font(24, .heavy))
-            Text("Start a tray to track how many days you stay on it.")
+            Text(L10n.t("No tray yet")).font(Theme.font(24, .heavy))
+            Text(L10n.t("Start a tray to track how many days you stay on it."))
                 .font(Theme.font(15, .semibold)).foregroundStyle(Theme.muted)
-            Button { showStart = true } label: { Label("Start tray \(nextNumber)", systemImage: "plus") }
+            Button { showStart = true } label: { Label(L10n.t("Start tray %d", nextNumber), systemImage: "plus") }
                 .buttonStyle(PillButtonStyle(color: .white, height: 54))
         }
         .padding(18)
@@ -286,9 +286,9 @@ struct TraysView: View {
         let days = finished.map { TrayLogic.daysSpent(start: $0.startDate, end: $0.endDate, now: .now, calendar: .current) }
         let avg = days.isEmpty ? 0 : Double(days.reduce(0, +)) / Double(days.count)
         return HStack(alignment: .firstTextBaseline) {
-            Text("Tray history").font(Theme.font(20, .heavy))
+            Text(L10n.t("Tray history")).font(Theme.font(20, .heavy))
             Spacer()
-            Text("\(finished.count) done · avg \(String(format: "%.1f", avg)) days")
+            Text(L10n.t("%d done · avg %@ days", finished.count, String(format: "%.1f", avg)))
                 .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
         }
     }
@@ -299,9 +299,9 @@ struct TraysView: View {
         let delta = days - tray.plannedDays
         let barColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Theme.inColor : Theme.trayColor)
         let noteColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Color(hex: 0x8DBBFF) : Theme.muted)
-        let note = delta == 0 ? "on plan" : (delta > 0 ? "+\(delta) day\(delta == 1 ? "" : "s")" : "−\(-delta) day\(delta == -1 ? "" : "s")")
+        let note = delta == 0 ? L10n.t("on plan") : (delta > 0 ? "+" + L10n.days(delta) : "−" + L10n.days(-delta))
         let avg = WearCalculator.averageWornHours(from: from(tray), to: tray.endDate ?? .now, sessions: spans, now: .now, calendar: cal)
-        let md: (Date) -> String = { $0.formatted(.dateTime.month(.abbreviated).day()) }
+        let md: (Date) -> String = { L10n.shortDate($0) }
 
         return HStack(spacing: 12) {
             Text("\(tray.number)")
@@ -310,10 +310,10 @@ struct TraysView: View {
                 .background(Theme.raised, in: Circle())
             VStack(spacing: 5) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("Tray \(tray.number) · \(md(tray.startDate)) – \(md(tray.endDate ?? .now))\(tray.photoData == nil ? "" : "  📷")")
+                    Text(L10n.t("Tray %d · %@ – %@", tray.number, md(tray.startDate), md(tray.endDate ?? .now)) + (tray.photoData == nil ? "" : "  📷"))
                         .font(Theme.font(15, .heavy)).lineLimit(1).minimumScaleFactor(0.8)
                     Spacer(minLength: 6)
-                    Text("\(days) day\(days == 1 ? "" : "s")").font(Theme.font(15, .heavy))
+                    Text(L10n.days(days)).font(Theme.font(15, .heavy))
                 }
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
@@ -323,7 +323,7 @@ struct TraysView: View {
                 }
                 .frame(height: 6)
                 HStack {
-                    Text("avg wear \(TimeFormat.hoursMinutes(avg * 3600))")
+                    Text(L10n.t("avg wear %@", TimeFormat.hoursMinutes(avg * 3600)))
                     Spacer()
                     Text(note).foregroundStyle(noteColor)
                 }
@@ -340,7 +340,7 @@ struct TraysView: View {
     private func delete(_ tray: Tray) {
         let number = tray.number
         let undo = SessionService.shared.deleteTray(tray)
-        show(ToastData(title: "Tray \(number) deleted", subtitle: nil) {
+        show(ToastData(title: L10n.t("Tray %d deleted", number), subtitle: nil) {
             SessionService.shared.undoDelete(undo)
         })
     }

@@ -6,18 +6,19 @@ struct RootView: View {
 
     @State private var setupDone = WearSettings.load().onboardingDone
     @State private var selection: AppTab = .today
+    @AppStorage(L10n.storageKey, store: UserDefaults(suiteName: AppGroup.identifier)) private var languageRaw = AppLanguage.system.rawValue
 
     var body: some View {
         Group {
             if setupDone {
                 TabView(selection: $selection) {
-                    Tab("Today", systemImage: "circle.dashed", value: AppTab.today) {
+                    Tab(L10n.t("Today"), systemImage: "circle.dashed", value: AppTab.today) {
                         TodayView(onOpenTrays: { selection = .trays })
                     }
-                    Tab("Trays", systemImage: "square.stack.3d.up.fill", value: AppTab.trays) { TraysView() }
-                    Tab("History", systemImage: "chart.bar.fill", value: AppTab.history) { HistoryView() }
+                    Tab(L10n.t("Trays"), systemImage: "square.stack.3d.up.fill", value: AppTab.trays) { TraysView() }
+                    Tab(L10n.t("History"), systemImage: "chart.bar.fill", value: AppTab.history) { HistoryView() }
                     // role .search makes iOS 26 draw this as the detached glass circle next to the tab bar.
-                    Tab("Settings", systemImage: "gearshape.fill", value: AppTab.settings, role: .search) {
+                    Tab(L10n.t("Settings"), systemImage: "gearshape.fill", value: AppTab.settings, role: .search) {
                         SettingsView { withAnimation(.smooth) { setupDone = false } }
                     }
                 }
@@ -28,6 +29,8 @@ struct RootView: View {
                     .transition(.opacity)
             }
         }
+        .id(languageRaw)
+        .appLanguage()
         .preferredColorScheme(.dark)
     }
 }

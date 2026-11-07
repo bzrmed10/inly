@@ -78,13 +78,13 @@ struct TodayView: View {
         let light = Font.system(size: 30, weight: .light, design: .rounded)
         let bold = Font.system(size: 30, weight: .heavy, design: .rounded)
         return VStack(alignment: .leading, spacing: 2) {
-            Text(now.formatted(.dateTime.weekday(.wide).day().month(.wide)).uppercased())
+            Text(L10n.date(now, .dateTime.weekday(.wide).day().month(.wide)).uppercased())
                 .font(Theme.font(12, .semibold)).tracking(1).foregroundStyle(Theme.muted)
             Group {
                 if name.isEmpty {
-                    Text("\(phrase)!").font(light)
+                    Text(phrase + L10n.t("!")).font(light)
                 } else {
-                    Text("\(Text("\(phrase), ").font(light))\(Text(name).font(bold))\(Text("!").font(light))")
+                    Text("\(Text(phrase + L10n.t(", ")).font(light))\(Text(name).font(bold))\(Text(L10n.t("!")).font(light))")
                 }
             }
             .lineLimit(1).minimumScaleFactor(0.6)
@@ -106,9 +106,9 @@ struct TodayView: View {
             let left = TrayLogic.daysUntilSwitch(start: tray.startDate, plannedDays: tray.plannedDays, now: now, calendar: cal)
             let tint = over > 0 ? Theme.outColor : Theme.trayColor
             let subtitle: String = {
-                if over > 0 { return "+\(over) day\(over == 1 ? "" : "s") over the plan" }
-                if left == 0 { return "Switch to tray \(tray.number + 1) today" }
-                return "Day \(dayN) of \(tray.plannedDays) · switch in \(left) day\(left == 1 ? "" : "s")"
+                if over > 0 { return L10n.t("+%@ over the plan", L10n.days(over)) }
+                if left == 0 { return L10n.t("Switch to tray %d today", tray.number + 1) }
+                return L10n.t("Day %d of %d · switch in %@", dayN, tray.plannedDays, L10n.days(left))
             }()
             Button(action: onOpenTrays) {
                 HStack(spacing: 14) {
@@ -122,7 +122,7 @@ struct TodayView: View {
                     }
                     .frame(width: 52, height: 52)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("Tray \(tray.number) of \(max(settings.totalTrays, tray.number))")
+                        Text(L10n.t("Tray %d of %d", tray.number, max(settings.totalTrays, tray.number)))
                             .font(Theme.font(17, .heavy))
                         Text(subtitle)
                             .font(Theme.font(14, .semibold)).foregroundStyle(over > 0 ? Theme.outColor : Theme.muted)
@@ -139,11 +139,11 @@ struct TodayView: View {
                 .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
             }
             .buttonStyle(.plain)
-            .accessibilityHint("Opens your trays")
+            .accessibilityHint(L10n.t("Opens your trays"))
         } else {
             Button(action: onOpenTrays) {
                 Card {
-                    Text("Set up your tray").font(Theme.font(17, .heavy))
+                    Text(L10n.t("Set up your tray")).font(Theme.font(17, .heavy))
                 }
             }
             .buttonStyle(.plain)
@@ -179,7 +179,7 @@ struct TodayView: View {
         return ZStack {
             GlowRing(progress: snap.isOut ? snap.budgetUsed : snap.goalProgress, color: color)
             VStack(spacing: 4) {
-                Text(snap.isOut ? "OUT FOR" : "WORN TODAY")
+                Text(snap.isOut ? L10n.t("OUT FOR") : L10n.t("WORN TODAY"))
                     .font(Theme.font(13, .heavy))
                     .tracking(1.4)
                     .foregroundStyle(color)
@@ -193,15 +193,15 @@ struct TodayView: View {
         .frame(width: 230, height: 230)
         .padding(.vertical, 12)
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(snap.isOut ? "Aligners out" : "Worn today")
+        .accessibilityLabel(snap.isOut ? L10n.t("Aligners out") : L10n.t("Worn today"))
         .accessibilityValue(TimeFormat.hoursMinutes(seconds))
     }
 
     private func statusPill(snap: WearSnapshot, color: Color) -> some View {
         let text: String = {
-            if snap.isOverBudget { return "Over today's budget" }
-            if snap.isOut { return "\(TimeFormat.hoursMinutes(snap.leftSeconds)) of out-time left" }
-            return "Aligners in · \(TimeFormat.hoursMinutes(snap.leftSeconds)) out-time left"
+            if snap.isOverBudget { return L10n.t("Over today's budget") }
+            if snap.isOut { return L10n.t("%@ of out-time left", TimeFormat.hoursMinutes(snap.leftSeconds)) }
+            return L10n.t("Aligners in · %@ out-time left", TimeFormat.hoursMinutes(snap.leftSeconds))
         }()
         return Text(text)
             .font(Theme.font(15, .semibold))
@@ -224,9 +224,9 @@ struct TodayView: View {
         return Card {
             VStack(alignment: .leading, spacing: 12) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text("Today's timeline").font(Theme.font(17, .heavy))
+                    Text(L10n.t("Today's timeline")).font(Theme.font(17, .heavy))
                     Spacer()
-                    Text(todays.isEmpty ? "No breaks yet" : "\(todays.count) break\(todays.count == 1 ? "" : "s") · \(TimeFormat.hoursMinutes(outTotal)) out")
+                    Text(todays.isEmpty ? L10n.t("No breaks yet") : L10n.t("%@ · %@ out", L10n.breaks(todays.count), TimeFormat.hoursMinutes(outTotal)))
                         .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
                 }
                 GeometryReader { geo in
@@ -257,8 +257,8 @@ struct TodayView: View {
                     }
                 }
                 HStack(spacing: 14) {
-                    legend(Theme.inColor.opacity(0.6), "In")
-                    legend(Theme.outColor, "Out")
+                    legend(Theme.inColor.opacity(0.6), L10n.t("In"))
+                    legend(Theme.outColor, L10n.t("Out"))
                 }
             }
         }
@@ -276,9 +276,9 @@ struct TodayView: View {
 
     private func stats(snap: WearSnapshot) -> some View {
         HStack(spacing: 12) {
-            statCard("Worn", TimeFormat.hoursMinutes(snap.wornSeconds), Theme.inColor)
-            statCard("Out", TimeFormat.hoursMinutes(snap.outSeconds), Theme.outColor)
-            statCard("Left", TimeFormat.hoursMinutes(snap.leftSeconds), snap.isOverBudget ? Theme.overColor : Theme.trayColor)
+            statCard(L10n.t("Worn"), TimeFormat.hoursMinutes(snap.wornSeconds), Theme.inColor)
+            statCard(L10n.t("Out"), TimeFormat.hoursMinutes(snap.outSeconds), Theme.outColor)
+            statCard(L10n.t("Left"), TimeFormat.hoursMinutes(snap.leftSeconds), snap.isOverBudget ? Theme.overColor : Theme.trayColor)
         }
     }
 
@@ -309,12 +309,12 @@ struct TodayView: View {
                 }
             }
             toggles += 1
-            showToast(wasOut ? "Aligners back in" : "Aligners out", isOut: !wasOut)
+            showToast(wasOut ? L10n.t("Aligners back in") : L10n.t("Aligners out"), isOut: !wasOut)
         } label: {
-            Text(snap.isOut ? "Put back in" : "Take out")
+            Text(snap.isOut ? L10n.t("Put back in") : L10n.t("Take out"))
         }
         .buttonStyle(PillButtonStyle(color: snap.isOut ? Theme.outColor : Theme.inColor))
-        .accessibilityHint(snap.isOut ? "Records that your aligners are back in" : "Starts timing how long your aligners are out")
+        .accessibilityHint(snap.isOut ? L10n.t("Records that your aligners are back in") : L10n.t("Starts timing how long your aligners are out"))
     }
 
     private func showToast(_ text: String, isOut: Bool) {

@@ -88,6 +88,7 @@ struct WearWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: WearProvider()) { entry in
             WearWidgetView(entry: entry)
+                .environment(\.layoutDirection, L10n.layoutDirection)
                 .containerBackground(for: .widget) { Theme.night }
         }
         .configurationDisplayName("Aligner wear")
@@ -149,7 +150,7 @@ private struct WearWidgetView: View {
                 .stroke(color, style: StrokeStyle(lineWidth: 9, lineCap: .round))
                 .rotationEffect(.degrees(-90))
             VStack(spacing: 1) {
-                Text(entry.isOut ? "OUT" : "WORN")
+                Text(entry.isOut ? L10n.t("OUT") : L10n.t("WORN"))
                     .font(Theme.font(10, .heavy)).tracking(1).foregroundStyle(color)
                 centerValue
             }
@@ -162,18 +163,18 @@ private struct WearWidgetView: View {
         Group {
             if entry.isOut {
                 if entry.isOver {
-                    Text("Over budget")
+                    Text(L10n.t("Over budget"))
                 } else {
                     HStack(spacing: 4) {
                         Text(entry.budgetEnd, style: .timer)
                             .monospacedDigit()
                             .multilineTextAlignment(.trailing)
                             .frame(maxWidth: 70, alignment: .trailing)
-                        Text("left")
+                        Text(L10n.t("left"))
                     }
                 }
             } else {
-                Text("\(TimeFormat.hoursMinutes(entry.leftSeconds)) left")
+                Text(L10n.t("%@ left", TimeFormat.hoursMinutes(entry.leftSeconds)))
             }
         }
         .font(font)
@@ -197,11 +198,11 @@ private struct WearWidgetView: View {
                     Text(line).font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted).lineLimit(1)
                 }
                 leftLabel(font: Theme.font(16, .heavy))
-                Text(entry.isOut && !entry.isOver ? "Back in by \(entry.budgetEnd.formatted(date: .omitted, time: .shortened))" : "Goal \(entry.goalHours)h a day")
+                Text(entry.isOut && !entry.isOver ? L10n.t("Back in by %@", L10n.time(entry.budgetEnd)) : L10n.t("Goal %d h a day", entry.goalHours))
                     .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted).lineLimit(1)
                 Spacer(minLength: 0)
                 Button(intent: ToggleWearIntent()) {
-                    Text(entry.isOut ? "Put back in" : "Take out")
+                    Text(entry.isOut ? L10n.t("Put back in") : L10n.t("Take out"))
                         .font(Theme.font(16, .heavy))
                         .frame(maxWidth: .infinity).padding(.vertical, 10)
                 }
@@ -233,7 +234,7 @@ private struct WearWidgetView: View {
 
     private var rectangular: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(entry.isOut ? "Aligners OUT" : "Aligners IN")
+            Text(entry.isOut ? L10n.t("Aligners OUT") : L10n.t("Aligners IN"))
                 .font(.system(.headline, design: .rounded, weight: .heavy))
             if entry.isOut {
                 Text(entry.outStart, style: .timer)
@@ -241,7 +242,7 @@ private struct WearWidgetView: View {
                 ProgressView(timerInterval: outRange, countsDown: false) { EmptyView() } currentValueLabel: { EmptyView() }
                 leftLabel(font: .system(.caption, design: .rounded, weight: .semibold))
             } else {
-                Text("\(TimeFormat.hoursMinutes(entry.wornSeconds)) worn today")
+                Text(L10n.t("%@ worn today", TimeFormat.hoursMinutes(entry.wornSeconds)))
                     .font(.system(.subheadline, design: .rounded, weight: .semibold))
                 ProgressView(value: entry.wornFraction)
                 leftLabel(font: .system(.caption, design: .rounded, weight: .semibold))

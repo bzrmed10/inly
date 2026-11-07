@@ -17,23 +17,23 @@ struct AppointmentSheet: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Next orthodontist visit").font(Theme.font(26, .heavy))
-            Text("We'll remind you the evening before and the morning of.")
+            Text(L10n.t("Next orthodontist visit")).font(Theme.font(26, .heavy))
+            Text(L10n.t("We'll remind you the evening before and the morning of."))
                 .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
 
-            DatePicker("Visit", selection: $date, in: Date.now..., displayedComponents: [.date, .hourAndMinute])
+            DatePicker(L10n.t("Visit"), selection: $date, in: Date.now..., displayedComponents: [.date, .hourAndMinute])
                 .datePickerStyle(.graphical)
                 .tint(Theme.inColor)
 
             VStack(spacing: 6) {
-                Button("Save visit") { onSave(date); dismiss() }
+                Button(L10n.t("Save visit")) { onSave(date); dismiss() }
                     .buttonStyle(PillButtonStyle(color: Theme.trayColor, foreground: Color(hex: 0x062014)))
                 if initial != nil {
-                    Button("Remove visit") { onSave(nil); dismiss() }
+                    Button(L10n.t("Remove visit")) { onSave(nil); dismiss() }
                         .font(Theme.font(16, .heavy)).foregroundStyle(Theme.overColor)
                         .frame(maxWidth: .infinity, minHeight: 48)
                 } else {
-                    Button("Cancel") { dismiss() }
+                    Button(L10n.t("Cancel")) { dismiss() }
                         .font(Theme.font(16, .heavy)).foregroundStyle(Color(hex: 0xC9C9D2))
                         .frame(maxWidth: .infinity, minHeight: 48)
                 }

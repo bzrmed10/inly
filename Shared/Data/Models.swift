@@ -6,10 +6,10 @@ enum OutReason: String, CaseIterable, Codable, Sendable {
 
     var title: String {
         switch self {
-        case .meal: "Meal"
-        case .brushing: "Brushing"
-        case .drink: "Drink"
-        case .other: "Other"
+        case .meal: L10n.t("Meal")
+        case .brushing: L10n.t("Brushing")
+        case .drink: L10n.t("Drink")
+        case .other: L10n.t("Other")
         }
     }
 

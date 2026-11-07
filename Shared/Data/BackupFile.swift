@@ -71,8 +71,8 @@ struct BackupFile: Codable, Equatable, Sendable {
         case unreadable, newerVersion
         var errorDescription: String? {
             switch self {
-            case .unreadable: "This file isn't an Inly backup."
-            case .newerVersion: "This backup was made by a newer version of Inly. Update the app first."
+            case .unreadable: L10n.t("This file isn't an Inly backup.")
+            case .newerVersion: L10n.t("This backup was made by a newer version of Inly. Update the app first.")
             }
         }
     }

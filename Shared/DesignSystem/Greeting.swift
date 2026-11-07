@@ -5,9 +5,9 @@ enum Greeting {
     static func phrase(for date: Date, calendar: Calendar = .current) -> String {
         let hour = calendar.component(.hour, from: date)
         switch hour {
-        case 5..<12: return "Good morning"
-        case 12..<18: return "Good afternoon"
-        default: return "Good evening"
+        case 5..<12: return L10n.t("Good morning")
+        case 12..<18: return L10n.t("Good afternoon")
+        default: return L10n.t("Good evening")
         }
     }
 }

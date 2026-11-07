@@ -24,14 +24,15 @@ enum OutReminders {
         let floor = now.addingTimeInterval(5)
 
         if stillOutMinutes > 0 {
-            let name = reason == .other ? "Your aligners" : "Your aligners (\(reason.title.lowercased()))"
             for n in 1...2 {
                 let at = outStart.addingTimeInterval(TimeInterval(stillOutMinutes * 60 * n))
                 guard at > floor else { continue }
                 result.append(PlannedReminder(
                     id: "out-still-\(n)", date: at,
-                    title: n == 1 ? "Still out?" : "Still out. Time to put them back?",
-                    body: "\(name) have been out for \(stillOutMinutes * n) minutes."
+                    title: n == 1 ? L10n.t("Still out?") : L10n.t("Still out. Time to put them back?"),
+                    body: reason == .other
+                        ? L10n.t("Your aligners have been out for %d minutes.", stillOutMinutes * n)
+                        : L10n.t("Your aligners (%@) have been out for %d minutes.", reason.title.lowercased(), stillOutMinutes * n)
                 ))
             }
         }
@@ -40,15 +41,15 @@ enum OutReminders {
         if soon > floor {
             result.append(PlannedReminder(
                 id: "out-soon", date: soon,
-                title: "10 minutes of out-time left",
-                body: "Time to wrap up and put your aligners back in."
+                title: L10n.t("10 minutes of out-time left"),
+                body: L10n.t("Time to wrap up and put your aligners back in.")
             ))
         }
         if budgetEnd > floor {
             result.append(PlannedReminder(
                 id: "out-over", date: budgetEnd,
-                title: "Put your aligners back in",
-                body: "Today's out-time budget is used up."
+                title: L10n.t("Put your aligners back in"),
+                body: L10n.t("Today's out-time budget is used up.")
             ))
         }
         return result
@@ -74,7 +75,7 @@ enum OutReminders {
 
     /// Registers the "Put back in" button shown on these notifications.
     static func registerCategory() {
-        let action = UNNotificationAction(identifier: putBackActionID, title: "Put back in", options: [])
+        let action = UNNotificationAction(identifier: putBackActionID, title: L10n.t("Put back in"), options: [])
         let category = UNNotificationCategory(identifier: categoryID, actions: [action], intentIdentifiers: [])
         UNUserNotificationCenter.current().setNotificationCategories([category])
     }

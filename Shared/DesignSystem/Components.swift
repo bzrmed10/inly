@@ -109,9 +109,9 @@ struct StepperRow: View {
             }
             Spacer()
             HStack(spacing: 8) {
-                roundButton("minus", label: "One less") { value = max(range.lowerBound, value - step) }
+                roundButton("minus", label: L10n.t("One less")) { value = max(range.lowerBound, value - step) }
                     .disabled(value <= range.lowerBound)
-                roundButton("plus", label: "One more") { value = min(range.upperBound, value + step) }
+                roundButton("plus", label: L10n.t("One more")) { value = min(range.upperBound, value + step) }
                     .disabled(value >= range.upperBound)
             }
         }
@@ -168,7 +168,7 @@ struct ToastBanner: View {
             }
             Spacer(minLength: 8)
             Button(action: onUndo) {
-                Text("Undo")
+                Text(L10n.t("Undo"))
                     .font(Theme.font(14, .heavy))
                     .padding(.horizontal, 16)
                     .frame(height: 44)
