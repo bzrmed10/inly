@@ -101,3 +101,8 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - **Export:** History → share icon. PDF report (summary, streak, trays, notes, daily table) or CSV per day / per break, over 7 days, 30 days or everything. Shared with the system share sheet.
 - **Photos:** camera (system camera, needs the new camera permission text) or library; Trays → "Compare photos" (slider or side by side) once two trays have photos.
 - **Insights:** streak and best streak on History; estimated finish date on Trays (remaining days of the current tray plus the default days for each remaining tray). Unit tests cover streaks, forecast, CSV and PDF generation.
+
+## Milestones 12-14: onboarding tour, new icon, backup
+- Animated onboarding (welcome, Dynamic Island, widgets, name, tray, goal, reminders, done).
+- New app icon: white rounded "inly" wordmark with blue dot on Night (app + watch).
+- Backup: Settings > Backup. Back up now / Restore (JSON file via Files or iCloud Drive) and an optional automatic backup into a chosen iCloud Drive folder (at most hourly, when the app goes to background). Restore replaces all data after confirmation. Real-time CloudKit sync is not built (needs iCloud container setup in the Apple developer portal).
