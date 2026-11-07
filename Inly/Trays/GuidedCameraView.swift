@@ -211,7 +211,7 @@ struct GuidedCameraView: View {
                     .buttonStyle(.plain)
                     .accessibilityLabel(L10n.t("Take photo"))
                     Spacer()
-                    circleButton("arrow.triangle.2.circlepath.camera", label: L10n.t("Switch camera") { flip() }
+                    circleButton("arrow.triangle.2.circlepath.camera", label: L10n.t("Switch camera")) { flip() }
                 }
             }
             .padding(.horizontal, 20).padding(.vertical, 12)
