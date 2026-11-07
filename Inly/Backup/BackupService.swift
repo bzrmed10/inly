@@ -66,7 +66,7 @@ final class BackupService {
         SessionService.shared.ensureTray()
         SessionService.shared.commit()
         if let tray = SessionService.shared.currentTray() { TrayNotifications.scheduleSwitchReminder(for: tray) }
-        TrayNotifications.schedule(WearSettings.load().nextAppointment)
+        AppointmentReminders.schedule(WearSettings.load().nextAppointment)
     }
 
     // MARK: Automatic backup folder
