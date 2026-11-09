@@ -24,6 +24,7 @@ struct ExportSheet: View {
     @State private var format: Format = .pdf
     @State private var fileURL: URL?
     @State private var settings = WearSettings.load()
+    @State private var includePhotos = false
 
     private var input: ReportBuilder.Input {
         let cal = Calendar.current
@@ -37,9 +38,12 @@ struct ExportSheet: View {
         return ReportBuilder.Input(
             name: settings.userName, goalHours: settings.goalHours, from: from, now: now, trackingStart: tracking,
             spans: sessions.map { SessionSpan(start: $0.start, end: $0.end) },
-            trays: trays.map { .init(number: $0.number, start: $0.startDate, end: $0.endDate, plannedDays: $0.plannedDays) },
-            notes: notes.map { .init(trayNumber: $0.trayNumber, date: $0.date, text: $0.text) },
-            appointment: settings.nextAppointment
+            trays: trays.map { .init(number: $0.number, start: $0.startDate, end: $0.endDate, plannedDays: $0.plannedDays, phase: $0.phase, shownNumber: $0.displayNumber, photo: includePhotos ? $0.photoData : nil) },
+            notes: notes.map { n in .init(trayNumber: n.trayNumber, date: n.date, text: n.text, label: trays.first(where: { $0.number == n.trayNumber })?.fullLabel) },
+            appointment: settings.nextAppointment,
+            phaseTotals: settings.phaseTotals,
+            retainerSince: settings.retainerMode ? settings.retainerStart : nil,
+            includePhotos: includePhotos
         )
     }
 
@@ -51,6 +55,19 @@ struct ExportSheet: View {
 
             picker(L10n.t("Period"), selection: $range, options: Period.allCases) { $0.title }
             picker(L10n.t("Format"), selection: $format, options: Format.allCases) { $0.title }
+
+            if format == .pdf, trays.contains(where: { $0.photoData != nil }) {
+                Toggle(isOn: $includePhotos) {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(L10n.t("Include progress photos")).font(Theme.font(16, .heavy))
+                        Text(L10n.t("Makes the file larger."))
+                            .font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
+                    }
+                }
+                .tint(Theme.trayColor)
+                .padding(14)
+                .background(Color(hex: 0x2A2A33), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            }
 
             Spacer(minLength: 0)
 
@@ -69,13 +86,13 @@ struct ExportSheet: View {
         .padding(.horizontal, 20)
         .padding(.top, 24)
         .frame(maxHeight: .infinity, alignment: .top)
-        .presentationDetents([.fraction(0.62), .large])
+        .presentationDetents([.fraction(0.75), .large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Color(hex: 0x1C1C22))
         .presentationCornerRadius(34)
         .preferredColorScheme(.dark)
         .onAppear { settings = WearSettings.load() }
-        .task(id: "\(range.rawValue)-\(format.rawValue)-\(sessions.count)") { build() }
+        .task(id: "\(range.rawValue)-\(format.rawValue)-\(sessions.count)-\(includePhotos)") { build() }
     }
 
     private func picker<T: Hashable & Identifiable>(

@@ -11,6 +11,8 @@ struct WidgetSnapshot: Codable, Sendable, Equatable {
         var number: Int
         var startDate: Date
         var plannedDays: Int
+        /// 0 = initial treatment. Missing in snapshots written by older versions.
+        var phase: Int?
     }
 
     /// Recent sessions only (the last few days plus any running one).

@@ -18,7 +18,7 @@ struct InlyApp: App {
             RootView()
                 .modelContainer(SessionService.shared.container)
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { SessionService.shared.reconcileLiveActivity() }
+                    if phase == .active { SessionService.shared.reconcileLiveActivity(); RetainerReminders.reschedule() }
                     if phase == .background { BackupService.shared.autoBackupIfDue() }
                 }
         }

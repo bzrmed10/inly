@@ -29,7 +29,11 @@ struct WearStatus: Sendable, Equatable {
         var tray: String?
         if let t = data.tray {
             let day = TrayLogic.dayNumber(start: t.startDate, now: now, calendar: .current)
-            tray = L10n.t("Tray %d · Day %d of %d", t.number, day, t.plannedDays)
+            tray = (t.phase ?? 0) > 0
+                ? L10n.t("Refinement %d · Tray %d · Day %d of %d", t.phase ?? 0, t.number, day, t.plannedDays)
+                : L10n.t("Tray %d · Day %d of %d", t.number, day, t.plannedDays)
+        } else if settings.retainerMode {
+            tray = TreatmentPhase.retainerName
         }
         return WearStatus(
             isOut: open != nil, outStart: open?.start ?? now, budgetEnd: budgetEnd,

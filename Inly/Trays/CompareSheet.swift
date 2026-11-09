@@ -47,7 +47,7 @@ struct CompareSheet: View {
 
                 if let l = left, let r = right {
                     let days = Calendar.current.dateComponents([.day], from: l.startDate, to: r.startDate).day ?? 0
-                    Text(L10n.t("Tray %d to tray %d · %@ apart", l.number, r.number, L10n.days(abs(days))))
+                    Text(L10n.t("%@ to %@ · %@ apart", l.fullLabel, r.fullLabel, L10n.days(abs(days))))
                         .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
                 }
             }
@@ -69,7 +69,7 @@ struct CompareSheet: View {
         VStack(alignment: .leading, spacing: 4) {
             Text(title).font(Theme.font(12, .bold)).foregroundStyle(Theme.muted)
             Picker(title, selection: selection) {
-                ForEach(withPhotos, id: \.number) { Text(L10n.t("Tray %d", $0.number)).tag($0.number) }
+                ForEach(withPhotos, id: \.number) { Text($0.fullLabel).tag($0.number) }
             }
             .pickerStyle(.menu)
             .tint(.white)
@@ -95,7 +95,7 @@ struct CompareSheet: View {
         VStack(spacing: 14) {
             ForEach(Array([l, r].enumerated()), id: \.offset) { _, t in
                 VStack(alignment: .leading, spacing: 6) {
-                    Text(t.map { L10n.t("Tray %d", $0.number) + " · " + L10n.shortDate($0.startDate) } ?? "")
+                    Text(t.map { $0.fullLabel + " · " + L10n.shortDate($0.startDate) } ?? "")
                         .font(Theme.font(14, .heavy))
                     photo(t)
                         .frame(maxWidth: .infinity).frame(height: 260)
@@ -119,9 +119,9 @@ struct CompareSheet: View {
                     .offset(x: width * split - 19)
                 VStack {
                     HStack {
-                        label(L10n.t("Tray %d", l?.number ?? 0))
+                        label(l?.fullLabel ?? "")
                         Spacer()
-                        label(L10n.t("Tray %d", r?.number ?? 0))
+                        label(r?.fullLabel ?? "")
                     }
                     Spacer()
                 }

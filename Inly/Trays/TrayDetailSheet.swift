@@ -32,7 +32,7 @@ struct TrayDetailSheet: View {
             VStack(alignment: .leading, spacing: 20) {
                 HStack(alignment: .firstTextBaseline) {
                     VStack(alignment: .leading, spacing: 2) {
-                        Text(L10n.t("Tray %d", tray.number)).font(Theme.font(32, .heavy))
+                        Text(tray.fullLabel).font(Theme.font(32, .heavy)).lineLimit(1).minimumScaleFactor(0.7)
                         Text(L10n.date(tray.startDate, .dateTime.month(.wide).day()))
                             .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
                     }
@@ -78,7 +78,7 @@ struct TrayDetailSheet: View {
                     .clipped()
                     .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
                     .allowsHitTesting(false)
-                    .accessibilityLabel(L10n.t("Progress photo for tray %d", tray.number))
+                    .accessibilityLabel(L10n.t("Progress photo for tray %d", tray.displayNumber))
                 photoButtons(hasPhoto: true)
             } else {
                 VStack(spacing: 10) {

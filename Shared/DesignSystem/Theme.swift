@@ -30,6 +30,13 @@ enum Theme {
     /// Over the daily out-time budget.
     static let overColor = Color(hex: 0xFF6B5E)
 
+    /// Done-tray color per treatment phase: initial = green, then blue, purple, teal (repeats).
+    static func phaseColor(_ phase: Int) -> Color {
+        let palette = [trayColor, inColor, Color(hex: 0xB28DFF), Color(hex: 0x4FD1D9)]
+        return palette[max(0, phase) % palette.count]
+    }
+    static let retainerColor = outColor
+
     static let cardRadius: CGFloat = 24
     static let pillRadius: CGFloat = 28
 

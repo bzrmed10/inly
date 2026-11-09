@@ -17,35 +17,53 @@ struct TraysView: View {
     @State private var showExtend = false
     @State private var showAppointment = false
     @State private var showCompare = false
+    @State private var showRefinement = false
+    @State private var showRetainer = false
+    @State private var expandedPhases: Set<Int> = []
     @State private var detailTray: Tray?
     @State private var toast: ToastData?
     @State private var toastTask: Task<Void, Never>?
 
     private var current: Tray? { trays.first(where: { $0.endDate == nil }) }
-    private var finished: [Tray] { trays.filter { $0.endDate != nil } }
+    private var inRetainer: Bool { settings.retainerMode }
+    /// The phase being worn now (or the latest one when nothing is running).
+    private var activePhase: Int { current?.phase ?? trays.first?.phase ?? 0 }
+    private var activeTrays: [Tray] { trays.filter { $0.phase == activePhase } }
+    private var finished: [Tray] { inRetainer ? [] : activeTrays.filter { $0.endDate != nil } }
+    /// Older phases, newest first. In retainer mode every phase is "older".
+    private var pastPhases: [Int] {
+        Array(Set(trays.map(\.phase)).filter { inRetainer || $0 != activePhase }).sorted(by: >)
+    }
+    private func phaseTrays(_ phase: Int) -> [Tray] { trays.filter { $0.phase == phase && $0.endDate != nil } }
     private var spans: [SessionSpan] { sessions.map { SessionSpan(start: $0.start, end: $0.end) } }
     private var trackingMoment: Date? { settings.resolvedTrackingStart(firstSession: sessions.map(\.start).min()) }
     private func from(_ tray: Tray) -> Date { max(tray.startDate, trackingMoment ?? tray.startDate) }
     private var forecast: Insights.Forecast? {
         guard let current else { return nil }
         return Insights.forecast(
-            currentStart: current.startDate, plannedDays: current.plannedDays, currentNumber: current.number,
-            totalTrays: max(settings.totalTrays, current.number), defaultDays: settings.defaultTrayDays, now: .now, calendar: .current
+            currentStart: current.startDate, plannedDays: current.plannedDays, currentNumber: current.displayNumber,
+            totalTrays: max(settings.totalTrays, current.displayNumber), defaultDays: settings.defaultTrayDays, now: .now, calendar: .current
         )
     }
-    private var nextNumber: Int { (trays.first?.number ?? 0) + 1 }
+    private var nextNumber: Int { (activeTrays.first?.displayNumber ?? 0) + 1 }
     private let insets = EdgeInsets(top: 4, leading: 20, bottom: 4, trailing: 20)
 
     var body: some View {
         ZStack(alignment: .top) {
             List {
                 header.row(insets)
-                progress.row(insets)
+                if inRetainer {
+                    retainerStatusCard.row(insets)
+                } else {
+                    progress.row(insets)
+                }
                 appointmentCard.row(insets)
                 if trays.filter({ $0.photoData != nil }).count >= 2 {
                     compareButton.row(insets)
                 }
-                if let current {
+                if inRetainer {
+                    EmptyView()
+                } else if let current {
                     currentCard(current).row(insets)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button(role: .destructive) { delete(current) } label: { Label(L10n.t("Delete"), systemImage: "trash") }
@@ -62,6 +80,16 @@ struct TraysView: View {
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                 Button(role: .destructive) { delete(tray) } label: { Label(L10n.t("Delete"), systemImage: "trash") }
                             }
+                    }
+                }
+                ForEach(pastPhases, id: \.self) { phase in
+                    phaseHeader(phase).row(EdgeInsets(top: 12, leading: 20, bottom: 4, trailing: 20))
+                    if expandedPhases.contains(phase) {
+                        ForEach(phaseTrays(phase)) { tray in
+                            historyRow(tray).row(insets)
+                                .contentShape(Rectangle())
+                                .onTapGesture { detailTray = tray }
+                        }
                     }
                 }
                 Color.clear.frame(height: 90).row(insets)
@@ -83,12 +111,40 @@ struct TraysView: View {
         .sheet(isPresented: $showStart) {
             StartTraySheet(current: current, nextNumber: nextNumber, defaultDays: settings.defaultTrayDays) { date, days in
                 TrayNotifications.requestPermission()
+                let started = nextNumber
                 let undo = SessionService.shared.startNextTray(on: date, plannedDays: days)
-                let started = nextNumber - 1
                 let due = TrayLogic.switchDate(start: date, plannedDays: days, calendar: .current)
                 let dueText = L10n.date(due, .dateTime.weekday(.abbreviated).month(.abbreviated).day())
                 show(ToastData(title: L10n.t("Tray %d started", started), subtitle: L10n.t("Switch reminder %@", dueText)) {
                     SessionService.shared.undoStartTray(undo)
+                })
+            }
+        }
+        .sheet(isPresented: $showRefinement) {
+            StartRefinementSheet(current: current, phaseTotal: settings.totalTrays, defaultDays: settings.defaultTrayDays) { date, count, days in
+                TrayNotifications.requestPermission()
+                let undo = SessionService.shared.startRefinement(on: date, trays: count, plannedDays: days)
+                settings = WearSettings.load()
+                show(ToastData(title: L10n.t("Refinement started"), subtitle: L10n.t("Tray 1 of %d", count)) {
+                    SessionService.shared.undoPhaseChange(undo)
+                    settings = WearSettings.load()
+                })
+            }
+        }
+        .sheet(isPresented: $showRetainer) {
+            RetainerSheet { date, schedule, hours, nights, bedtime in
+                TrayNotifications.requestPermission()
+                var s = WearSettings.load()
+                s.retainerSchedule = schedule
+                s.retainerHours = hours
+                s.retainerNights = nights
+                s.bedtimeMinutes = bedtime
+                s.save()
+                let undo = SessionService.shared.startRetainerMode(on: date)
+                settings = WearSettings.load()
+                show(ToastData(title: L10n.t("Retainer mode on"), subtitle: nil) {
+                    SessionService.shared.undoPhaseChange(undo)
+                    settings = WearSettings.load()
                 })
             }
         }
@@ -116,7 +172,7 @@ struct TraysView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text(L10n.t("Treatment · %@", L10n.trays(max(settings.totalTrays, trays.first?.number ?? 0))))
+            Text(headerSubtitle)
                 .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
             Text(L10n.t("Trays")).font(Theme.font(36, .heavy))
         }
@@ -124,9 +180,15 @@ struct TraysView: View {
         .padding(.top, 8)
     }
 
+    private var headerSubtitle: String {
+        if inRetainer { return TreatmentPhase.retainerName }
+        let total = L10n.trays(max(settings.totalTrays, activeTrays.first?.displayNumber ?? 0))
+        return activePhase > 0 ? L10n.t("%@ · %@", TreatmentPhase.name(activePhase), total) : L10n.t("Treatment · %@", total)
+    }
+
     private var progress: some View {
-        let total = max(settings.totalTrays, trays.first?.number ?? 0, 1)
-        let cur = current?.number ?? nextNumber
+        let total = max(settings.totalTrays, activeTrays.first?.displayNumber ?? 0, 1)
+        let cur = current?.displayNumber ?? nextNumber
         let columns = Array(repeating: GridItem(.flexible(), spacing: 3), count: min(24, total))
         return VStack(spacing: 8) {
             HStack(alignment: .firstTextBaseline) {
@@ -137,13 +199,13 @@ struct TraysView: View {
             LazyVGrid(columns: columns, spacing: 3) {
                 ForEach(1...total, id: \.self) { i in
                     Capsule()
-                        .fill(i < cur ? Theme.trayColor : (i == cur ? Color.white : Color(hex: 0x2A2A33)))
+                        .fill(i < cur ? Theme.phaseColor(activePhase) : (i == cur ? Color.white : Color(hex: 0x2A2A33)))
                         .frame(height: 8)
                 }
             }
             if let f = forecast {
                 HStack {
-                    Image(systemName: "flag.checkered").foregroundStyle(Theme.trayColor)
+                    Image(systemName: "flag.checkered").foregroundStyle(Theme.phaseColor(activePhase))
                     Text(L10n.t("Estimated finish %@", L10n.shortDate(f.finishDate, year: true)))
                         .font(Theme.font(14, .heavy))
                     Spacer()
@@ -207,7 +269,7 @@ struct TraysView: View {
         let elapsed = TrayLogic.daysElapsed(start: tray.startDate, now: .now, calendar: cal)
         let dayN = elapsed + 1
         let over = TrayLogic.overage(start: tray.startDate, plannedDays: tray.plannedDays, now: .now, calendar: cal)
-        let tint = over > 0 ? Theme.outColor : Theme.trayColor
+        let tint = over > 0 ? Theme.outColor : Theme.phaseColor(tray.phase)
         let due = TrayLogic.switchDate(start: tray.startDate, plannedDays: tray.plannedDays, calendar: cal)
         let avg = WearCalculator.averageWornHours(from: from(tray), to: .now, sessions: spans, now: .now, calendar: cal)
 
@@ -220,7 +282,7 @@ struct TraysView: View {
                     .padding(.horizontal, 12).frame(height: 28)
                     .background(tint.opacity(0.16), in: Capsule())
             }
-            Text(L10n.t("Tray %d", tray.number))
+            Text(L10n.t("Tray %d", tray.displayNumber))
                 .font(Theme.font(38, .heavy)).minimumScaleFactor(0.7).lineLimit(1)
             if over > 0 {
                 Text(L10n.t("+%@ over the plan", L10n.days(over)))
@@ -234,7 +296,7 @@ struct TraysView: View {
                 info(L10n.t("Avg wear"), TimeFormat.hoursMinutes(avg * 3600))
             }
             Button { showStart = true } label: {
-                Label(L10n.t("Start tray %d", tray.number + 1), systemImage: "plus")
+                Label(L10n.t("Start tray %d", tray.displayNumber + 1), systemImage: "plus")
             }
             .buttonStyle(PillButtonStyle(color: .white, height: 54))
             Button { detailTray = tray } label: {
@@ -249,6 +311,7 @@ struct TraysView: View {
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .background(Theme.raised, in: Capsule())
                 .buttonStyle(.plain)
+            treatmentMenu
         }
         .padding(18)
         .background(alignment: .topTrailing) {
@@ -269,6 +332,7 @@ struct TraysView: View {
                 .font(Theme.font(15, .semibold)).foregroundStyle(Theme.muted)
             Button { showStart = true } label: { Label(L10n.t("Start tray %d", nextNumber), systemImage: "plus") }
                 .buttonStyle(PillButtonStyle(color: .white, height: 54))
+            treatmentMenu
         }
         .padding(18)
         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
@@ -280,6 +344,84 @@ struct TraysView: View {
             Text(value).font(Theme.font(15, .heavy)).minimumScaleFactor(0.7).lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var treatmentMenu: some View {
+        Menu {
+            Button { showRefinement = true } label: { Label(L10n.t("Start refinement"), systemImage: "arrow.triangle.2.circlepath") }
+            if !inRetainer {
+                Button { showRetainer = true } label: { Label(L10n.t("Finish treatment · start retainer"), systemImage: "moon.stars") }
+            }
+        } label: {
+            Text(L10n.t("Refinement or retainer"))
+                .font(Theme.font(15, .heavy))
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background(Theme.raised, in: Capsule())
+                .foregroundStyle(.white)
+        }
+    }
+
+    private var retainerStatusCard: some View {
+        let schedule: String = {
+            switch settings.retainerSchedule {
+            case .fullTime: return L10n.t("Full-time · %d hours a day", settings.goalHours)
+            case .nightly: return L10n.t("Nightly · %d hours", settings.retainerHours)
+            case .fewNights: return L10n.t("%d nights a week · %d hours", settings.retainerNights, settings.retainerHours)
+            }
+        }()
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "moon.stars.fill").foregroundStyle(Theme.retainerColor)
+                Text(TreatmentPhase.retainerName).font(Theme.font(24, .heavy))
+            }
+            Text(schedule).font(Theme.font(15, .heavy))
+            if let start = settings.retainerStart {
+                Text(L10n.t("Since %@", L10n.shortDate(start, year: true)))
+                    .font(Theme.font(14, .semibold)).foregroundStyle(Theme.muted)
+            }
+            Text(L10n.t("Change the schedule in Settings › Treatment."))
+                .font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted)
+            treatmentMenu
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+    }
+
+    private func phaseHeader(_ phase: Int) -> some View {
+        let done = phaseTrays(phase)
+        let total = settings.phaseTotals[phase] ?? done.count
+        let worn = done.count
+        let skipped = max(0, total - worn)
+        let open = expandedPhases.contains(phase)
+        let color = Theme.phaseColor(phase)
+        return Button {
+            withAnimation(.snappy) {
+                if open { expandedPhases.remove(phase) } else { expandedPhases.insert(phase) }
+            }
+        } label: {
+            VStack(alignment: .leading, spacing: 8) {
+                HStack {
+                    Text(TreatmentPhase.name(phase)).font(Theme.font(17, .heavy)).foregroundStyle(.white)
+                    Spacer()
+                    Text(skipped > 0 ? L10n.t("Stopped at tray %d of %d", worn, total) : L10n.t("%@ · done", L10n.trays(worn)))
+                        .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
+                    Image(systemName: open ? "chevron.up" : "chevron.down")
+                        .font(.footnote.weight(.bold)).foregroundStyle(Theme.muted)
+                }
+                HStack(spacing: 3) {
+                    ForEach(0..<max(1, min(total, 60)), id: \.self) { i in
+                        Capsule().fill(i < worn ? color : Color(hex: 0x3A3A44)).frame(height: 6)
+                    }
+                }
+            }
+            .padding(14)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(TreatmentPhase.name(phase))
+        .accessibilityAddTraits(.isButton)
     }
 
     private var historyHeader: some View {
@@ -304,13 +446,13 @@ struct TraysView: View {
         let md: (Date) -> String = { L10n.shortDate($0) }
 
         return HStack(spacing: 12) {
-            Text("\(tray.number)")
+            Text("\(tray.displayNumber)")
                 .font(Theme.font(16, .heavy))
                 .frame(width: 40, height: 40)
                 .background(Theme.raised, in: Circle())
             VStack(spacing: 5) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(L10n.t("Tray %d · %@ – %@", tray.number, md(tray.startDate), md(tray.endDate ?? .now)) + (tray.photoData == nil ? "" : "  📷"))
+                    Text(L10n.t("Tray %d · %@ – %@", tray.displayNumber, md(tray.startDate), md(tray.endDate ?? .now)) + (tray.photoData == nil ? "" : "  📷"))
                         .font(Theme.font(15, .heavy)).lineLimit(1).minimumScaleFactor(0.8)
                     Spacer(minLength: 6)
                     Text(L10n.days(days)).font(Theme.font(15, .heavy))
@@ -338,10 +480,12 @@ struct TraysView: View {
     // MARK: Actions
 
     private func delete(_ tray: Tray) {
-        let number = tray.number
+        let number = tray.displayNumber
         let undo = SessionService.shared.deleteTray(tray)
+        settings = WearSettings.load()
         show(ToastData(title: L10n.t("Tray %d deleted", number), subtitle: nil) {
             SessionService.shared.undoDelete(undo)
+            settings = WearSettings.load()
         })
     }
 

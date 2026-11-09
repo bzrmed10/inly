@@ -33,6 +33,34 @@ enum Insights {
         return Streak(current: run, best: best)
     }
 
+    struct WeekScore: Equatable, Sendable {
+        var met: Int
+        var target: Int
+        /// 0...1
+        var fraction: Double { target == 0 ? 0 : min(1, Double(met) / Double(target)) }
+    }
+
+    /// How many of the last 7 days reached the goal. `nightsPerWeek` caps the target for "a few nights a week" retainer use.
+    /// Days before tracking began are ignored, and today only counts once it is met.
+    static func weekScore(days: [DayWear], goalHours: Int, nightsPerWeek: Int? = nil, today: Date, calendar: Calendar) -> WeekScore {
+        let todayStart = calendar.startOfDay(for: today)
+        let need = Double(goalHours) / 24
+        var met = 0
+        var counted = 0
+        for d in days.suffix(7) {
+            guard d.elapsedSeconds >= 3600 else { continue }
+            let ok = d.wornSeconds / d.elapsedSeconds >= need - 1e-9
+            if calendar.startOfDay(for: d.day) == todayStart {
+                if ok { met += 1; counted += 1 }
+            } else {
+                counted += 1
+                if ok { met += 1 }
+            }
+        }
+        let target = nightsPerWeek.map { min($0, max(counted, 1)) } ?? max(counted, 1)
+        return WeekScore(met: met, target: target)
+    }
+
     struct Forecast: Equatable, Sendable {
         var finishDate: Date
         var traysLeft: Int

@@ -23,10 +23,10 @@ enum TrayNotifications {
         comps.hour = 9
         guard let fire = calendar.date(from: comps), fire > .now else { return }
 
-        let next = tray.number + 1
+        let next = tray.displayNumber + 1
         let content = UNMutableNotificationContent()
         content.title = L10n.t("Time for tray %d", next)
-        content.body = L10n.t("Tray %d has had its %d days. Switch when you're ready, then log it in Inly.", tray.number, tray.plannedDays)
+        content.body = L10n.t("Tray %d has had its %d days. Switch when you're ready, then log it in Inly.", tray.displayNumber, tray.plannedDays)
         content.sound = .default
         let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: false)
         center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: trigger))
@@ -68,5 +68,27 @@ enum AppointmentReminders {
             let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(1, p.date.timeIntervalSinceNow), repeats: false)
             center.add(UNNotificationRequest(identifier: p.id, content: content, trigger: trigger))
         }
+    }
+}
+
+
+/// A nightly "put your retainer in" reminder for the night-only retainer schedules.
+enum RetainerReminders {
+    static let identifier = "retainer-bedtime"
+
+    static func reschedule() {
+        let center = UNUserNotificationCenter.current()
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+        let s = WearSettings.load()
+        guard s.isNightRetainer, s.bedtimeReminder, s.remindersEnabled else { return }
+        var comps = DateComponents()
+        comps.hour = s.bedtimeMinutes / 60
+        comps.minute = s.bedtimeMinutes % 60
+        let content = UNMutableNotificationContent()
+        content.title = L10n.t("Bedtime")
+        content.body = L10n.t("Time to put your retainer in.")
+        content.sound = .default
+        let trigger = UNCalendarNotificationTrigger(dateMatching: comps, repeats: true)
+        center.add(UNNotificationRequest(identifier: identifier, content: content, trigger: trigger))
     }
 }

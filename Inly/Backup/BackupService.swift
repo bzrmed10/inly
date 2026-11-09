@@ -37,7 +37,7 @@ final class BackupService {
             createdAt: now,
             settings: .init(WearSettings.load()),
             sessions: sessions.map { .init(start: $0.start, end: $0.end, reason: $0.reasonRaw) },
-            trays: trays.map { .init(number: $0.number, startDate: $0.startDate, endDate: $0.endDate, plannedDays: $0.plannedDays, photo: $0.photoData) },
+            trays: trays.map { .init(number: $0.number, startDate: $0.startDate, endDate: $0.endDate, plannedDays: $0.plannedDays, photo: $0.photoData, phase: $0.phase, phaseBase: $0.phaseBase) },
             notes: notes.map { .init(trayNumber: $0.trayNumber, date: $0.date, text: $0.text) }
         )
     }
@@ -54,7 +54,7 @@ final class BackupService {
             context.insert(WearSession(start: s.start, end: s.end, reason: OutReason(rawValue: s.reason) ?? .other))
         }
         for t in file.trays {
-            let tray = Tray(number: t.number, startDate: t.startDate, endDate: t.endDate, plannedDays: t.plannedDays)
+            let tray = Tray(number: t.number, startDate: t.startDate, endDate: t.endDate, plannedDays: t.plannedDays, phase: t.phase ?? 0, phaseBase: t.phaseBase ?? 0)
             tray.photoData = t.photo
             context.insert(tray)
         }

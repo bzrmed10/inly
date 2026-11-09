@@ -26,6 +26,11 @@ enum Strings {
   "es": "%@ antes de lo previsto (%d)",
   "fr": "%@ plus tôt que prévu (%d)"
  },
+ "%@ is saved as finished.": {
+  "ar": "يُحفظ %@ كمكتمل.",
+  "es": "%@ se guarda como terminado.",
+  "fr": "%@ est enregistré comme terminé."
+ },
  "%@ later than planned (%d)": {
   "ar": "%@ أبعد من المخطط (%d)",
   "es": "%@ después de lo previsto (%d)",
@@ -46,10 +51,20 @@ enum Strings {
   "es": "quedan %@ de tiempo fuera",
   "fr": "%@ de temps hors bouche restant"
  },
+ "%@ stops at tray %d. The other %d are marked as skipped.": {
+  "ar": "ينتهي %@ عند الطقم %d. تُعلَّم الأطقم الـ %d الأخرى كمتخطّاة.",
+  "es": "%@ termina en el alineador %d. Los otros %d se marcan como omitidos.",
+  "fr": "%@ s'arrête à la gouttière %d. Les %d autres sont marquées comme ignorées."
+ },
  "%@ to %@": {
   "ar": "من %@ إلى %@",
   "es": "del %@ al %@",
   "fr": "%@ au %@"
+ },
+ "%@ to %@ · %@ apart": {
+  "ar": "%@ إلى %@ · بفارق %@",
+  "es": "%@ a %@ · %@ de diferencia",
+  "fr": "%@ à %@ · %@ d'écart"
  },
  "%@ to go": {
   "ar": "متبقي %@",
@@ -61,10 +76,20 @@ enum Strings {
   "es": "%@ puesto hoy",
   "fr": "%@ portées aujourd'hui"
  },
+ "%@ · %@": {
+  "ar": "%@ · %@",
+  "es": "%@ · %@",
+  "fr": "%@ · %@"
+ },
  "%@ · %@ out": {
   "ar": "%@ · %@ خارج الفم",
   "es": "%@ · %@ fuera",
   "fr": "%@ · %@ hors bouche"
+ },
+ "%@ · done": {
+  "ar": "%@ · مكتمل",
+  "es": "%@ · terminado",
+  "fr": "%@ · terminé"
  },
  "%@: %@ hours worn": {
   "ar": "%@: %@ ساعة مرتدى",
@@ -91,10 +116,25 @@ enum Strings {
   "es": "%d horas al día",
   "fr": "%d heures par jour"
  },
+ "%d nights a week · %d hours": {
+  "ar": "%d ليالٍ في الأسبوع · %d ساعات",
+  "es": "%d noches a la semana · %d horas",
+  "fr": "%d nuits par semaine · %d h"
+ },
  "%d of %d": {
   "ar": "%d من %d",
   "es": "%d de %d",
   "fr": "%d sur %d"
+ },
+ "%d of %d days": {
+  "ar": "%d من %d أيام",
+  "es": "%d de %d días",
+  "fr": "%d jours sur %d"
+ },
+ "%d of %d nights": {
+  "ar": "%d من %d ليالٍ",
+  "es": "%d de %d noches",
+  "fr": "%d nuits sur %d"
  },
  "%d percent": {
   "ar": "%d بالمئة",
@@ -126,6 +166,11 @@ enum Strings {
   "es": "7 días",
   "fr": "7 jours"
  },
+ "A few nights a week": {
+  "ar": "بعض الليالي في الأسبوع",
+  "es": "Algunas noches a la semana",
+  "fr": "Quelques nuits par semaine"
+ },
  "A nudge before your out-time runs out and on tray-change day.": {
   "ar": "تنبيه قبل انتهاء وقت الإخراج وفي يوم تغيير الطقم.",
   "es": "Un aviso antes de que se acabe tu tiempo fuera y el día de cambio de alineador.",
@@ -140,6 +185,11 @@ enum Strings {
   "ar": "المقوّمات خارج الفم · %@",
   "es": "ALINEADORES FUERA · %@",
   "fr": "ALIGNEURS RETIRÉS · %@"
+ },
+ "About": {
+  "ar": "حول",
+  "es": "Acerca de",
+  "fr": "À propos"
  },
  "Add a missed break": {
   "ar": "إضافة استراحة منسية",
@@ -296,6 +346,11 @@ enum Strings {
   "es": "Copia de seguridad",
   "fr": "Sauvegarde"
  },
+ "Backup and data": {
+  "ar": "النسخ الاحتياطي والبيانات",
+  "es": "Copia y datos",
+  "fr": "Sauvegarde et données"
+ },
  "Backup restored.": {
   "ar": "تمت استعادة النسخة الاحتياطية.",
   "es": "Copia restaurada.",
@@ -310,6 +365,16 @@ enum Strings {
   "ar": "تشمل النسخ الاحتياطية سجلك وأطقمك وصورك وملاحظاتك وإعداداتك.",
   "es": "Las copias incluyen tu historial, alineadores, fotos, notas y ajustes.",
   "fr": "Les sauvegardes incluent votre historique, vos gouttières, photos, notes et réglages."
+ },
+ "Bedtime": {
+  "ar": "وقت النوم",
+  "es": "Hora de dormir",
+  "fr": "Coucher"
+ },
+ "Bedtime reminder": {
+  "ar": "تذكير وقت النوم",
+  "es": "Aviso a la hora de dormir",
+  "fr": "Rappel du coucher"
  },
  "Before": {
   "ar": "قبل",
@@ -350,6 +415,11 @@ enum Strings {
   "ar": "إلغاء",
   "es": "Cancelar",
   "fr": "Annuler"
+ },
+ "Change the schedule in Settings › Treatment.": {
+  "ar": "غيّر الجدول من الإعدادات › العلاج.",
+  "es": "Cambia el horario en Ajustes › Tratamiento.",
+  "fr": "Modifiez le rythme dans Réglages › Traitement."
  },
  "Close": {
   "ar": "إغلاق",
@@ -451,6 +521,11 @@ enum Strings {
   "es": "Días con este alineador",
   "fr": "Jours avec cette gouttière"
  },
+ "Days per tray": {
+  "ar": "أيام لكل طقم",
+  "es": "Días por alineador",
+  "fr": "Jours par gouttière"
+ },
  "Default days per tray": {
   "ar": "الأيام الافتراضية لكل طقم",
   "es": "Días por alineador por defecto",
@@ -506,6 +581,11 @@ enum Strings {
   "es": "Fin estimado: %@",
   "fr": "Fin estimée : %@"
  },
+ "Every night": {
+  "ar": "كل ليلة",
+  "es": "Cada noche",
+  "fr": "Chaque nuit"
+ },
  "Everything": {
   "ar": "كل شيء",
   "es": "Todo",
@@ -531,10 +611,30 @@ enum Strings {
   "es": "Ampliar el alineador %d",
   "fr": "Prolonger la gouttière %d"
  },
+ "Finish treatment · start retainer": {
+  "ar": "إنهاء العلاج · بدء المثبّت",
+  "es": "Terminar tratamiento · retenedor",
+  "fr": "Terminer le traitement · contention"
+ },
+ "First new tray goes in on": {
+  "ar": "يُوضع أول طقم جديد في",
+  "es": "El primer alineador nuevo se pone el",
+  "fr": "La première nouvelle gouttière est posée le"
+ },
  "Format": {
   "ar": "الصيغة",
   "es": "Formato",
   "fr": "Format"
+ },
+ "Full-time": {
+  "ar": "طوال اليوم",
+  "es": "Todo el día",
+  "fr": "Toute la journée"
+ },
+ "Full-time · %d hours a day": {
+  "ar": "طوال اليوم · %d ساعة يوميًا",
+  "es": "Todo el día · %d horas al día",
+  "fr": "Toute la journée · %d h par jour"
  },
  "Get a nudge when your aligners have been out too long. Turn off what you don't need.": {
   "ar": "احصل على تنبيه عندما تطول مدة إخراج المقوّمات. أوقف ما لا تحتاجه.",
@@ -601,6 +701,11 @@ enum Strings {
   "es": "Horas al día",
   "fr": "Heures par jour"
  },
+ "Hours of wear": {
+  "ar": "ساعات الارتداء",
+  "es": "Horas de uso",
+  "fr": "Heures de port"
+ },
  "Hours worn per day over the last 7 days, goal %d hours": {
   "ar": "ساعات الارتداء يوميًا خلال آخر 7 أيام، الهدف %d ساعة",
   "es": "Horas de uso por día en los últimos 7 días, objetivo %d horas",
@@ -610,6 +715,16 @@ enum Strings {
   "ar": "في الفم",
   "es": "Puestos",
   "fr": "En bouche"
+ },
+ "Include progress photos": {
+  "ar": "تضمين صور التقدم",
+  "es": "Incluir fotos de progreso",
+  "fr": "Inclure les photos de progression"
+ },
+ "Initial treatment": {
+  "ar": "العلاج الأولي",
+  "es": "Tratamiento inicial",
+  "fr": "Traitement initial"
  },
  "Inly %@ · Your data stays on your devices.": {
   "ar": "Inly %@ · تبقى بياناتك على أجهزتك.",
@@ -666,6 +781,11 @@ enum Strings {
   "es": "Ceceo",
   "fr": "Zézaiement"
  },
+ "Makes the file larger.": {
+  "ar": "يجعل الملف أكبر.",
+  "es": "El archivo será más grande.",
+  "fr": "Le fichier sera plus volumineux."
+ },
  "Meal": {
   "ar": "وجبة",
   "es": "Comida",
@@ -721,6 +841,16 @@ enum Strings {
   "es": "Próxima visita al ortodoncista",
   "fr": "Prochain rendez-vous chez l'orthodontiste"
  },
+ "Nightly · %d hours": {
+  "ar": "كل ليلة · %d ساعات",
+  "es": "Cada noche · %d horas",
+  "fr": "Chaque nuit · %d h"
+ },
+ "Nights per week": {
+  "ar": "ليالٍ في الأسبوع",
+  "es": "Noches por semana",
+  "fr": "Nuits par semaine"
+ },
  "No breaks recorded this day.": {
   "ar": "لا توجد استراحات مسجلة في هذا اليوم.",
   "es": "No hay pausas registradas este día.",
@@ -745,6 +875,11 @@ enum Strings {
   "ar": "لا توجد أيام كاملة كافية بعد.",
   "es": "Aún no hay suficientes días completos.",
   "fr": "Pas encore assez de jours complets."
+ },
+ "Not set up": {
+  "ar": "غير مُعدّة",
+  "es": "Sin configurar",
+  "fr": "Non configurée"
  },
  "Notes": {
   "ar": "الملاحظات",
@@ -775,6 +910,11 @@ enum Strings {
   "ar": "متوقف",
   "es": "Desactivado",
   "fr": "Désactivé"
+ },
+ "On": {
+  "ar": "مفعّلة",
+  "es": "Activados",
+  "fr": "Activés"
  },
  "One less": {
   "ar": "واحد أقل",
@@ -926,6 +1066,11 @@ enum Strings {
   "es": "Foto de progreso del alineador %d",
   "fr": "Photo de progression de la gouttière %d"
  },
+ "Progress photos": {
+  "ar": "صور التقدم",
+  "es": "Fotos de progreso",
+  "fr": "Photos de progression"
+ },
  "Put back in": {
   "ar": "إعادة",
   "es": "Poner",
@@ -961,6 +1106,36 @@ enum Strings {
   "es": "¿Repetir la configuración?",
   "fr": "Refaire la configuration ?"
  },
+ "Refinement %d": {
+  "ar": "التحسين %d",
+  "es": "Refinamiento %d",
+  "fr": "Refinement %d"
+ },
+ "Refinement %d · Tray %d": {
+  "ar": "التحسين %d · الطقم %d",
+  "es": "Refinamiento %d · Alineador %d",
+  "fr": "Refinement %d · Gouttière %d"
+ },
+ "Refinement %d · Tray %d of %d": {
+  "ar": "التحسين %d · الطقم %d من %d",
+  "es": "Refinamiento %d · Alineador %d de %d",
+  "fr": "Refinement %d · Gouttière %d sur %d"
+ },
+ "Refinement %d · Tray %d · Day %d of %d": {
+  "ar": "التحسين %d · الطقم %d · اليوم %d من %d",
+  "es": "Refinamiento %d · Alineador %d · Día %d de %d",
+  "fr": "Refinement %d · Gouttière %d · Jour %d sur %d"
+ },
+ "Refinement or retainer": {
+  "ar": "التحسين أو المثبّت",
+  "es": "Refinamiento o retenedor",
+  "fr": "Refinement ou contention"
+ },
+ "Refinement started": {
+  "ar": "بدأ التحسين",
+  "es": "Refinamiento iniciado",
+  "fr": "Refinement commencé"
+ },
  "Reminders": {
   "ar": "التذكيرات",
   "es": "Recordatorios",
@@ -995,6 +1170,16 @@ enum Strings {
   "ar": "استعادة من نسخة احتياطية",
   "es": "Restaurar desde copia",
   "fr": "Restaurer une sauvegarde"
+ },
+ "Retainer": {
+  "ar": "المثبّت",
+  "es": "Retenedor",
+  "fr": "Contention"
+ },
+ "Retainer mode on": {
+  "ar": "تم تفعيل وضع المثبّت",
+  "es": "Modo retenedor activado",
+  "fr": "Mode contention activé"
  },
  "Retake": {
   "ar": "إعادة الالتقاط",
@@ -1056,6 +1241,11 @@ enum Strings {
   "es": "Compartir con tu ortodoncista",
   "fr": "Partager avec votre orthodontiste"
  },
+ "Since %@": {
+  "ar": "منذ %@",
+  "es": "Desde el %@",
+  "fr": "Depuis le %@"
+ },
  "Slider": {
   "ar": "شريط",
   "es": "Deslizador",
@@ -1081,10 +1271,25 @@ enum Strings {
   "es": "Apilado",
   "fr": "Empilé"
  },
+ "Start a refinement or retainer mode from the Trays tab.": {
+  "ar": "ابدأ التحسين أو وضع المثبّت من تبويب الأطقم.",
+  "es": "Inicia un refinamiento o el modo retenedor desde la pestaña Alineadores.",
+  "fr": "Lancez un refinement ou le mode contention depuis l'onglet Gouttières."
+ },
  "Start a tray to track how many days you stay on it.": {
   "ar": "ابدأ طقمًا لتتابع عدد الأيام التي تقضيها معه.",
   "es": "Empieza un alineador para ver cuántos días lo llevas.",
   "fr": "Démarrez une gouttière pour suivre le nombre de jours passés avec elle."
+ },
+ "Start refinement": {
+  "ar": "بدء التحسين",
+  "es": "Empezar refinamiento",
+  "fr": "Commencer un refinement"
+ },
+ "Start retainer mode": {
+  "ar": "بدء وضع المثبّت",
+  "es": "Activar modo retenedor",
+  "fr": "Activer le mode contention"
  },
  "Start tray %d": {
   "ar": "بدء الطقم %d",
@@ -1136,6 +1341,11 @@ enum Strings {
   "es": "Avisos de «¿Siguen fuera?»",
   "fr": "Rappels « Toujours retirés ? »"
  },
+ "Stopped at tray %d of %d": {
+  "ar": "توقف عند الطقم %d من %d",
+  "es": "Detenido en el alineador %d de %d",
+  "fr": "Arrêté à la gouttière %d sur %d"
+ },
  "Streak": {
   "ar": "السلسلة",
   "es": "Racha",
@@ -1181,6 +1391,11 @@ enum Strings {
   "es": "Cambiado",
   "fr": "Changée"
  },
+ "Take it out when you wake up and put it back in at bedtime. Inly counts the hours it was in.": {
+  "ar": "أخرجه عند الاستيقاظ وأعده وقت النوم. يحسب Inly الساعات التي كان فيها في الفم.",
+  "es": "Quítatelo al despertar y vuelve a ponértelo al acostarte. Inly cuenta las horas que lo llevaste.",
+  "fr": "Retirez-la au réveil et remettez-la au coucher. Inly compte les heures où elle était en bouche."
+ },
  "Take out": {
   "ar": "إخراج",
   "es": "Quitar",
@@ -1221,15 +1436,30 @@ enum Strings {
   "es": "Este archivo no es una copia de Inly.",
   "fr": "Ce fichier n'est pas une sauvegarde Inly."
  },
+ "This week": {
+  "ar": "هذا الأسبوع",
+  "es": "Esta semana",
+  "fr": "Cette semaine"
+ },
  "Tight fit": {
   "ar": "ضيق",
   "es": "Muy ajustado",
   "fr": "Serrage"
  },
+ "Time": {
+  "ar": "الوقت",
+  "es": "Hora",
+  "fr": "Heure"
+ },
  "Time for tray %d": {
   "ar": "حان وقت الطقم %d",
   "es": "Es hora del alineador %d",
   "fr": "C'est l'heure de la gouttière %d"
+ },
+ "Time to put your retainer in.": {
+  "ar": "حان وقت وضع المثبّت.",
+  "es": "Es hora de ponerte el retenedor.",
+  "fr": "C'est l'heure de mettre votre contention."
  },
  "Time to wrap up and put your aligners back in.": {
   "ar": "حان وقت الانتهاء وإعادة المقوّمات إلى فمك.",
@@ -1316,6 +1546,11 @@ enum Strings {
   "es": "Alineador %d · Día %d de %d",
   "fr": "Gouttière %d · Jour %d sur %d"
  },
+ "Tray 1 of %d": {
+  "ar": "الطقم 1 من %d",
+  "es": "Alineador 1 de %d",
+  "fr": "Gouttière 1 sur %d"
+ },
  "Tray history": {
   "ar": "سجل الأطقم",
   "es": "Historial de alineadores",
@@ -1331,10 +1566,25 @@ enum Strings {
   "es": "Alineadores",
   "fr": "Gouttières"
  },
+ "Trays in the refinement": {
+  "ar": "أطقم التحسين",
+  "es": "Alineadores del refinamiento",
+  "fr": "Gouttières du refinement"
+ },
+ "Trays in this phase": {
+  "ar": "أطقم هذه المرحلة",
+  "es": "Alineadores de esta fase",
+  "fr": "Gouttières de cette phase"
+ },
  "Trays in your treatment": {
   "ar": "الأطقم في علاجك",
   "es": "Alineadores en tu tratamiento",
   "fr": "Gouttières dans votre traitement"
+ },
+ "Treatment": {
+  "ar": "العلاج",
+  "es": "Tratamiento",
+  "fr": "Traitement"
  },
  "Treatment · %@": {
   "ar": "العلاج · %@",
@@ -1370,6 +1620,11 @@ enum Strings {
   "ar": "استخدم زر الإجراء",
   "es": "Usa el botón de acción",
   "fr": "Utilisez le bouton Action"
+ },
+ "Version %@": {
+  "ar": "الإصدار %@",
+  "es": "Versión %@",
+  "fr": "Version %@"
  },
  "Visit": {
   "ar": "الموعد",
@@ -1421,6 +1676,11 @@ enum Strings {
   "es": "Usa tus alineadores",
   "fr": "Portez vos aligneurs"
  },
+ "Weekly score": {
+  "ar": "نتيجة الأسبوع",
+  "es": "Puntuación semanal",
+  "fr": "Score hebdo"
+ },
  "What should we call you?": {
   "ar": "بماذا نناديك؟",
   "es": "¿Cómo quieres que te llamemos?",
@@ -1436,10 +1696,25 @@ enum Strings {
   "es": "Puesto",
   "fr": "Porté"
  },
+ "Worn all day, like your aligners.": {
+  "ar": "يُرتدى طوال اليوم مثل أطقمك.",
+  "es": "Se lleva todo el día, como tus alineadores.",
+  "fr": "Porté toute la journée, comme vos gouttières."
+ },
+ "Worn on some nights only.": {
+  "ar": "يُرتدى في بعض الليالي فقط.",
+  "es": "Se lleva solo algunas noches.",
+  "fr": "Porté seulement certaines nuits."
+ },
  "Worn today": {
   "ar": "مرتدى اليوم",
   "es": "Puesto hoy",
   "fr": "Porté aujourd'hui"
+ },
+ "Worn while you sleep.": {
+  "ar": "يُرتدى أثناء النوم.",
+  "es": "Se lleva mientras duermes.",
+  "fr": "Porté pendant le sommeil."
  },
  "Write a note": {
   "ar": "اكتب ملاحظة",
@@ -1501,6 +1776,11 @@ enum Strings {
   "es": "Tu objetivo diario",
   "fr": "Votre objectif quotidien"
  },
+ "Your data stays on your devices.": {
+  "ar": "تبقى بياناتك على أجهزتك.",
+  "es": "Tus datos se quedan en tus dispositivos.",
+  "fr": "Vos données restent sur vos appareils."
+ },
  "Your days will show up here.": {
   "ar": "ستظهر أيامك هنا.",
   "es": "Tus días aparecerán aquí.",
@@ -1510,6 +1790,16 @@ enum Strings {
   "ar": "اسمك الأول",
   "es": "Tu nombre",
   "fr": "Votre prénom"
+ },
+ "Your last tray is saved as finished. Inly now tracks your retainer instead.": {
+  "ar": "يُحفظ آخر طقم كمكتمل. سيتتبّع Inly الآن المثبّت بدلًا منه.",
+  "es": "Tu último alineador se guarda como terminado. Inly seguirá ahora tu retenedor.",
+  "fr": "Votre dernière gouttière est enregistrée comme terminée. Inly suit désormais votre contention."
+ },
+ "Your orthodontist ordered a new set of trays. Numbering starts again at 1 and your history stays.": {
+  "ar": "طلب طبيب التقويم مجموعة أطقم جديدة. يبدأ الترقيم من 1 من جديد ويبقى سجلّك كما هو.",
+  "es": "Tu ortodoncista pidió un nuevo juego de alineadores. La numeración vuelve a empezar en 1 y tu historial se conserva.",
+  "fr": "Votre orthodontiste a commandé de nouvelles gouttières. La numérotation repart à 1 et votre historique est conservé."
  },
  "Your timer lives in the Dynamic Island and on your Lock Screen, so you can put them back in without opening the app.": {
   "ar": "يعيش مؤقتك في الجزيرة الديناميكية وعلى شاشة القفل، لتعيد المقوّمات دون فتح التطبيق.",

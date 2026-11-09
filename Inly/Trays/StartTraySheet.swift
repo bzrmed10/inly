@@ -47,7 +47,7 @@ struct StartTraySheet: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(L10n.t("Start tray %d?", nextNumber)).font(Theme.font(28, .heavy))
                 if let current, let saved = savedDays {
-                    Text(L10n.t("Tray %d will be saved with %@.", current.number, L10n.days(saved)))
+                    Text(L10n.t("Tray %d will be saved with %@.", current.displayNumber, L10n.days(saved)))
                         .font(Theme.font(15, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
                 }
                 if let warning {
@@ -117,7 +117,7 @@ struct ExtendTraySheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 6) {
-                Text(L10n.t("Extend tray %d", tray.number)).font(Theme.font(28, .heavy))
+                Text(L10n.t("Extend tray %d", tray.displayNumber)).font(Theme.font(28, .heavy))
                 Text(L10n.t("Planned: %@. Use this when your orthodontist asks for more time on this tray.", L10n.days(tray.plannedDays)))
                     .font(Theme.font(15, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
             }

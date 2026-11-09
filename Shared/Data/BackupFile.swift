@@ -2,7 +2,7 @@ import Foundation
 
 /// Everything Inly knows, in one portable file (JSON). Used for iCloud Drive / Files backups.
 struct BackupFile: Codable, Equatable, Sendable {
-    static let currentVersion = 1
+    static let currentVersion = 2
 
     struct Settings: Codable, Equatable, Sendable {
         var goalHours: Int
@@ -13,8 +13,27 @@ struct BackupFile: Codable, Equatable, Sendable {
         var trackingStart: Date?
         var nextAppointment: Date?
         var stillOutMinutes: [String: Int]
+        // Added in version 2. Missing in older backups, which then read as "initial treatment, no retainer".
+        var phaseTotals: [String: Int]?
+        var retainerMode: Bool?
+        var retainerStart: Date?
+        var retainerSchedule: String?
+        var retainerHours: Int?
+        var retainerNights: Int?
+        var treatmentGoalHours: Int?
+        var bedtimeReminder: Bool?
+        var bedtimeMinutes: Int?
 
         init(_ s: WearSettings) {
+            phaseTotals = Dictionary(uniqueKeysWithValues: s.phaseTotals.map { (String($0.key), $0.value) })
+            retainerMode = s.retainerMode
+            retainerStart = s.retainerStart
+            retainerSchedule = s.retainerSchedule.rawValue
+            retainerHours = s.retainerHours
+            retainerNights = s.retainerNights
+            treatmentGoalHours = s.treatmentGoalHours
+            bedtimeReminder = s.bedtimeReminder
+            bedtimeMinutes = s.bedtimeMinutes
             goalHours = s.goalHours
             totalTrays = s.totalTrays
             defaultTrayDays = s.defaultTrayDays
@@ -35,6 +54,15 @@ struct BackupFile: Codable, Equatable, Sendable {
             s.trackingStart = trackingStart
             s.nextAppointment = nextAppointment
             s.stillOutMinutes.merge(stillOutMinutes) { _, new in new }
+            if let phaseTotals { s.phaseTotals = Dictionary(uniqueKeysWithValues: phaseTotals.compactMap { k, v in Int(k).map { ($0, v) } }) }
+            if let retainerMode { s.retainerMode = retainerMode }
+            s.retainerStart = retainerStart
+            if let raw = retainerSchedule, let v = RetainerSchedule(rawValue: raw) { s.retainerSchedule = v }
+            if let retainerHours { s.retainerHours = retainerHours }
+            if let retainerNights { s.retainerNights = retainerNights }
+            s.treatmentGoalHours = treatmentGoalHours
+            if let bedtimeReminder { s.bedtimeReminder = bedtimeReminder }
+            if let bedtimeMinutes { s.bedtimeMinutes = bedtimeMinutes }
             s.onboardingDone = true
             return s
         }
@@ -52,6 +80,9 @@ struct BackupFile: Codable, Equatable, Sendable {
         var endDate: Date?
         var plannedDays: Int
         var photo: Data?
+        // Added in version 2 (missing = initial treatment).
+        var phase: Int?
+        var phaseBase: Int?
     }
 
     struct Note: Codable, Equatable, Sendable {

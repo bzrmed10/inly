@@ -8,11 +8,18 @@ enum ReportBuilder {
         var start: Date
         var end: Date?
         var plannedDays: Int
+        /// 0 = initial treatment, 1 = refinement 1, ...
+        var phase: Int = 0
+        /// The number the patient sees (restarts in each phase). Falls back to `number`.
+        var shownNumber: Int?
+        var photo: Data?
     }
     struct NoteRow: Equatable {
         var trayNumber: Int
         var date: Date
         var text: String
+        /// "Tray 3" or "Refinement 1 · Tray 3"; falls back to the plain tray number.
+        var label: String?
     }
 
     struct Input {
@@ -26,6 +33,10 @@ enum ReportBuilder {
         var notes: [NoteRow]
         var appointment: Date?
         var calendar: Calendar = .current
+        /// Planned trays of each finished phase, to show how many were skipped.
+        var phaseTotals: [Int: Int] = [:]
+        var retainerSince: Date?
+        var includePhotos = false
     }
 
     // MARK: Daily rows
@@ -146,15 +157,29 @@ enum ReportBuilder {
             if !input.trays.isEmpty {
                 text(L10n.t("Trays"), h2)
                 let w: [CGFloat] = [50, 110, 110, 110, 100]
-                row([L10n.t("Tray"), L10n.t("Started"), L10n.t("Switched"), L10n.t("Days (plan)"), L10n.t("Avg wear")], widths: w, font: bold)
-                for t in input.trays.sorted(by: { $0.number < $1.number }) {
-                    let spent = TrayLogic.daysSpent(start: t.start, end: t.end, now: input.now, calendar: cal)
-                    let from = max(t.start, input.trackingStart ?? t.start)
-                    let a = WearCalculator.averageWornHours(from: from, to: t.end ?? input.now, sessions: input.spans, now: input.now, calendar: cal)
-                    row([
-                        "\(t.number)", dateFmt.string(from: t.start), t.end.map { dateFmt.string(from: $0) } ?? L10n.t("current"),
-                        "\(spent) (\(t.plannedDays))", a > 0 ? String(format: "%.1f h", a) : "-",
-                    ], widths: w, font: body)
+                let phases = Array(Set(input.trays.map(\.phase))).sorted()
+                for phase in phases {
+                    let inPhase = input.trays.filter { $0.phase == phase }.sorted(by: { $0.number < $1.number })
+                    ensure(60)
+                    var heading = TreatmentPhase.name(phase)
+                    if let total = input.phaseTotals[phase], total > inPhase.count {
+                        heading += " · " + L10n.t("Stopped at tray %d of %d", inPhase.count, total)
+                    }
+                    text(heading, bold)
+                    row([L10n.t("Tray"), L10n.t("Started"), L10n.t("Switched"), L10n.t("Days (plan)"), L10n.t("Avg wear")], widths: w, font: bold)
+                    for t in inPhase {
+                        let spent = TrayLogic.daysSpent(start: t.start, end: t.end, now: input.now, calendar: cal)
+                        let from = max(t.start, input.trackingStart ?? t.start)
+                        let a = WearCalculator.averageWornHours(from: from, to: t.end ?? input.now, sessions: input.spans, now: input.now, calendar: cal)
+                        row([
+                            "\(t.shownNumber ?? t.number)", dateFmt.string(from: t.start), t.end.map { dateFmt.string(from: $0) } ?? L10n.t("current"),
+                            "\(spent) (\(t.plannedDays))", a > 0 ? String(format: "%.1f h", a) : "-",
+                        ], widths: w, font: body)
+                    }
+                    y += 8
+                }
+                if let since = input.retainerSince {
+                    text(TreatmentPhase.retainerName + " · " + L10n.t("Since %@", dateFmt.string(from: since)), bold)
                 }
                 y += 10
             }
@@ -164,9 +189,44 @@ enum ReportBuilder {
                 text(L10n.t("Notes"), h2)
                 for n in input.notes.sorted(by: { $0.date < $1.date }) {
                     ensure(18)
-                    text(L10n.t("Tray %d", n.trayNumber) + " · \(dateFmt.string(from: n.date)): \(n.text)", body)
+                    text((n.label ?? L10n.t("Tray %d", n.trayNumber)) + " · \(dateFmt.string(from: n.date)): \(n.text)", body)
                 }
                 y += 10
+            }
+
+            let withPhotos = input.includePhotos ? input.trays.filter { $0.photo != nil }.sorted(by: { $0.number < $1.number }) : []
+            if !withPhotos.isEmpty {
+                ensure(160)
+                text(L10n.t("Progress photos"), h2)
+                let gap: CGFloat = 12
+                let cw = (page.width - 2 * margin - gap * 2) / 3
+                let ch = cw * 0.75
+                var i = 0
+                while i < withPhotos.count {
+                    ensure(ch + 34)
+                    for c in 0..<3 where i + c < withPhotos.count {
+                        let t = withPhotos[i + c]
+                        let x = margin + CGFloat(c) * (cw + gap)
+                        let rect = CGRect(x: x, y: y, width: cw, height: ch)
+                        if let data = t.photo, let img = UIImage(data: data) {
+                            let scale = max(cw / img.size.width, ch / img.size.height)
+                            let size = CGSize(width: img.size.width * scale, height: img.size.height * scale)
+                            ctx.cgContext.saveGState()
+                            ctx.cgContext.addPath(UIBezierPath(roundedRect: rect, cornerRadius: 6).cgPath)
+                            ctx.cgContext.clip()
+                            img.draw(in: CGRect(x: rect.midX - size.width / 2, y: rect.midY - size.height / 2, width: size.width, height: size.height))
+                            ctx.cgContext.restoreGState()
+                        }
+                        let n = t.shownNumber ?? t.number
+                        let label = t.phase > 0 ? L10n.t("Refinement %d · Tray %d", t.phase, n) : L10n.t("Tray %d", n)
+                        let caption = label + " · " + dateFmt.string(from: t.start)
+                        (caption as NSString).draw(in: CGRect(x: x, y: y + ch + 3, width: cw, height: 24),
+                                                   withAttributes: [.font: UIFont.systemFont(ofSize: 8.5), .foregroundColor: muted])
+                    }
+                    y += ch + 30
+                    i += 3
+                }
+                y += 6
             }
 
             ensure(60)

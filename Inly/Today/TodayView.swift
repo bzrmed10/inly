@@ -98,7 +98,9 @@ struct TodayView: View {
 
     @ViewBuilder
     private func trayCard(now: Date) -> some View {
-        if let tray = currentTrays.first {
+        if settings.retainerMode {
+            retainerCard
+        } else if let tray = currentTrays.first {
             let cal = Calendar.current
             let elapsed = TrayLogic.daysElapsed(start: tray.startDate, now: now, calendar: cal)
             let dayN = elapsed + 1
@@ -107,7 +109,7 @@ struct TodayView: View {
             let tint = over > 0 ? Theme.outColor : Theme.trayColor
             let subtitle: String = {
                 if over > 0 { return L10n.t("+%@ over the plan", L10n.days(over)) }
-                if left == 0 { return L10n.t("Switch to tray %d today", tray.number + 1) }
+                if left == 0 { return L10n.t("Switch to tray %d today", tray.displayNumber + 1) }
                 return L10n.t("Day %d of %d · switch in %@", dayN, tray.plannedDays, L10n.days(left))
             }()
             Button(action: onOpenTrays) {
@@ -118,12 +120,13 @@ struct TodayView: View {
                             .trim(from: 0, to: max(0.02, min(1, Double(dayN) / Double(max(1, tray.plannedDays)))))
                             .stroke(tint, style: StrokeStyle(lineWidth: 5, lineCap: .round))
                             .rotationEffect(.degrees(-90))
-                        Text("\(tray.number)").font(Theme.font(17, .heavy))
+                        Text("\(tray.displayNumber)").font(Theme.font(17, .heavy))
                     }
                     .frame(width: 52, height: 52)
                     VStack(alignment: .leading, spacing: 3) {
-                        Text(L10n.t("Tray %d of %d", tray.number, max(settings.totalTrays, tray.number)))
+                        Text(trayTitle(tray))
                             .font(Theme.font(17, .heavy))
+                            .lineLimit(1).minimumScaleFactor(0.7)
                         Text(subtitle)
                             .font(Theme.font(14, .semibold)).foregroundStyle(over > 0 ? Theme.outColor : Theme.muted)
                     }
@@ -148,6 +151,39 @@ struct TodayView: View {
             }
             .buttonStyle(.plain)
         }
+    }
+
+    private func trayTitle(_ tray: Tray) -> String {
+        let of = max(settings.totalTrays, tray.displayNumber)
+        return tray.phase > 0
+            ? L10n.t("Refinement %d · Tray %d of %d", tray.phase, tray.displayNumber, of)
+            : L10n.t("Tray %d of %d", tray.displayNumber, of)
+    }
+
+    private var retainerCard: some View {
+        let subtitle: String = {
+            switch settings.retainerSchedule {
+            case .fullTime: return L10n.t("Full-time · %d hours a day", settings.goalHours)
+            case .nightly: return L10n.t("Nightly · %d hours", settings.retainerHours)
+            case .fewNights: return L10n.t("%d nights a week · %d hours", settings.retainerNights, settings.retainerHours)
+            }
+        }()
+        return Button(action: onOpenTrays) {
+            HStack(spacing: 14) {
+                Image(systemName: "moon.stars.fill")
+                    .font(.system(size: 22, weight: .bold)).foregroundStyle(Theme.outColor)
+                    .frame(width: 52, height: 52).background(Theme.raised, in: Circle())
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(TreatmentPhase.retainerName).font(Theme.font(17, .heavy))
+                    Text(subtitle).font(Theme.font(14, .semibold)).foregroundStyle(Theme.muted)
+                }
+                Spacer(minLength: 0)
+                Image(systemName: "chevron.right").font(.system(size: 14, weight: .bold)).foregroundStyle(Theme.muted)
+            }
+            .padding(14)
+            .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: Reason chips

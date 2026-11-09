@@ -61,6 +61,7 @@ struct HistoryView: View {
                     stat(L10n.t("Goal met"), L10n.t("%d of %d", metCount, finished.count), Theme.trayColor)
                 }
                 streakRow(now: now)
+                weekScoreRow(now: now)
                 weekChart(week, goal: goal)
                 calendarCard(now: now, goal: goal)
             }
@@ -78,6 +79,22 @@ struct HistoryView: View {
             stat(L10n.t("Best streak"), L10n.days(streak.best), Theme.inColor)
         }
     }
+
+    private func weekScoreRow(now: Date) -> some View {
+        let days = WearCalculator.dailyWear(endingOn: now, days: 14, sessions: spans, calendar: .current, trackingStart: trackingMoment)
+        let night = settings.isNightRetainer
+        let score = Insights.weekScore(
+            days: days, goalHours: settings.goalHours,
+            nightsPerWeek: settings.retainerMode && settings.retainerSchedule == .fewNights ? settings.retainerNights : nil,
+            today: now, calendar: .current
+        )
+        return HStack(spacing: 12) {
+            stat(L10n.t("This week"), night ? L10n.t("%d of %d nights", score.met, score.target) : L10n.t("%d of %d days", score.met, score.target), Theme.trayColor)
+            stat(L10n.t("Weekly score"), "\(Int((score.fraction * 100).rounded()))%", scoreColor(score.fraction))
+        }
+    }
+
+    private func scoreColor(_ f: Double) -> Color { f >= 0.85 ? Theme.trayColor : (f >= 0.6 ? Theme.inColor : Theme.outColor) }
 
     private func stat(_ title: String, _ value: String, _ color: Color) -> some View {
         Card {
