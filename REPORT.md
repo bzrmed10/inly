@@ -115,3 +115,13 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - Camera: controls respect safe areas; X, Retake and Use photo respond; saved photo is cropped to the frame; ghost of the last photo shows inside the same frame.
 - Languages: English, Français, العربية (right-to-left), Español. Default follows the phone (English if unsupported); Settings > Language overrides it. Widgets, Live Activity, notifications, PDF report and the Apple Watch follow the same choice (the watch gets it from the iPhone). Translations live in Shared/L10n/Strings.swift (JSON); a unit test checks every key has all languages and matching placeholders.
 - Not translated: Shortcuts/Control Center names and widget gallery descriptions (they follow the phone language only through the system).
+
+## Milestones 19-23: phases, refinement, retainer, settings pages
+- Phases: Tray.phase/phaseBase (defaults 0, so old trays are "Initial treatment"); tray numbers restart per phase while `number` stays unique for notes/photos.
+- Start refinement any time (sheet: date, trays, days); early start marks unworn trays as skipped; undo toast. Trays page: phase headers (white), per-phase done-dot colors, collapsed past phases.
+- Retainer mode: full-time / every night / few nights a week, hours, bedtime reminder; night schedules skip "still out?" nudges. Today and Trays show the retainer card.
+- Weekly score ("This week", "Weekly score") in History.
+- Settings is now a short list with pushed pages: Treatment, Reminders, Backup and data, Language, About.
+- PDF report grouped by phase, optional progress photos with captions.
+- Default out reason is Meal. Backup file version 2 (old v1 files still load; tested).
+- Known: changing language returns Settings to its first page (view tree rebuilds); not tested on device.
