@@ -33,12 +33,12 @@ struct StartRefinementSheet: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(L10n.t("Start refinement")).font(Theme.font(28, .heavy))
                     Text(L10n.t("Your orthodontist ordered a new set of trays. Numbering starts again at 1 and your history stays."))
-                        .font(Theme.font(15, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
+                        .font(Theme.font(15, .bold)).foregroundStyle(Theme.secondary)
                     if let current {
                         Text(skipped > 0
                              ? L10n.t("%@ stops at tray %d. The other %d are marked as skipped.", TreatmentPhase.name(current.phase), current.displayNumber, skipped)
                              : L10n.t("%@ is saved as finished.", TreatmentPhase.name(current.phase)))
-                            .font(Theme.font(14, .heavy)).foregroundStyle(Theme.outColor)
+                            .font(Theme.font(14, .heavy)).foregroundStyle(Theme.outText)
                     }
                 }
 
@@ -59,7 +59,7 @@ struct StartRefinementSheet: View {
                         .buttonStyle(PillButtonStyle(color: Theme.phaseColor((current?.phase ?? 0) + 1), foreground: Theme.night))
                     Button(L10n.t("Cancel")) { dismiss() }
                         .font(Theme.font(16, .heavy))
-                        .foregroundStyle(Color(hex: 0xC9C9D2))
+                        .foregroundStyle(Theme.secondary)
                         .frame(maxWidth: .infinity, minHeight: 48)
                 }
             }
@@ -68,9 +68,8 @@ struct StartRefinementSheet: View {
         }
         .presentationDetents([.fraction(0.9), .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationBackground(Theme.sheet)
         .presentationCornerRadius(34)
-        .preferredColorScheme(.dark)
     }
 
     private var pastLimit: Date { Calendar.current.date(byAdding: .day, value: -60, to: .now) ?? .now }
@@ -92,7 +91,7 @@ struct RetainerSheet: View {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(L10n.t("Start retainer mode")).font(Theme.font(28, .heavy))
                     Text(L10n.t("Your last tray is saved as finished. Inly now tracks your retainer instead."))
-                        .font(Theme.font(15, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
+                        .font(Theme.font(15, .bold)).foregroundStyle(Theme.secondary)
                 }
 
                 VStack(spacing: 8) {
@@ -126,7 +125,7 @@ struct RetainerSheet: View {
                     .buttonStyle(PillButtonStyle(color: Theme.retainerColor, foreground: Theme.night))
                     Button(L10n.t("Cancel")) { dismiss() }
                         .font(Theme.font(16, .heavy))
-                        .foregroundStyle(Color(hex: 0xC9C9D2))
+                        .foregroundStyle(Theme.secondary)
                         .frame(maxWidth: .infinity, minHeight: 48)
                 }
             }
@@ -135,9 +134,8 @@ struct RetainerSheet: View {
         }
         .presentationDetents([.fraction(0.92), .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationBackground(Theme.sheet)
         .presentationCornerRadius(34)
-        .preferredColorScheme(.dark)
     }
 
     private func option(_ value: RetainerSchedule, _ title: String, _ subtitle: String) -> some View {

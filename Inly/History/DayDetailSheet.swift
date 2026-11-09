@@ -65,9 +65,8 @@ struct DayDetailSheet: View {
         .scrollIndicators(.hidden)
         .presentationDetents([.fraction(0.7), .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationBackground(Theme.sheet)
         .presentationCornerRadius(34)
-        .preferredColorScheme(.dark)
         .sheet(item: $editing) { target in
             SessionEditSheet(session: target.session, day: day)
         }
@@ -193,7 +192,7 @@ struct SessionEditSheet: View {
                 }
                 Button(L10n.t("Cancel")) { dismiss() }
                     .font(Theme.font(16, .heavy))
-                    .foregroundStyle(Color(hex: 0xC9C9D2))
+                    .foregroundStyle(Theme.secondary)
                     .frame(maxWidth: .infinity, minHeight: 44)
             }
             Spacer(minLength: 0)
@@ -202,9 +201,8 @@ struct SessionEditSheet: View {
         .padding(.top, 24)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationBackground(Theme.sheet)
         .presentationCornerRadius(34)
-        .preferredColorScheme(.dark)
         .confirmationDialog(L10n.t("Delete this break?"), isPresented: $confirmDelete, titleVisibility: .visible) {
             Button(L10n.t("Delete"), role: .destructive) {
                 if let session { SessionService.shared.delete(session) }

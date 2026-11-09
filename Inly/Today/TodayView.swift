@@ -128,7 +128,7 @@ struct TodayView: View {
                             .font(Theme.font(17, .heavy))
                             .lineLimit(1).minimumScaleFactor(0.7)
                         Text(subtitle)
-                            .font(Theme.font(14, .semibold)).foregroundStyle(over > 0 ? Theme.outColor : Theme.muted)
+                            .font(Theme.font(14, .semibold)).foregroundStyle(over > 0 ? Theme.outText : Theme.muted)
                     }
                     Spacer(minLength: 0)
                     Image(systemName: "chevron.right")
@@ -245,10 +245,10 @@ struct TodayView: View {
         }()
         return Text(text)
             .font(Theme.font(15, .semibold))
-            .foregroundStyle(color)
+            .foregroundStyle(snap.isOut && !snap.isOverBudget ? Theme.outText : color)
             .padding(.horizontal, 16)
             .padding(.vertical, 9)
-            .background(color.opacity(0.14), in: Capsule())
+            .background(snap.isOut && !snap.isOverBudget ? Theme.outSoft : color.opacity(0.14), in: Capsule())
             .animation(.smooth, value: text)
     }
 
@@ -283,7 +283,7 @@ struct TodayView: View {
                                 .frame(width: max(5, b - a), height: 14)
                                 .offset(x: a)
                         }
-                        Capsule().fill(.white)
+                        Capsule().fill(Theme.text)
                             .frame(width: 3, height: 22)
                             .offset(x: x(now) - 1.5)
                     }

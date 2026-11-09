@@ -45,7 +45,7 @@ targets:
         PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-        INFOPLIST_KEY_UIUserInterfaceStyle: Dark
+        SWIFT_ACTIVE_COMPILATION_CONDITIONS: "$(inherited) ADAPTIVE_THEME"
       configs:
         Release:
           CODE_SIGN_STYLE: Manual

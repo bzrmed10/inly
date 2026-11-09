@@ -48,7 +48,7 @@ struct GlowRing: View {
 /// Full-width pill button used for the main action.
 struct PillButtonStyle: ButtonStyle {
     var color: Color
-    var foreground: Color = Color(hex: 0x0B0B0F)
+    var foreground: Color = Theme.onAccent
     var height: CGFloat = 60
 
     func makeBody(configuration: Configuration) -> some View {
@@ -71,7 +71,7 @@ struct ChipStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(Theme.font(14, .semibold))
-            .foregroundStyle(selected ? Color(hex: 0x0B0B0F) : Theme.text)
+            .foregroundStyle(selected ? Theme.onAccent : Theme.text)
             .padding(.horizontal, 14)
             .padding(.vertical, 9)
             .background(selected ? color : Theme.raised, in: Capsule())
@@ -136,9 +136,9 @@ struct StepperRow: View {
         Button(action: action) {
             Image(systemName: symbol)
                 .font(.system(size: 16, weight: .heavy))
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.text)
                 .frame(width: 44, height: 44)
-                .background(Color(hex: 0x33333D), in: Circle())
+                .background(Theme.hairline, in: Circle())
         }
         .buttonStyle(.plain)
         .accessibilityLabel(label)
@@ -157,13 +157,13 @@ struct ToastBanner: View {
         HStack(spacing: 12) {
             Image(systemName: "checkmark")
                 .font(.system(size: 16, weight: .heavy))
-                .foregroundStyle(Color(hex: 0x062014))
+                .foregroundStyle(Theme.onAccent)
                 .frame(width: 36, height: 36)
                 .background(color, in: Circle())
             VStack(alignment: .leading, spacing: 1) {
                 Text(title).font(Theme.font(15, .heavy))
                 if let subtitle {
-                    Text(subtitle).font(Theme.font(12, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
+                    Text(subtitle).font(Theme.font(12, .bold)).foregroundStyle(Theme.secondary)
                 }
             }
             Spacer(minLength: 8)
@@ -172,7 +172,7 @@ struct ToastBanner: View {
                     .font(Theme.font(14, .heavy))
                     .padding(.horizontal, 16)
                     .frame(height: 44)
-                    .background(.white.opacity(0.14), in: Capsule())
+                    .background(Theme.text.opacity(0.12), in: Capsule())
             }
             .buttonStyle(.plain)
         }

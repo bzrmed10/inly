@@ -741,6 +741,26 @@ enum Strings {
   "es": "Instala la app del reloj",
   "fr": "Installer l'app pour la montre"
  },
+ "Appearance": {
+  "ar": "المظهر",
+  "es": "Apariencia",
+  "fr": "Apparence"
+ },
+ "Dark": {
+  "ar": "داكن",
+  "es": "Oscuro",
+  "fr": "Sombre"
+ },
+ "Light": {
+  "ar": "فاتح",
+  "es": "Claro",
+  "fr": "Clair"
+ },
+ "System": {
+  "ar": "النظام",
+  "es": "Sistema",
+  "fr": "Système"
+ },
  "Language": {
   "ar": "اللغة",
   "es": "Idioma",

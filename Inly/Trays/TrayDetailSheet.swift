@@ -57,9 +57,8 @@ struct TrayDetailSheet: View {
         }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationBackground(Theme.sheet)
         .presentationCornerRadius(34)
-        .preferredColorScheme(.dark)
         .onChange(of: pickerItem) { _, item in
             guard let item else { return }
             Task { await loadPhoto(item) }
@@ -108,7 +107,7 @@ struct TrayDetailSheet: View {
             }
             .buttonStyle(.plain)
             .background(CameraPicker.isAvailable ? Theme.raised : Theme.inColor, in: Capsule())
-            .foregroundStyle(CameraPicker.isAvailable ? Color.white : Theme.night)
+            .foregroundStyle(CameraPicker.isAvailable ? Theme.text : Theme.onAccent)
             if hasPhoto {
                 Button(role: .destructive) { SessionService.shared.setPhoto(nil, for: tray); pickerItem = nil } label: {
                     Image(systemName: "trash").frame(width: 46, height: 46)

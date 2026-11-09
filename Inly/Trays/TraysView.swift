@@ -193,7 +193,7 @@ struct TraysView: View {
     private func headerButton(_ symbol: String, label: String, badge: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Image(systemName: symbol)
-                .font(.system(size: 18, weight: .semibold)).foregroundStyle(.white)
+                .font(.system(size: 18, weight: .semibold)).foregroundStyle(Theme.text)
                 .frame(width: 46, height: 46)
                 .glassEffect(.regular.interactive(), in: Circle())
                 .overlay(alignment: .topTrailing) {
@@ -223,7 +223,7 @@ struct TraysView: View {
             LazyVGrid(columns: columns, spacing: 3) {
                 ForEach(1...total, id: \.self) { i in
                     Capsule()
-                        .fill(i < cur ? Theme.phaseColor(activePhase) : (i == cur ? Color.white : Color(hex: 0x2A2A33)))
+                        .fill(i < cur ? Theme.phaseColor(activePhase) : (i == cur ? Theme.text : Theme.track))
                         .frame(height: 8)
                 }
             }
@@ -264,7 +264,9 @@ struct TraysView: View {
                 .font(Theme.font(38, .heavy)).minimumScaleFactor(0.7).lineLimit(1)
             if over > 0 {
                 Text(L10n.t("+%@ over the plan", L10n.days(over)))
-                    .font(Theme.font(15, .heavy)).foregroundStyle(Theme.outColor)
+                    .font(Theme.font(14, .heavy)).foregroundStyle(Theme.outText)
+                    .padding(.horizontal, 12).padding(.vertical, 5)
+                    .background(Theme.outSoft, in: Capsule())
             }
             ProgressView(value: min(1, Double(dayN) / Double(max(1, tray.plannedDays))))
                 .tint(tint)
@@ -276,7 +278,7 @@ struct TraysView: View {
             Button { showStart = true } label: {
                 Label(L10n.t("Start tray %d", tray.displayNumber + 1), systemImage: "plus")
             }
-            .buttonStyle(PillButtonStyle(color: .white, height: 54))
+            .buttonStyle(PillButtonStyle(color: Theme.text, foreground: Theme.night, height: 54))
             HStack(alignment: .top, spacing: 0) {
                 actionCircle("camera", label: L10n.t("Photo"), done: tray.photoData != nil) { detailTray = tray }
                 actionCircle("calendar.badge.plus", label: L10n.t("Extend")) { showExtend = true }
@@ -305,7 +307,7 @@ struct TraysView: View {
     private func actionCircleLabel(_ symbol: String, label: String, done: Bool = false) -> some View {
         VStack(spacing: 6) {
             Image(systemName: symbol)
-                .font(.system(size: 21, weight: .semibold)).foregroundStyle(.white)
+                .font(.system(size: 21, weight: .semibold)).foregroundStyle(Theme.text)
                 .frame(width: 56, height: 56)
                 .background(Theme.raised, in: Circle())
                 .overlay(alignment: .topTrailing) {
@@ -315,7 +317,7 @@ struct TraysView: View {
                             .offset(x: 2, y: -2)
                     }
                 }
-            Text(label).font(Theme.font(12, .bold)).foregroundStyle(Color(hex: 0xC9C9D2)).lineLimit(1).minimumScaleFactor(0.7)
+            Text(label).font(Theme.font(12, .bold)).foregroundStyle(Theme.secondary).lineLimit(1).minimumScaleFactor(0.7)
         }
         .contentShape(Rectangle())
     }
@@ -333,7 +335,7 @@ struct TraysView: View {
             Text(L10n.t("Start a tray to track how many days you stay on it."))
                 .font(Theme.font(15, .semibold)).foregroundStyle(Theme.muted)
             Button { showStart = true } label: { Label(L10n.t("Start tray %d", nextNumber), systemImage: "plus") }
-                .buttonStyle(PillButtonStyle(color: .white, height: 54))
+                .buttonStyle(PillButtonStyle(color: Theme.text, foreground: Theme.night, height: 54))
             treatmentMenu
         }
         .padding(18)
@@ -359,7 +361,7 @@ struct TraysView: View {
                 .font(Theme.font(15, .heavy))
                 .frame(maxWidth: .infinity, minHeight: 44)
                 .background(Theme.raised, in: Capsule())
-                .foregroundStyle(.white)
+                .foregroundStyle(Theme.text)
         }
     }
 
@@ -404,7 +406,7 @@ struct TraysView: View {
         } label: {
             VStack(alignment: .leading, spacing: 8) {
                 HStack {
-                    Text(TreatmentPhase.name(phase)).font(Theme.font(17, .heavy)).foregroundStyle(.white)
+                    Text(TreatmentPhase.name(phase)).font(Theme.font(17, .heavy)).foregroundStyle(Theme.text)
                     Spacer()
                     Text(skipped > 0 ? L10n.t("Stopped at tray %d of %d", worn, total) : L10n.t("%@ · done", L10n.trays(worn)))
                         .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
@@ -413,7 +415,7 @@ struct TraysView: View {
                 }
                 HStack(spacing: 3) {
                     ForEach(0..<max(1, min(total, 60)), id: \.self) { i in
-                        Capsule().fill(i < worn ? color : Color(hex: 0x3A3A44)).frame(height: 6)
+                        Capsule().fill(i < worn ? color : Theme.hairline).frame(height: 6)
                     }
                 }
             }
@@ -442,7 +444,7 @@ struct TraysView: View {
         let days = TrayLogic.daysSpent(start: tray.startDate, end: tray.endDate, now: .now, calendar: cal)
         let delta = days - tray.plannedDays
         let phaseColor = Theme.phaseColor(tray.phase)
-        let noteColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Theme.muted : phaseColor)
+        let noteColor: Color = delta > 0 ? Theme.outText : (delta < 0 ? Theme.muted : phaseColor)
         let note = delta == 0 ? L10n.t("on plan") : (delta > 0 ? "+" + L10n.days(delta) : "−" + L10n.days(-delta))
         let avg = WearCalculator.averageWornHours(from: from(tray), to: tray.endDate ?? .now, sessions: spans, now: .now, calendar: cal)
         let goal = Double(settings.retainerMode ? (settings.treatmentGoalHours ?? settings.goalHours) : settings.goalHours)
@@ -473,6 +475,8 @@ struct TraysView: View {
                     Text(L10n.t("avg wear %@", TimeFormat.hoursMinutes(avg * 3600)))
                     Spacer()
                     Text(note).foregroundStyle(noteColor)
+                        .padding(.horizontal, delta > 0 ? 8 : 0).padding(.vertical, delta > 0 ? 2 : 0)
+                        .background(delta > 0 ? Theme.outSoft : Color.clear, in: Capsule())
                 }
                 .font(Theme.font(12, .bold)).foregroundStyle(Theme.muted)
             }

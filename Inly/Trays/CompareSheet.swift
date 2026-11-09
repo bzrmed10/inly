@@ -60,9 +60,8 @@ struct CompareSheet: View {
         .scrollIndicators(.hidden)
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationBackground(Theme.sheet)
         .presentationCornerRadius(34)
-        .preferredColorScheme(.dark)
     }
 
     private func trayMenu(_ title: String, selection: Binding<Int>) -> some View {
@@ -72,7 +71,7 @@ struct CompareSheet: View {
                 ForEach(withPhotos, id: \.number) { Text($0.fullLabel).tag($0.number) }
             }
             .pickerStyle(.menu)
-            .tint(.white)
+            .tint(Theme.text)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 8)
             .background(Theme.raised, in: Capsule())

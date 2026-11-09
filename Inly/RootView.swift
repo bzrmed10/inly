@@ -8,6 +8,8 @@ struct RootView: View {
     @State private var selection: AppTab = .today
     @AppStorage(L10n.storageKey, store: UserDefaults(suiteName: AppGroup.identifier)) private var languageRaw = AppLanguage.system.rawValue
 
+    @AppStorage(AppAppearance.storageKey, store: UserDefaults(suiteName: AppGroup.identifier)) private var appearanceRaw = AppAppearance.dark.rawValue
+
     var body: some View {
         Group {
             if setupDone {
@@ -31,6 +33,6 @@ struct RootView: View {
         }
         .id(languageRaw)
         .appLanguage()
-        .preferredColorScheme(.dark)
+        .preferredColorScheme((AppAppearance(rawValue: appearanceRaw) ?? .dark).scheme)
     }
 }

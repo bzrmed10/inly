@@ -38,7 +38,7 @@ struct OnboardingView: View {
                 Text(buttonTitle)
             }
             .buttonStyle(PillButtonStyle(color: step == .done ? Theme.trayColor : Theme.inColor,
-                                         foreground: step == .done ? Color(hex: 0x062014) : Theme.night))
+                                         foreground: step == .done ? Theme.onAccent : Theme.night))
             .padding(.horizontal, 20)
             .padding(.bottom, 16)
         }

@@ -48,10 +48,10 @@ struct StartTraySheet: View {
                 Text(L10n.t("Start tray %d?", nextNumber)).font(Theme.font(28, .heavy))
                 if let current, let saved = savedDays {
                     Text(L10n.t("Tray %d will be saved with %@.", current.displayNumber, L10n.days(saved)))
-                        .font(Theme.font(15, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
+                        .font(Theme.font(15, .bold)).foregroundStyle(Theme.secondary)
                 }
                 if let warning {
-                    Text(warning).font(Theme.font(14, .heavy)).foregroundStyle(Theme.outColor)
+                    Text(warning).font(Theme.font(14, .heavy)).foregroundStyle(Theme.outText)
                 }
             }
 
@@ -66,14 +66,14 @@ struct StartTraySheet: View {
             StepperRow(title: L10n.t("Days on this tray"), valueText: L10n.days(plannedDays), value: $plannedDays, range: 1...30)
 
             Text(L10n.t("We'll remind you to switch on %@.", reminderDate))
-                .font(Theme.font(14, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
+                .font(Theme.font(14, .bold)).foregroundStyle(Theme.secondary)
 
             VStack(spacing: 6) {
                 Button(L10n.t("Start tray %d", nextNumber)) { onStart(date, plannedDays); dismiss() }
-                    .buttonStyle(PillButtonStyle(color: Theme.trayColor, foreground: Color(hex: 0x062014)))
+                    .buttonStyle(PillButtonStyle(color: Theme.trayColor, foreground: Theme.onAccent))
                 Button(L10n.t("Cancel")) { dismiss() }
                     .font(Theme.font(16, .heavy))
-                    .foregroundStyle(Color(hex: 0xC9C9D2))
+                    .foregroundStyle(Theme.secondary)
                     .frame(maxWidth: .infinity, minHeight: 48)
             }
         }
@@ -82,9 +82,8 @@ struct StartTraySheet: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .presentationDetents([.fraction(0.86), .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationBackground(Theme.sheet)
         .presentationCornerRadius(34)
-        .preferredColorScheme(.dark)
     }
 
     private func choice(_ title: String, selected: Bool, action: @escaping () -> Void) -> some View {
@@ -92,8 +91,8 @@ struct StartTraySheet: View {
             Text(title)
                 .font(Theme.font(15, .heavy))
                 .frame(maxWidth: .infinity, minHeight: 48)
-                .foregroundStyle(selected ? Theme.night : .white)
-                .background(selected ? Color.white : Color(hex: 0x2A2A33), in: Capsule())
+                .foregroundStyle(selected ? Theme.night : Theme.text)
+                .background(selected ? Theme.text : Theme.track, in: Capsule())
         }
         .buttonStyle(.plain)
         .animation(.snappy, value: selected)
@@ -119,17 +118,17 @@ struct ExtendTraySheet: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text(L10n.t("Extend tray %d", tray.displayNumber)).font(Theme.font(28, .heavy))
                 Text(L10n.t("Planned: %@. Use this when your orthodontist asks for more time on this tray.", L10n.days(tray.plannedDays)))
-                    .font(Theme.font(15, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
+                    .font(Theme.font(15, .bold)).foregroundStyle(Theme.secondary)
             }
             StepperRow(title: L10n.t("Add days"), valueText: "+" + L10n.days(extra), value: $extra, range: 1...21)
             Text(L10n.t("New plan: %@. Switch on %@.", L10n.days(newPlan), switchDate))
-                .font(Theme.font(14, .bold)).foregroundStyle(Color(hex: 0xC9C9D2))
+                .font(Theme.font(14, .bold)).foregroundStyle(Theme.secondary)
             VStack(spacing: 6) {
                 Button(L10n.t("Extend by %@", L10n.days(extra))) { onExtend(extra); dismiss() }
-                    .buttonStyle(PillButtonStyle(color: Theme.trayColor, foreground: Color(hex: 0x062014)))
+                    .buttonStyle(PillButtonStyle(color: Theme.trayColor, foreground: Theme.onAccent))
                 Button(L10n.t("Cancel")) { dismiss() }
                     .font(Theme.font(16, .heavy))
-                    .foregroundStyle(Color(hex: 0xC9C9D2))
+                    .foregroundStyle(Theme.secondary)
                     .frame(maxWidth: .infinity, minHeight: 48)
             }
         }
@@ -138,8 +137,7 @@ struct ExtendTraySheet: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .presentationDetents([.fraction(0.62), .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationBackground(Theme.sheet)
         .presentationCornerRadius(34)
-        .preferredColorScheme(.dark)
     }
 }

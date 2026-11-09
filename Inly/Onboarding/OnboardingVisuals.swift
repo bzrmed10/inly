@@ -51,7 +51,7 @@ struct IslandVisual: View {
     var body: some View {
         VStack(spacing: 22) {
             ZStack {
-                Capsule().fill(.black)
+                Capsule().fill(Theme.night)
                 Capsule().stroke(Theme.raised, lineWidth: 1)
                 HStack {
                     Circle().stroke(Theme.outColor, lineWidth: 4).frame(width: 22, height: 22)
@@ -92,7 +92,7 @@ struct WidgetsVisual: View {
         VStack(spacing: 14) {
             HStack(spacing: 14) {
                 ZStack {
-                    Circle().stroke(Color(hex: 0x2F2F38), lineWidth: 10)
+                    Circle().stroke(Theme.hairline, lineWidth: 10)
                     Circle()
                         .trim(from: 0, to: filled ? 0.8 : 0.1)
                         .stroke(Theme.inColor, style: StrokeStyle(lineWidth: 10, lineCap: .round))

@@ -66,7 +66,7 @@ struct ExportSheet: View {
                 }
                 .tint(Theme.trayColor)
                 .padding(14)
-                .background(Color(hex: 0x2A2A33), in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                .background(Theme.track, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             }
 
             Spacer(minLength: 0)
@@ -80,7 +80,7 @@ struct ExportSheet: View {
                 ProgressView().frame(maxWidth: .infinity, minHeight: 60)
             }
             Button(L10n.t("Done")) { dismiss() }
-                .font(Theme.font(16, .heavy)).foregroundStyle(Color(hex: 0xC9C9D2))
+                .font(Theme.font(16, .heavy)).foregroundStyle(Theme.secondary)
                 .frame(maxWidth: .infinity, minHeight: 48)
         }
         .padding(.horizontal, 20)
@@ -88,9 +88,8 @@ struct ExportSheet: View {
         .frame(maxHeight: .infinity, alignment: .top)
         .presentationDetents([.fraction(0.75), .large])
         .presentationDragIndicator(.visible)
-        .presentationBackground(Color(hex: 0x1C1C22))
+        .presentationBackground(Theme.sheet)
         .presentationCornerRadius(34)
-        .preferredColorScheme(.dark)
         .onAppear { settings = WearSettings.load() }
         .task(id: "\(range.rawValue)-\(format.rawValue)-\(sessions.count)-\(includePhotos)") { build() }
     }
@@ -107,8 +106,8 @@ struct ExportSheet: View {
                         Text(label(option))
                             .font(Theme.font(14, .heavy)).lineLimit(1).minimumScaleFactor(0.7)
                             .frame(maxWidth: .infinity, minHeight: 46)
-                            .foregroundStyle(selected ? Theme.night : .white)
-                            .background(selected ? Color.white : Color(hex: 0x2A2A33), in: Capsule())
+                            .foregroundStyle(selected ? Theme.night : Theme.text)
+                            .background(selected ? Theme.text : Theme.track, in: Capsule())
                     }
                     .buttonStyle(.plain)
                     .accessibilityAddTraits(selected ? .isSelected : [])

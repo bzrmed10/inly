@@ -32,8 +32,8 @@ struct HistoryView: View {
             .navigationTitle(L10n.t("History"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showExport = true } label: { Image(systemName: "square.and.arrow.up").foregroundStyle(.white) }
-                        .tint(.white)
+                    Button { showExport = true } label: { Image(systemName: "square.and.arrow.up").foregroundStyle(Theme.text) }
+                        .tint(Theme.text)
                         .accessibilityLabel(L10n.t("Share with your orthodontist"))
                 }
             }
@@ -104,7 +104,7 @@ struct HistoryView: View {
                     }
                     GridRow {
                         miniStat(L10n.t("Goal met"), L10n.t("%d of %d", metCount, finishedCount), Theme.trayColor)
-                        miniStat(L10n.t("Streak"), L10n.days(streak.current), Theme.outColor, sub: L10n.t("Best streak") + " " + L10n.days(streak.best))
+                        miniStat(L10n.t("Streak"), L10n.days(streak.current), Theme.outText, sub: L10n.t("Best streak") + " " + L10n.days(streak.best))
                     }
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
@@ -147,7 +147,7 @@ struct HistoryView: View {
                             .foregroundStyle(Theme.outColor)
                             .lineStyle(StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
                             .annotation(position: .top, alignment: .trailing) {
-                                Text(L10n.t("Goal %d", Int(goal)) + L10n.t("unit.h")).font(Theme.font(11, .heavy)).foregroundStyle(Theme.outColor)
+                                Text(L10n.t("Goal %d", Int(goal)) + L10n.t("unit.h")).font(Theme.font(11, .heavy)).foregroundStyle(Theme.outText)
                             }
                     }
                     .chartYScale(domain: 0...24)
@@ -237,7 +237,7 @@ extension HistoryView {
                 }
                 HStack(spacing: 14) {
                     dot(Theme.trayColor, L10n.t("Tray started"))
-                    dot(.white, L10n.t("Switch day"))
+                    dot(Theme.text, L10n.t("Switch day"))
                 }
             }
         }
@@ -288,7 +288,7 @@ extension HistoryView {
             VStack(spacing: 2) {
                 Text("\(number)").font(Theme.font(14, .heavy).monospacedDigit())
                 Circle()
-                    .fill(isStart ? (filled ? Theme.night : Theme.trayColor) : (isDue ? (filled ? Theme.night : Color.white) : Color.clear))
+                    .fill(isStart ? (filled ? Theme.night : Theme.trayColor) : (isDue ? (filled ? Theme.night : Theme.text) : Color.clear))
                     .frame(width: 5, height: 5)
             }
             .foregroundStyle(filled ? Theme.night : Theme.muted)
@@ -296,7 +296,7 @@ extension HistoryView {
             .frame(height: 40)
             .background(color, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
             .overlay {
-                if isToday { RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(.white, lineWidth: 2) }
+                if isToday { RoundedRectangle(cornerRadius: 12, style: .continuous).stroke(Theme.text, lineWidth: 2) }
             }
         }
         .buttonStyle(.plain)

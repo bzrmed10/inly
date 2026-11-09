@@ -3,7 +3,7 @@ import UniformTypeIdentifiers
 import WidgetKit
 
 private enum SettingsPage: Hashable {
-    case treatment, reminders, backup, language, about
+    case treatment, reminders, backup, appearance, language, about
 }
 
 /// Settings tab: a short list of rows, each opening its own page.
@@ -12,6 +12,7 @@ struct SettingsView: View {
 
     @State private var settings = WearSettings.load()
     @State private var languageRaw = L10n.selected.rawValue
+    @AppStorage(AppAppearance.storageKey, store: UserDefaults(suiteName: AppGroup.identifier)) private var appearanceRaw = AppAppearance.dark.rawValue
 
     private var version: String {
         let v = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "1.0"
@@ -51,6 +52,8 @@ struct SettingsView: View {
                             settings.remindersEnabled ? L10n.t("On") : L10n.t("Off"))
                         row(.backup, "icloud.fill", L10n.t("Backup and data"),
                             BackupService.shared.folderName == nil ? L10n.t("Not set up") : L10n.t("Automatic backup"))
+                        row(.appearance, "circle.lefthalf.filled", L10n.t("Appearance"),
+                            (AppAppearance(rawValue: appearanceRaw) ?? .dark).title)
                         row(.language, "globe", L10n.t("Language"),
                             AppLanguage(rawValue: languageRaw)?.nativeName ?? L10n.selected.nativeName)
                         row(.about, "info.circle.fill", L10n.t("About"), version)
@@ -74,12 +77,12 @@ struct SettingsView: View {
                     case .treatment: TreatmentSettingsPage(settings: $settings, onRedoSetup: onRedoSetup)
                     case .reminders: RemindersSettingsPage(settings: $settings)
                     case .backup: BackupSettingsPage(settings: $settings)
+                    case .appearance: AppearanceSettingsPage(appearanceRaw: $appearanceRaw)
                     case .language: LanguageSettingsPage(languageRaw: $languageRaw)
                     case .about: AboutSettingsPage(version: version)
                     }
                 }
                 .background(Theme.night.ignoresSafeArea())
-                .toolbarColorScheme(.dark, for: .navigationBar)
             }
         }
         .onAppear { settings = WearSettings.load() }
@@ -104,7 +107,7 @@ struct SettingsView: View {
                     .font(.system(size: 17, weight: .bold)).foregroundStyle(Theme.muted)
                     .frame(width: 38, height: 38).background(Theme.raised, in: Circle())
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(title).font(Theme.font(16, .heavy)).foregroundStyle(.white)
+                    Text(title).font(Theme.font(16, .heavy)).foregroundStyle(Theme.text)
                     Text(subtitle).font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted).lineLimit(1)
                 }
                 Spacer(minLength: 0)
@@ -416,6 +419,35 @@ private struct BackupSettingsPage: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: Appearance
+
+private struct AppearanceSettingsPage: View {
+    @Binding var appearanceRaw: String
+
+    var body: some View {
+        SettingsPageScroll(title: L10n.t("Appearance")) {
+            VStack(spacing: 0) {
+                ForEach(Array(AppAppearance.allCases.enumerated()), id: \.element) { index, option in
+                    Button { appearanceRaw = option.rawValue } label: {
+                        HStack {
+                            Text(option.title).font(Theme.font(16, .heavy))
+                            Spacer()
+                            if appearanceRaw == option.rawValue {
+                                Image(systemName: "checkmark").font(.system(size: 15, weight: .heavy)).foregroundStyle(Theme.inColor)
+                            }
+                        }
+                        .padding(16)
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    if index < AppAppearance.allCases.count - 1 { Divider().overlay(Theme.surface) }
+                }
+            }
+            .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+        }
     }
 }
 
