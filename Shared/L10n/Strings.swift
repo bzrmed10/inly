@@ -596,6 +596,11 @@ enum Strings {
   "es": "Los archivos de copia existentes se quedan donde están",
   "fr": "Les fichiers de sauvegarde existants restent à leur place"
  },
+ "Extend": {
+  "ar": "تمديد",
+  "es": "Ampliar",
+  "fr": "Prolonger"
+ },
  "Extend by %@": {
   "ar": "تمديد %@",
   "es": "Ampliar %@",
@@ -800,6 +805,11 @@ enum Strings {
   "ar": "فائت",
   "es": "Fallido",
   "fr": "Manqué"
+ },
+ "More": {
+  "ar": "المزيد",
+  "es": "Más",
+  "fr": "Plus"
  },
  "Most orthodontists ask for 20 to 22 hours a day. Use the number your orthodontist gave you.": {
   "ar": "يطلب معظم أطباء التقويم من 20 إلى 22 ساعة يوميًا. استخدم الرقم الذي أعطاك إياه طبيبك.",
@@ -1020,6 +1030,11 @@ enum Strings {
   "ar": "لغة الهاتف",
   "es": "Idioma del teléfono",
   "fr": "Langue du téléphone"
+ },
+ "Photo": {
+  "ar": "صورة",
+  "es": "Foto",
+  "fr": "Photo"
  },
  "Photo & notes": {
   "ar": "صورة وملاحظات",

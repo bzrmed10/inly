@@ -35,7 +35,7 @@ enum Theme {
         let palette = [trayColor, inColor, Color(hex: 0xB28DFF), Color(hex: 0x4FD1D9)]
         return palette[max(0, phase) % palette.count]
     }
-    static let retainerColor = outColor
+    static let retainerColor = Color(hex: 0xFF8FB1)
 
     static let cardRadius: CGFloat = 24
     static let pillRadius: CGFloat = 28

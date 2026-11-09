@@ -57,10 +57,6 @@ struct TraysView: View {
                 } else {
                     progress.row(insets)
                 }
-                appointmentCard.row(insets)
-                if trays.filter({ $0.photoData != nil }).count >= 2 {
-                    compareButton.row(insets)
-                }
                 if inRetainer {
                     EmptyView()
                 } else if let current {
@@ -171,13 +167,37 @@ struct TraysView: View {
     // MARK: Pieces
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text(headerSubtitle)
-                .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
-            Text(L10n.t("Trays")).font(Theme.font(36, .heavy))
+        HStack(alignment: .top) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(headerSubtitle)
+                    .font(Theme.font(14, .bold)).foregroundStyle(Theme.muted)
+                Text(L10n.t("Trays")).font(Theme.font(36, .heavy))
+            }
+            Spacer(minLength: 8)
+            HStack(spacing: 10) {
+                if trays.filter({ $0.photoData != nil }).count >= 2 {
+                    headerButton("rectangle.split.2x1", label: L10n.t("Compare photos")) { showCompare = true }
+                }
+                headerButton("calendar.badge.clock", label: settings.nextAppointment.flatMap { $0 > .now ? $0 : nil } == nil ? L10n.t("Add orthodontist visit") : L10n.t("Edit orthodontist visit"), badge: settings.nextAppointment.map { $0 > .now } ?? false) { showAppointment = true }
+            }
+            .padding(.top, 6)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(.top, 8)
+    }
+
+    private func headerButton(_ symbol: String, label: String, badge: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 18, weight: .semibold)).foregroundStyle(.white)
+                .frame(width: 46, height: 46)
+                .background(Theme.surface, in: Circle())
+                .overlay(alignment: .topTrailing) {
+                    if badge { Circle().fill(Theme.phaseColor(activePhase)).frame(width: 10, height: 10).offset(x: -4, y: 4) }
+                }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(label)
     }
 
     private var headerSubtitle: String {
@@ -218,52 +238,6 @@ struct TraysView: View {
         }
     }
 
-    private var compareButton: some View {
-        Button { showCompare = true } label: {
-            HStack(spacing: 14) {
-                Image(systemName: "rectangle.split.2x1")
-                    .font(.title3).foregroundStyle(Theme.trayColor)
-                    .frame(width: 40, height: 40).background(Theme.raised, in: Circle())
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(L10n.t("Compare photos")).font(Theme.font(15, .heavy))
-                    Text(L10n.t("See how your smile has moved")).font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
-                }
-                Spacer()
-                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(Theme.muted)
-            }
-            .padding(14)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        }
-        .buttonStyle(.plain)
-    }
-
-    private var appointmentCard: some View {
-        let appt = settings.nextAppointment.flatMap { $0 > .now ? $0 : nil }
-        return Button { showAppointment = true } label: {
-            HStack(spacing: 14) {
-                Image(systemName: "calendar.badge.clock")
-                    .font(.title3).foregroundStyle(Theme.inColor)
-                    .frame(width: 40, height: 40).background(Theme.raised, in: Circle())
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(L10n.t("Orthodontist visit")).font(Theme.font(15, .heavy))
-                    if let appt {
-                        let days = Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: .now), to: Calendar.current.startOfDay(for: appt)).day ?? 0
-                        Text("\(L10n.date(appt, .dateTime.weekday(.abbreviated).month(.abbreviated).day().hour().minute())) · \(days == 0 ? L10n.t("today") : (days == 1 ? L10n.t("tomorrow") : L10n.t("in %@", L10n.days(days))))")
-                            .font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
-                    } else {
-                        Text(L10n.t("Add your next appointment")).font(Theme.font(13, .bold)).foregroundStyle(Theme.muted)
-                    }
-                }
-                Spacer()
-                Image(systemName: "chevron.right").font(.footnote.weight(.bold)).foregroundStyle(Theme.muted)
-            }
-            .padding(14)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(appt == nil ? L10n.t("Add orthodontist visit") : L10n.t("Edit orthodontist visit"))
-    }
-
     private func currentCard(_ tray: Tray) -> some View {
         let cal = Calendar.current
         let elapsed = TrayLogic.daysElapsed(start: tray.startDate, now: .now, calendar: cal)
@@ -299,19 +273,18 @@ struct TraysView: View {
                 Label(L10n.t("Start tray %d", tray.displayNumber + 1), systemImage: "plus")
             }
             .buttonStyle(PillButtonStyle(color: .white, height: 54))
-            Button { detailTray = tray } label: {
-                Label(tray.photoData == nil ? L10n.t("Photo & notes") : L10n.t("Photo & notes ✓"), systemImage: "camera")
+            HStack(alignment: .top, spacing: 0) {
+                actionCircle("camera", label: L10n.t("Photo"), done: tray.photoData != nil) { detailTray = tray }
+                actionCircle("calendar.badge.plus", label: L10n.t("Extend")) { showExtend = true }
+                Menu {
+                    Button { showRefinement = true } label: { Label(L10n.t("Start refinement"), systemImage: "arrow.triangle.2.circlepath") }
+                    Button { showRetainer = true } label: { Label(L10n.t("Finish treatment · start retainer"), systemImage: "moon.stars") }
+                } label: {
+                    actionCircleLabel("ellipsis", label: L10n.t("More"))
+                }
+                .frame(maxWidth: .infinity)
             }
-            .font(Theme.font(15, .heavy))
-            .frame(maxWidth: .infinity, minHeight: 44)
-            .background(Theme.raised, in: Capsule())
-            .buttonStyle(.plain)
-            Button { showExtend = true } label: { Text(L10n.t("Extend plan")) }
-                .font(Theme.font(15, .heavy))
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .background(Theme.raised, in: Capsule())
-                .buttonStyle(.plain)
-            treatmentMenu
+            .padding(.top, 2)
         }
         .padding(18)
         .background(alignment: .topTrailing) {
@@ -323,6 +296,31 @@ struct TraysView: View {
         }
         .background(Theme.surface, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
+    }
+
+    private func actionCircleLabel(_ symbol: String, label: String, done: Bool = false) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: symbol)
+                .font(.system(size: 21, weight: .semibold)).foregroundStyle(.white)
+                .frame(width: 56, height: 56)
+                .background(Theme.raised, in: Circle())
+                .overlay(alignment: .topTrailing) {
+                    if done {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 17)).foregroundStyle(Theme.phaseColor(activePhase), Theme.surface)
+                            .offset(x: 2, y: -2)
+                    }
+                }
+            Text(label).font(Theme.font(12, .bold)).foregroundStyle(Color(hex: 0xC9C9D2)).lineLimit(1).minimumScaleFactor(0.7)
+        }
+        .contentShape(Rectangle())
+    }
+
+    private func actionCircle(_ symbol: String, label: String, done: Bool = false, action: @escaping () -> Void) -> some View {
+        Button(action: action) { actionCircleLabel(symbol, label: label, done: done) }
+            .buttonStyle(.plain)
+            .frame(maxWidth: .infinity)
+            .accessibilityLabel(label)
     }
 
     private var emptyCard: some View {
@@ -439,10 +437,13 @@ struct TraysView: View {
         let cal = Calendar.current
         let days = TrayLogic.daysSpent(start: tray.startDate, end: tray.endDate, now: .now, calendar: cal)
         let delta = days - tray.plannedDays
-        let barColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Theme.inColor : Theme.trayColor)
-        let noteColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Color(hex: 0x8DBBFF) : Theme.muted)
+        let phaseColor = Theme.phaseColor(tray.phase)
+        let noteColor: Color = delta > 0 ? Theme.outColor : (delta < 0 ? Theme.muted : phaseColor)
         let note = delta == 0 ? L10n.t("on plan") : (delta > 0 ? "+" + L10n.days(delta) : "−" + L10n.days(-delta))
         let avg = WearCalculator.averageWornHours(from: from(tray), to: tray.endDate ?? .now, sessions: spans, now: .now, calendar: cal)
+        let goal = Double(settings.retainerMode ? (settings.treatmentGoalHours ?? settings.goalHours) : settings.goalHours)
+        let barColor: Color = avg >= goal - 1e-9 ? phaseColor : Theme.outColor
+        let barFraction = avg <= 0 ? 0 : min(1, avg / max(1, goal))
         let md: (Date) -> String = { L10n.shortDate($0) }
 
         return HStack(spacing: 12) {
@@ -460,7 +461,7 @@ struct TraysView: View {
                 GeometryReader { geo in
                     ZStack(alignment: .leading) {
                         Capsule().fill(Theme.raised)
-                        Capsule().fill(barColor).frame(width: geo.size.width * min(1, Double(days) / 16))
+                        Capsule().fill(barColor).frame(width: geo.size.width * barFraction)
                     }
                 }
                 .frame(height: 6)

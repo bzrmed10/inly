@@ -45,15 +45,15 @@ struct SettingsView: View {
                     .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
 
                     VStack(spacing: 10) {
-                        row(.treatment, "cross.case.fill", Theme.trayColor, L10n.t("Treatment"),
+                        row(.treatment, "cross.case.fill", L10n.t("Treatment"),
                             "\(phaseName) · " + L10n.t("%d hours a day", settings.goalHours))
-                        row(.reminders, "bell.badge.fill", Theme.outColor, L10n.t("Reminders"),
+                        row(.reminders, "bell.badge.fill", L10n.t("Reminders"),
                             settings.remindersEnabled ? L10n.t("On") : L10n.t("Off"))
-                        row(.backup, "icloud.fill", Theme.inColor, L10n.t("Backup and data"),
+                        row(.backup, "icloud.fill", L10n.t("Backup and data"),
                             BackupService.shared.folderName == nil ? L10n.t("Not set up") : L10n.t("Automatic backup"))
-                        row(.language, "globe", Color(hex: 0xB28DFF), L10n.t("Language"),
+                        row(.language, "globe", L10n.t("Language"),
                             AppLanguage(rawValue: languageRaw)?.nativeName ?? L10n.selected.nativeName)
-                        row(.about, "info.circle.fill", Theme.muted, L10n.t("About"), version)
+                        row(.about, "info.circle.fill", L10n.t("About"), version)
                     }
 
                     Text(L10n.t("Inly %@ · Your data stays on your devices.", version))
@@ -97,11 +97,11 @@ struct SettingsView: View {
         }
     }
 
-    private func row(_ page: SettingsPage, _ icon: String, _ color: Color, _ title: String, _ subtitle: String) -> some View {
+    private func row(_ page: SettingsPage, _ icon: String, _ title: String, _ subtitle: String) -> some View {
         NavigationLink(value: page) {
             HStack(spacing: 14) {
                 Image(systemName: icon)
-                    .font(.system(size: 17, weight: .bold)).foregroundStyle(color)
+                    .font(.system(size: 17, weight: .bold)).foregroundStyle(Theme.muted)
                     .frame(width: 38, height: 38).background(Theme.raised, in: Circle())
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title).font(Theme.font(16, .heavy)).foregroundStyle(.white)

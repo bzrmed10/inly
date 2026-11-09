@@ -106,7 +106,7 @@ struct TodayView: View {
             let dayN = elapsed + 1
             let over = TrayLogic.overage(start: tray.startDate, plannedDays: tray.plannedDays, now: now, calendar: cal)
             let left = TrayLogic.daysUntilSwitch(start: tray.startDate, plannedDays: tray.plannedDays, now: now, calendar: cal)
-            let tint = over > 0 ? Theme.outColor : Theme.trayColor
+            let tint = over > 0 ? Theme.outColor : Theme.phaseColor(tray.phase)
             let subtitle: String = {
                 if over > 0 { return L10n.t("+%@ over the plan", L10n.days(over)) }
                 if left == 0 { return L10n.t("Switch to tray %d today", tray.displayNumber + 1) }
@@ -171,7 +171,7 @@ struct TodayView: View {
         return Button(action: onOpenTrays) {
             HStack(spacing: 14) {
                 Image(systemName: "moon.stars.fill")
-                    .font(.system(size: 22, weight: .bold)).foregroundStyle(Theme.outColor)
+                    .font(.system(size: 22, weight: .bold)).foregroundStyle(Theme.retainerColor)
                     .frame(width: 52, height: 52).background(Theme.raised, in: Circle())
                 VStack(alignment: .leading, spacing: 3) {
                     Text(TreatmentPhase.retainerName).font(Theme.font(17, .heavy))
@@ -181,7 +181,11 @@ struct TodayView: View {
                 Image(systemName: "chevron.right").font(.system(size: 14, weight: .bold)).foregroundStyle(Theme.muted)
             }
             .padding(14)
+            .background(alignment: .leading) {
+                Circle().fill(Theme.retainerColor.opacity(0.22)).frame(width: 120, height: 120).blur(radius: 30).offset(x: -30)
+            }
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.cardRadius, style: .continuous))
         }
         .buttonStyle(.plain)
     }

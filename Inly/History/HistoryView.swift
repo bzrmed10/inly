@@ -56,12 +56,7 @@ struct HistoryView: View {
 
         ScrollView {
             VStack(spacing: 18) {
-                HStack(spacing: 12) {
-                    stat(L10n.t("Daily average"), String(format: "%.1f", avg) + L10n.t("unit.h"), Theme.inColor)
-                    stat(L10n.t("Goal met"), L10n.t("%d of %d", metCount, finished.count), Theme.trayColor)
-                }
-                streakRow(now: now)
-                weekScoreRow(now: now)
+                heroCard(now: now, avg: avg, metCount: metCount, finishedCount: finished.count)
                 weekChart(week, goal: goal)
                 calendarCard(now: now, goal: goal)
             }
@@ -71,40 +66,65 @@ struct HistoryView: View {
         .scrollIndicators(.hidden)
     }
 
-    private func streakRow(now: Date) -> some View {
+    private func heroCard(now: Date, avg: Double, metCount: Int, finishedCount: Int) -> some View {
         let days = WearCalculator.dailyWear(endingOn: now, days: 120, sessions: spans, calendar: .current, trackingStart: trackingMoment)
         let streak = Insights.streak(days: days, goalHours: settings.goalHours, today: now, calendar: .current)
-        return HStack(spacing: 12) {
-            stat(L10n.t("Streak"), L10n.days(streak.current), Theme.outColor)
-            stat(L10n.t("Best streak"), L10n.days(streak.best), Theme.inColor)
-        }
-    }
-
-    private func weekScoreRow(now: Date) -> some View {
-        let days = WearCalculator.dailyWear(endingOn: now, days: 14, sessions: spans, calendar: .current, trackingStart: trackingMoment)
-        let night = settings.isNightRetainer
         let score = Insights.weekScore(
             days: days, goalHours: settings.goalHours,
             nightsPerWeek: settings.retainerMode && settings.retainerSchedule == .fewNights ? settings.retainerNights : nil,
             today: now, calendar: .current
         )
-        return HStack(spacing: 12) {
-            stat(L10n.t("This week"), night ? L10n.t("%d of %d nights", score.met, score.target) : L10n.t("%d of %d days", score.met, score.target), Theme.trayColor)
-            stat(L10n.t("Weekly score"), "\(Int((score.fraction * 100).rounded()))%", scoreColor(score.fraction))
-        }
-    }
-
-    private func scoreColor(_ f: Double) -> Color { f >= 0.85 ? Theme.trayColor : (f >= 0.6 ? Theme.inColor : Theme.outColor) }
-
-    private func stat(_ title: String, _ value: String, _ color: Color) -> some View {
-        Card {
-            VStack(alignment: .leading, spacing: 6) {
-                Text(title.uppercased()).font(Theme.font(11, .heavy)).tracking(1).foregroundStyle(color)
-                Text(value).font(Theme.font(24, .heavy).monospacedDigit())
+        let night = settings.isNightRetainer
+        let pct = Int((score.fraction * 100).rounded())
+        return Card {
+            HStack(spacing: 16) {
+                VStack(spacing: 8) {
+                    ZStack {
+                        Circle().stroke(Theme.raised, lineWidth: 10)
+                        Circle()
+                            .trim(from: 0, to: max(0.001, score.fraction))
+                            .stroke(scoreColor(score.fraction), style: StrokeStyle(lineWidth: 10, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                        Text("\(pct)%")
+                            .font(Theme.font(22, .heavy).monospacedDigit())
+                            .lineLimit(1).minimumScaleFactor(0.6)
+                            .padding(.horizontal, 22)
+                    }
+                    .frame(width: 112, height: 112)
+                    Text(L10n.t("Weekly score"))
+                        .font(Theme.font(11, .heavy)).foregroundStyle(Theme.muted)
+                        .lineLimit(1).minimumScaleFactor(0.7)
+                }
+                .frame(width: 112)
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 14) {
+                    GridRow {
+                        miniStat(L10n.t("This week"), night ? L10n.t("%d of %d nights", score.met, score.target) : L10n.t("%d of %d days", score.met, score.target), Theme.trayColor)
+                        miniStat(L10n.t("Daily average"), String(format: "%.1f", avg) + L10n.t("unit.h"), Theme.inColor)
+                    }
+                    GridRow {
+                        miniStat(L10n.t("Goal met"), L10n.t("%d of %d", metCount, finishedCount), Theme.trayColor)
+                        miniStat(L10n.t("Streak"), L10n.days(streak.current), Theme.outColor, sub: L10n.t("Best streak") + " " + L10n.days(streak.best))
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
         .accessibilityElement(children: .combine)
     }
+
+    private func miniStat(_ title: String, _ value: String, _ color: Color, sub: String? = nil) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title.uppercased()).font(Theme.font(10, .heavy)).tracking(0.6).foregroundStyle(color)
+                .lineLimit(1).minimumScaleFactor(0.7)
+            Text(value).font(Theme.font(16, .heavy).monospacedDigit()).lineLimit(1).minimumScaleFactor(0.65)
+            if let sub {
+                Text(sub).font(Theme.font(10, .bold)).foregroundStyle(Theme.muted).lineLimit(1).minimumScaleFactor(0.65)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private func scoreColor(_ f: Double) -> Color { f >= 0.85 ? Theme.trayColor : (f >= 0.6 ? Theme.inColor : Theme.outColor) }
 
     private func weekChart(_ week: [DayWear], goal: Double) -> some View {
         Card {
