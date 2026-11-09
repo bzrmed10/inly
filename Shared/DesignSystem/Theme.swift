@@ -32,7 +32,7 @@ enum Theme {
 
     /// Done-tray color per treatment phase: initial = green, then blue, purple, teal (repeats).
     static func phaseColor(_ phase: Int) -> Color {
-        let palette = [trayColor, inColor, Color(hex: 0xB28DFF), Color(hex: 0x4FD1D9)]
+        let palette = [trayColor, Color(hex: 0xB28DFF), Color(hex: 0x4FD1D9), inColor]
         return palette[max(0, phase) % palette.count]
     }
     static let retainerColor = Color(hex: 0xFF8FB1)

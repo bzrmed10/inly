@@ -62,7 +62,9 @@ struct TraysView: View {
                 } else if let current {
                     currentCard(current).row(insets)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                            Button(role: .destructive) { delete(current) } label: { Label(L10n.t("Delete"), systemImage: "trash") }
+                            Button(role: .destructive) { delete(current) } label: { Image(systemName: "trash") }
+                                .tint(Theme.overColor)
+                                .accessibilityLabel(L10n.t("Delete"))
                         }
                 } else {
                     emptyCard.row(insets)
@@ -74,7 +76,9 @@ struct TraysView: View {
                             .contentShape(Rectangle())
                             .onTapGesture { detailTray = tray }
                             .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                Button(role: .destructive) { delete(tray) } label: { Label(L10n.t("Delete"), systemImage: "trash") }
+                                Button(role: .destructive) { delete(tray) } label: { Image(systemName: "trash") }
+                                    .tint(Theme.overColor)
+                                    .accessibilityLabel(L10n.t("Delete"))
                             }
                     }
                 }
@@ -191,7 +195,7 @@ struct TraysView: View {
             Image(systemName: symbol)
                 .font(.system(size: 18, weight: .semibold)).foregroundStyle(.white)
                 .frame(width: 46, height: 46)
-                .background(Theme.surface, in: Circle())
+                .glassEffect(.regular.interactive(), in: Circle())
                 .overlay(alignment: .topTrailing) {
                     if badge { Circle().fill(Theme.phaseColor(activePhase)).frame(width: 10, height: 10).offset(x: -4, y: 4) }
                 }

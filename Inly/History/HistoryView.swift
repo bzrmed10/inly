@@ -32,7 +32,8 @@ struct HistoryView: View {
             .navigationTitle(L10n.t("History"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showExport = true } label: { Image(systemName: "square.and.arrow.up") }
+                    Button { showExport = true } label: { Image(systemName: "square.and.arrow.up").foregroundStyle(.white) }
+                        .tint(.white)
                         .accessibilityLabel(L10n.t("Share with your orthodontist"))
                 }
             }
