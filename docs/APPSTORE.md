@@ -32,6 +32,9 @@ Needs: Live Activities (NSSupportsLiveActivities), notifications (optional).
 Today (in), Today (out) with Dynamic Island, Trays, Start tray, History, Lock Screen Live Activity.
 
 ## Before submitting (needs the owner)
-- Support URL and privacy policy URL (a simple page is enough).
+- Marketing URL: https://inly-app.netlify.app/
+- Support URL: https://inly-app.netlify.app/support
+- Privacy Policy URL: https://inly-app.netlify.app/privacy
+- Terms of Use (EULA link in description): https://inly-app.netlify.app/terms
 - Final app icon artwork (current icon is a generated placeholder).
 - Review notes: how to trigger the Live Activity (tap Take out).
