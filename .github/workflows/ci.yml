@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
-    paths-ignore: ["website/**", "netlify.toml"]
+    paths-ignore: ["website/**"]
   pull_request:
 
 concurrency:
