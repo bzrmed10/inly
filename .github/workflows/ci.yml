@@ -50,7 +50,9 @@ jobs:
       - name: Show compile errors
         if: failure()
         run: |
-          grep -E 'error:' build/xcodebuild.log | sort -u | head -60 || true
+          grep -nE 'error|Stack dump|bug report|signal|Killed|unable to type-check' build/xcodebuild.log | head -60 || true
+          echo "-----"
+          grep -n -B40 'Testing failed' build/xcodebuild.log | head -80 || true
 
       - name: Capture screenshots
         run: |
