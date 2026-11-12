@@ -52,7 +52,8 @@ jobs:
         run: |
           grep -nE 'error|Stack dump|bug report|signal|Killed|unable to type-check' build/xcodebuild.log | head -60 || true
           echo "-----"
-          grep -n -B40 'Testing failed' build/xcodebuild.log | head -80 || true
+          grep -n -B25 -A12 'Please submit a bug report' build/xcodebuild.log | grep -vE '^[0-9]+[-:][0-9]+ +swift-frontend +0x|libsystem|dyld' | head -80 || true
+          grep -nE "^[0-9]+\.\s|While |for '|\.swift" build/xcodebuild.log | grep -iE "while|for '|In function|SIL|IRGen" | head -30 || true
 
       - name: Capture screenshots
         run: |
