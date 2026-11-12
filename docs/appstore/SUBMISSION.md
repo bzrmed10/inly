@@ -45,7 +45,7 @@ Already declared in the build: `ITSAppUsesNonExemptEncryption = NO`. Apple won't
 
 ## Screenshots to upload
 - **iPhone 6.9" display:** `screenshots/<language>/iphone-01…06.png` (1320 × 2868).
-- **Apple Watch:** `screenshots/<language>/watch-01…02.png`.
+- **Apple Watch:** `screenshots/<language>/watch-01…02.png` (422 × 514, Apple Watch Ultra size).
 - Order: 1 Dynamic Island, 2 Today, 3 Trays, 4 History, 5 Calendar, 6 Privacy and Inly+.
 
 ## In-app purchases
