@@ -49,7 +49,8 @@ jobs:
 
       - name: Show compile errors
         if: failure()
-        run: grep -E "error:|warning: .*will be an error" build/xcodebuild.log | sort -u | head -60 || true
+        run: |
+          grep -E 'error:' build/xcodebuild.log | sort -u | head -60 || true
 
       - name: Capture screenshots
         run: |
