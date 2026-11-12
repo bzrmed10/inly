@@ -32,7 +32,7 @@ struct HistoryView: View {
             .navigationTitle(L10n.t("History"))
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button { showExport = true } label: { Image(systemName: "square.and.arrow.up").foregroundStyle(Theme.text) }
+                    Button { Store.shared.require(.export) { showExport = true } } label: { Image(systemName: "square.and.arrow.up").foregroundStyle(Theme.text) }
                         .tint(Theme.text)
                         .accessibilityLabel(L10n.t("Share with your orthodontist"))
                 }
@@ -58,6 +58,7 @@ struct HistoryView: View {
         ScrollView {
             VStack(spacing: 18) {
                 heroCard(now: now, avg: avg, metCount: metCount, finishedCount: finished.count)
+                    .plusLocked(!Store.shared.isPlus, reason: .history)
                 weekChart(week, goal: goal)
                 calendarCard(now: now, goal: goal)
             }
@@ -77,6 +78,7 @@ struct HistoryView: View {
         )
         let night = settings.isNightRetainer
         let pct = Int((score.fraction * 100).rounded())
+        let streakNow = streak.current
         return Card {
             HStack(spacing: 16) {
                 VStack(spacing: 8) {
@@ -111,6 +113,7 @@ struct HistoryView: View {
             }
         }
         .accessibilityElement(children: .combine)
+        .onAppear { if streakNow >= 7 { ReviewPrompter.shared.note(.streak) } }
     }
 
     private func miniStat(_ title: String, _ value: String, _ color: Color, sub: String? = nil) -> some View {
@@ -273,7 +276,8 @@ extension HistoryView {
         let isFuture = day > now
         let isToday = cal.isDateInToday(day)
         let wear = WearCalculator.dayWear(on: day, sessions: spans, now: now, calendar: cal, trackingStart: trackingMoment)
-        let filled = tracked && !isFuture && wear.elapsedSeconds > 0
+        let locked = !Store.shared.isPlus && day < FreeLimits.firstFreeDay(now: now, calendar: cal)
+        let filled = tracked && !isFuture && wear.elapsedSeconds > 0 && !locked
         let color: Color = {
             guard filled else { return Theme.raised.opacity(0.5) }
             if isToday { return Theme.inColor.opacity(0.85) }
@@ -283,7 +287,7 @@ extension HistoryView {
         }()
         let label = L10n.date(day, .dateTime.month().day())
         return Button {
-            selectedDay = DayID(date: day)
+            if locked { Store.shared.paywall = .history } else { selectedDay = DayID(date: day) }
         } label: {
             VStack(spacing: 2) {
                 Text("\(number)").font(Theme.font(14, .heavy).monospacedDigit())

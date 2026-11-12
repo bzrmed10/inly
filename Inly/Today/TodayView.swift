@@ -13,6 +13,7 @@ struct TodayView: View {
     @State private var toast: String?
     @State private var toastIsOut = false
     @State private var toastTask: Task<Void, Never>?
+    @AppStorage("plusTrialCardDismissed") private var trialCardDismissed = false
 
     private var openSession: WearSession? { sessions.last(where: { $0.end == nil }) }
 
@@ -52,6 +53,7 @@ struct TodayView: View {
                 statusPill(snap: snap, color: color)
                 timelineCard(now: now)
                 stats(snap: snap)
+                plusCard
             }
             .padding(.horizontal, 20)
             .padding(.top, 8)
@@ -63,6 +65,51 @@ struct TodayView: View {
                 .padding(.horizontal, 20)
                 .padding(.bottom, 8)
         }
+    }
+
+    /// A quiet invitation below the stats: the free trial from the second day, or retainer mode after the trial.
+    @ViewBuilder
+    private var plusCard: some View {
+        let store = Store.shared
+        if !store.isPlus && settings.retainerMode {
+            plusInvite(icon: "moon.stars.fill", color: Theme.retainerColor,
+                       title: L10n.t("Retainer mode is part of Inly+"),
+                       detail: L10n.t("Your timer keeps working. Unlock nightly schedules and bedtime reminders."),
+                       button: L10n.t("Unlock"), reason: .retainer, dismissible: false)
+        } else if !store.isPlus && !store.trialUsed && !trialCardDismissed && ReviewPrompter.shared.daysSinceFirstLaunch >= 1 {
+            plusInvite(icon: "sparkles", color: Theme.inColor,
+                       title: L10n.t("Try Inly+ free for 7 days"),
+                       detail: L10n.t("Apple Watch, widgets, iCloud sync, full history and reports. No automatic charge."),
+                       button: L10n.t("Try free"), reason: .general, dismissible: true)
+        }
+    }
+
+    private func plusInvite(icon: String, color: Color, title: String, detail: String, button: String, reason: PaywallReason, dismissible: Bool) -> some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: icon).font(.system(size: 18, weight: .bold)).foregroundStyle(color)
+                .frame(width: 40, height: 40).background(color.opacity(0.15), in: Circle())
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title).font(Theme.font(16, .heavy))
+                Text(detail).font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted)
+                Button(button) { Store.shared.paywall = reason }
+                    .font(Theme.font(14, .heavy)).foregroundStyle(Theme.night)
+                    .padding(.horizontal, 16).padding(.vertical, 8)
+                    .background(color, in: Capsule())
+                    .buttonStyle(.plain)
+                    .padding(.top, 4)
+            }
+            Spacer(minLength: 0)
+            if dismissible {
+                Button { withAnimation(.smooth) { trialCardDismissed = true } } label: {
+                    Image(systemName: "xmark").font(.system(size: 12, weight: .bold)).foregroundStyle(Theme.muted)
+                        .frame(width: 28, height: 28).background(Theme.raised, in: Circle())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L10n.t("Close"))
+            }
+        }
+        .padding(16)
+        .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     private func ringColor(_ snap: WearSnapshot) -> Color {

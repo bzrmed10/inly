@@ -33,6 +33,10 @@ targets:
         UIApplicationSceneManifest:
           UIApplicationSupportsMultipleScenes: false
         NSSupportsLiveActivities: true
+        CFBundleURLTypes:
+          - CFBundleURLName: com.bzrmed.inly
+            CFBundleURLSchemes:
+              - inly
         NSCameraUsageDescription: Inly uses the camera to take progress photos of your teeth. Photos stay on your iPhone.
         ITSAppUsesNonExemptEncryption: false
     entitlements:
@@ -40,6 +44,7 @@ targets:
       properties:
         com.apple.security.application-groups:
           - group.com.bzrmed.inly
+        com.apple.developer.ubiquity-kvstore-identifier: $(TeamIdentifierPrefix)$(CFBundleIdentifier)
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly

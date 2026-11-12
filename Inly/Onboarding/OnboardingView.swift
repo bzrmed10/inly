@@ -19,6 +19,8 @@ struct OnboardingView: View {
     @State private var remindersOn = true
     @State private var stillOut = WearSettings.defaultStillOut
     @FocusState private var nameFocused: Bool
+    @State private var cloudCopy: CloudSync.Remote?
+    @State private var confirmCloudRestore = false
 
     private var animate: Bool { !reduceMotion }
     private var dayOnTray: Int { TrayLogic.dayNumber(start: trayStart, now: .now, calendar: .current) }
@@ -40,11 +42,42 @@ struct OnboardingView: View {
             .buttonStyle(PillButtonStyle(color: step == .done ? Theme.trayColor : Theme.inColor,
                                          foreground: step == .done ? Theme.onAccent : Theme.night))
             .padding(.horizontal, 20)
-            .padding(.bottom, 16)
+            .padding(.bottom, step == .welcome && cloudCopy != nil ? 6 : 16)
+
+            if step == .welcome, let copy = cloudCopy {
+                Button { confirmCloudRestore = true } label: {
+                    Label(L10n.t("Restore my data from iCloud"), systemImage: "icloud.and.arrow.down")
+                        .font(Theme.font(15, .heavy))
+                }
+                .foregroundStyle(Theme.inColor)
+                .padding(.bottom, 14)
+                .confirmationDialog(L10n.t("Restore your Inly data from iCloud?"), isPresented: $confirmCloudRestore, titleVisibility: .visible) {
+                    Button(L10n.t("Restore")) { restoreFromCloud(copy) }
+                    Button(L10n.t("Cancel"), role: .cancel) {}
+                } message: {
+                    Text(L10n.t("Last saved %@. Photos are not part of iCloud sync.", L10n.dateTime(copy.modified)))
+                }
+            }
         }
         .background(Theme.night.ignoresSafeArea())
+        .task {
+            // A new iPhone may take a few seconds to download the iCloud copy.
+            for _ in 0..<6 where cloudCopy == nil {
+                cloudCopy = CloudSync.shared.remote()
+                if cloudCopy == nil { try? await Task.sleep(for: .seconds(2)) }
+            }
+        }
         .sensoryFeedback(.selection, trigger: step)
         .onChange(of: currentTray) { _, new in totalTrays = max(totalTrays, new) }
+    }
+
+    private func restoreFromCloud(_ copy: CloudSync.Remote) {
+        CloudSync.shared.apply(copy)
+        CloudSync.shared.wantsSync = true
+        var settings = WearSettings.load()
+        settings.onboardingDone = true
+        settings.save()
+        onFinish()
     }
 
     // MARK: Chrome

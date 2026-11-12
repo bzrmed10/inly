@@ -15,6 +15,7 @@ struct TrayDetailSheet: View {
     @State private var pickerItem: PhotosPickerItem?
     @State private var showCamera = false
     @State private var draft = ""
+    @State private var paywall: PaywallReason?
     @FocusState private var focused: Bool
 
     private let quickKeys = ["Sore teeth", "Pressure", "Tight fit", "Attachment loose", "Lisp", "All good"]
@@ -55,6 +56,7 @@ struct TrayDetailSheet: View {
                 onClose: { showCamera = false }
             )
         }
+        .sheet(item: $paywall) { PaywallView(reason: $0) }
         .presentationDetents([.large])
         .presentationDragIndicator(.visible)
         .presentationBackground(Theme.sheet)
@@ -92,7 +94,28 @@ struct TrayDetailSheet: View {
         }
     }
 
+    /// Free: photos on 2 trays (enough to try the comparison). Retaking an existing photo is always free.
+    private var photoLocked: Bool {
+        guard tray.photoData == nil, !Store.shared.isPlus else { return false }
+        return allTrays.filter { $0.photoData != nil }.count >= FreeLimits.photos
+    }
+
+    @ViewBuilder
     private func photoButtons(hasPhoto: Bool) -> some View {
+        if photoLocked {
+            Button { paywall = .photos } label: {
+                Label(L10n.t("More photos with Inly+"), systemImage: "lock.fill").frame(maxWidth: .infinity, minHeight: 46)
+            }
+            .buttonStyle(.plain)
+            .background(Theme.inColor, in: Capsule())
+            .foregroundStyle(Theme.night)
+            .font(Theme.font(15, .heavy))
+        } else {
+            unlockedPhotoButtons(hasPhoto: hasPhoto)
+        }
+    }
+
+    private func unlockedPhotoButtons(hasPhoto: Bool) -> some View {
         HStack(spacing: 10) {
             if CameraPicker.isAvailable {
                 Button { showCamera = true } label: {

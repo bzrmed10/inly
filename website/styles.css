@@ -628,6 +628,25 @@ footer .legal { grid-column: 1 / -1; display: flex; justify-content: space-betwe
 .contact-card span { color: var(--muted); }
 .contact-card .btn { cursor: pointer; }
 
+
+/* ---------- pricing ---------- */
+.pricing { padding: 60px 0 120px; }
+.pricing-head { text-align: center; }
+.pricing-head h2 .soft { color: var(--muted); }
+.plans { margin: 56px auto 0; max-width: 880px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.plan { position: relative; border-radius: 32px; padding: 32px; background: var(--surface); border: 1px solid rgba(255, 255, 255, .06); }
+.plan.plus { background: linear-gradient(160deg, rgba(91, 157, 255, .16), rgba(178, 141, 255, .06) 60%), var(--surface); border-color: rgba(91, 157, 255, .4); }
+.plan-name { font-size: 22px; font-weight: 900; letter-spacing: -.02em; }
+.plan-name b { color: var(--blue); }
+.plan-price { margin-top: 14px; font-size: 44px; font-weight: 900; letter-spacing: -.04em; line-height: 1; }
+.plan-note { margin-top: 10px; color: var(--muted); font-size: 15px; }
+.plan ul { list-style: none; padding: 0; margin: 26px 0 0; display: grid; gap: 12px; }
+.plan li { display: flex; gap: 12px; align-items: baseline; color: var(--secondary); font-size: 15.5px; }
+.plan li::before { content: ""; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--green); transform: translateY(-1px); }
+.plan.plus li::before { background: var(--blue); }
+.plan-tag { display: inline-block; margin-top: 24px; font-size: 13px; font-weight: 900; color: var(--green); padding: 7px 14px; border-radius: 999px; background: rgba(61, 220, 151, .12); }
+@media (max-width: 760px) { .plans { grid-template-columns: 1fr; } }
+
 /* ---------- responsive ---------- */
 @media (max-width: 1080px) {
   .card, .card.w3 { grid-column: span 3; }

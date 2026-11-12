@@ -93,6 +93,44 @@ def bundle_id_resource(identifier: str) -> str:
     return created["id"]
 
 
+# Capabilities the App IDs need. Turning one on here is enough for the profile to carry it;
+# App Group membership itself still has to be ticked once in the developer portal.
+CAPABILITIES = {
+    "com.bzrmed.inly": [
+        ("APP_GROUPS", None),
+        ("ICLOUD", [{"key": "ICLOUD_VERSION", "options": [{"key": "XCODE_6", "enabled": True}]}]),
+    ],
+    "com.bzrmed.inly.widgets": [("APP_GROUPS", None)],
+    "com.bzrmed.inly.watchkitapp": [("APP_GROUPS", None)],
+    "com.bzrmed.inly.watchkitapp.widgets": [("APP_GROUPS", None)],
+}
+
+
+def ensure_capabilities(identifier: str, resource_id: str) -> None:
+    wanted = CAPABILITIES.get(identifier, [])
+    if not wanted:
+        return
+    try:
+        have = {c["attributes"]["capabilityType"] for c in
+                call("GET", f"/bundleIds/{resource_id}/bundleIdCapabilities?limit=200").get("data", [])}
+    except RuntimeError as e:
+        print("::warning::Could not read capabilities for", identifier, e)
+        return
+    for cap, settings in wanted:
+        if cap in have:
+            continue
+        attrs = {"capabilityType": cap}
+        if settings:
+            attrs["settings"] = settings
+        body = {"data": {"type": "bundleIdCapabilities", "attributes": attrs,
+                         "relationships": {"bundleId": {"data": {"type": "bundleIds", "id": resource_id}}}}}
+        try:
+            call("POST", "/bundleIdCapabilities", json=body)
+            print("Enabled", cap, "on", identifier)
+        except RuntimeError as e:
+            print("::warning::Could not enable", cap, "on", identifier, e)
+
+
 def delete_profiles_named(name: str) -> None:
     listing = call("GET", f"/profiles?filter[name]={requests.utils.quote(name)}&limit=200")
     for prof in listing.get("data", []):
@@ -144,12 +182,14 @@ def setup() -> None:
         d.mkdir(parents=True, exist_ok=True)
     for identifier, name in PROFILES.items():
         delete_profiles_named(name)
+        resource_id = bundle_id_resource(identifier)
+        ensure_capabilities(identifier, resource_id)
         body = {
             "data": {
                 "type": "profiles",
                 "attributes": {"name": name, "profileType": "IOS_APP_STORE"},
                 "relationships": {
-                    "bundleId": {"data": {"type": "bundleIds", "id": bundle_id_resource(identifier)}},
+                    "bundleId": {"data": {"type": "bundleIds", "id": resource_id}},
                     "certificates": {"data": [{"type": "certificates", "id": cert["id"]}]},
                 },
             }

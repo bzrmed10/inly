@@ -166,6 +166,11 @@ enum Strings {
   "es": "7 días",
   "fr": "7 jours"
  },
+ "A clean PDF or CSV before each visit.": {
+  "ar": "ملف PDF أو CSV واضح قبل كل زيارة.",
+  "es": "Un PDF o CSV claro antes de cada visita.",
+  "fr": "Un PDF ou CSV clair avant chaque rendez-vous."
+ },
  "A few nights a week": {
   "ar": "بعض الليالي في الأسبوع",
   "es": "Algunas noches a la semana",
@@ -281,10 +286,30 @@ enum Strings {
   "es": "Siempre a la vista",
   "fr": "Toujours visible"
  },
+ "Another iPhone saved Inly data %@. Which one should Inly keep?": {
+  "ar": "حفظ iPhone آخر بيانات Inly في %@. أيها يجب الاحتفاظ به؟",
+  "es": "Otro iPhone guardó datos de Inly %@. ¿Cuáles debe conservar Inly?",
+  "fr": "Un autre iPhone a enregistré des données Inly %@. Lesquelles garder ?"
+ },
  "Appearance": {
   "ar": "المظهر",
   "es": "Apariencia",
   "fr": "Apparence"
+ },
+ "Apple Watch & complications": {
+  "ar": "Apple Watch والإضافات",
+  "es": "Apple Watch y complicaciones",
+  "fr": "Apple Watch et complications"
+ },
+ "Apple Watch, widgets, iCloud sync, full history and reports. No automatic charge.": {
+  "ar": "Apple Watch والأدوات ومزامنة iCloud والسجل الكامل والتقارير. بدون أي خصم تلقائي.",
+  "es": "Apple Watch, widgets, sincronización con iCloud, historial completo e informes. Sin cobro automático.",
+  "fr": "Apple Watch, widgets, synchro iCloud, historique complet et rapports. Aucun prélèvement automatique."
+ },
+ "Apple Watch, widgets, sync, reports. Pay once.": {
+  "ar": "Apple Watch والأدوات والمزامنة والتقارير. ادفع مرة واحدة.",
+  "es": "Apple Watch, widgets, sincronización, informes. Pago único.",
+  "fr": "Apple Watch, widgets, synchro, rapports. Un seul paiement."
  },
  "Appointment at %@. Keep your aligners in until you arrive.": {
   "ar": "الموعد عند %@. أبقِ المقوّمات في فمك حتى تصل.",
@@ -396,6 +421,11 @@ enum Strings {
   "es": "Mejor racha",
   "fr": "Meilleure série"
  },
+ "Bring a report to your orthodontist.": {
+  "ar": "خذ تقريرًا إلى طبيب التقويم.",
+  "es": "Lleva un informe a tu ortodoncista.",
+  "fr": "Apportez un rapport à votre orthodontiste."
+ },
  "Brushing": {
   "ar": "تنظيف الأسنان",
   "es": "Cepillado",
@@ -436,10 +466,20 @@ enum Strings {
   "es": "Comparar",
   "fr": "Comparer"
  },
+ "Compare any two trays side by side.": {
+  "ar": "قارن بين أي طقمين جنبًا إلى جنب.",
+  "es": "Compara dos alineadores lado a lado.",
+  "fr": "Comparez deux gouttières côte à côte."
+ },
  "Compare photos": {
   "ar": "مقارنة الصور",
   "es": "Comparar fotos",
   "fr": "Comparer les photos"
+ },
+ "Couldn't reach the App Store. Check your connection.": {
+  "ar": "تعذّر الوصول إلى App Store. تحقق من الاتصال.",
+  "es": "No se pudo conectar con la App Store. Revisa tu conexión.",
+  "fr": "Impossible de joindre l'App Store. Vérifiez votre connexion."
  },
  "Counting starts as out. Tap Put back in when they're in.": {
   "ar": "يبدأ العدّ كأنها خارج الفم. اضغط «إعادة» عندما تضعها.",
@@ -586,10 +626,20 @@ enum Strings {
   "es": "Editar esta pausa",
   "fr": "Modifier cette pause"
  },
+ "Enjoy everything free for %d days.": {
+  "ar": "استمتع بكل شيء مجانًا لمدة %d أيام.",
+  "es": "Disfruta de todo gratis durante %d días.",
+  "fr": "Profitez de tout gratuitement pendant %d jours."
+ },
  "Estimated finish %@": {
   "ar": "الانتهاء المتوقع: %@",
   "es": "Fin estimado: %@",
   "fr": "Fin estimée : %@"
+ },
+ "Every day, every tray, your streaks.": {
+  "ar": "كل يوم وكل طقم وسلاسلك.",
+  "es": "Cada día, cada alineador, tus rachas.",
+  "fr": "Chaque jour, chaque gouttière, vos séries."
  },
  "Every night": {
   "ar": "كل ليلة",
@@ -600,6 +650,11 @@ enum Strings {
   "ar": "كل شيء",
   "es": "Todo",
   "fr": "Tout"
+ },
+ "Everything Inly can do.": {
+  "ar": "كل ما يستطيع Inly فعله.",
+  "es": "Todo lo que Inly puede hacer.",
+  "fr": "Tout ce qu'Inly sait faire."
  },
  "Existing backup files stay where they are": {
   "ar": "تبقى ملفات النسخ الاحتياطي الحالية في مكانها",
@@ -626,6 +681,11 @@ enum Strings {
   "es": "Ampliar el alineador %d",
   "fr": "Prolonger la gouttière %d"
  },
+ "Family Sharing included": {
+  "ar": "المشاركة العائلية مشمولة",
+  "es": "En familia incluido",
+  "fr": "Partage familial inclus"
+ },
  "Finish treatment · start retainer": {
   "ar": "إنهاء العلاج · بدء المثبّت",
   "es": "Terminar tratamiento · retenedor",
@@ -640,6 +700,21 @@ enum Strings {
   "ar": "الصيغة",
   "es": "Formato",
   "fr": "Format"
+ },
+ "Free for 7 days. No automatic charge, nothing to cancel.": {
+  "ar": "مجاني لمدة 7 أيام. بدون خصم تلقائي ولا شيء لإلغائه.",
+  "es": "Gratis 7 días. Sin cobro automático, nada que cancelar.",
+  "fr": "Gratuit 7 jours. Aucun prélèvement automatique, rien à annuler."
+ },
+ "Free trial · ends %@": {
+  "ar": "تجربة مجانية · تنتهي %@",
+  "es": "Prueba gratis · termina el %@",
+  "fr": "Essai gratuit · se termine %@"
+ },
+ "Full history & weekly score": {
+  "ar": "السجل الكامل والنتيجة الأسبوعية",
+  "es": "Historial completo y puntuación semanal",
+  "fr": "Historique complet et score hebdo"
  },
  "Full-time": {
   "ar": "طوال اليوم",
@@ -706,10 +781,20 @@ enum Strings {
   "es": "Buenos días",
   "fr": "Bonjour"
  },
+ "Help": {
+  "ar": "المساعدة",
+  "es": "Ayuda",
+  "fr": "Aide"
+ },
  "History": {
   "ar": "السجل",
   "es": "Historial",
   "fr": "Historique"
+ },
+ "Home & Lock Screen widgets": {
+  "ar": "أدوات الشاشة الرئيسية وشاشة القفل",
+  "es": "Widgets de inicio y pantalla bloqueada",
+  "fr": "Widgets d'accueil et d'écran verrouillé"
  },
  "Hours a day": {
   "ar": "ساعات يوميًا",
@@ -746,10 +831,50 @@ enum Strings {
   "es": "Inly %@ · Tus datos se quedan en tus dispositivos.",
   "fr": "Inly %@ · Vos données restent sur vos appareils."
  },
+ "Inly data is already in iCloud": {
+  "ar": "بيانات Inly موجودة بالفعل في iCloud",
+  "es": "Ya hay datos de Inly en iCloud",
+  "fr": "Des données Inly sont déjà dans iCloud"
+ },
+ "Inly on your wrist.": {
+  "ar": "Inly على معصمك.",
+  "es": "Inly en tu muñeca.",
+  "fr": "Inly à votre poignet."
+ },
+ "Inly+ Lifetime": {
+  "ar": "Inly+ مدى الحياة",
+  "es": "Inly+ de por vida",
+  "fr": "Inly+ à vie"
+ },
+ "Inly+ is unlocked": {
+  "ar": "تم فتح Inly+",
+  "es": "Inly+ está desbloqueado",
+  "fr": "Inly+ est débloqué"
+ },
  "Install the watch app": {
   "ar": "ثبّت تطبيق الساعة",
   "es": "Instala la app del reloj",
   "fr": "Installer l'app pour la montre"
+ },
+ "Keep Apple Watch, widgets, sync and reports with a one-time purchase.": {
+  "ar": "احتفظ بـ Apple Watch والأدوات والمزامنة والتقارير بشراء واحد.",
+  "es": "Conserva Apple Watch, widgets, sincronización e informes con una compra única.",
+  "fr": "Gardez Apple Watch, widgets, synchro et rapports avec un achat unique."
+ },
+ "Keep Inly+ forever · %@": {
+  "ar": "احتفظ بـ Inly+ للأبد · %@",
+  "es": "Conservar Inly+ para siempre · %@",
+  "fr": "Garder Inly+ pour toujours · %@"
+ },
+ "Keep every step of your smile.": {
+  "ar": "احتفظ بكل مرحلة من ابتسامتك.",
+  "es": "Guarda cada paso de tu sonrisa.",
+  "fr": "Gardez chaque étape de votre sourire."
+ },
+ "Keep this iPhone's data": {
+  "ar": "الاحتفاظ ببيانات هذا الـ iPhone",
+  "es": "Conservar los datos de este iPhone",
+  "fr": "Garder les données de cet iPhone"
  },
  "Language": {
   "ar": "اللغة",
@@ -776,6 +901,11 @@ enum Strings {
   "es": "Foto anterior: sí",
   "fr": "Dernière photo : on"
  },
+ "Last saved %@. Photos are not part of iCloud sync.": {
+  "ar": "آخر حفظ %@. الصور ليست ضمن مزامنة iCloud.",
+  "es": "Último guardado %@. Las fotos no forman parte de la sincronización con iCloud.",
+  "fr": "Dernier enregistrement %@. Les photos ne font pas partie de la synchro iCloud."
+ },
  "Left": {
   "ar": "المتبقي",
   "es": "Queda",
@@ -791,6 +921,16 @@ enum Strings {
   "es": "Fototeca",
   "fr": "Photothèque"
  },
+ "Lifetime · shared by your family": {
+  "ar": "مدى الحياة · مشاركة من عائلتك",
+  "es": "De por vida · compartido por tu familia",
+  "fr": "À vie · partagé par votre famille"
+ },
+ "Lifetime · thank you!": {
+  "ar": "مدى الحياة · شكرًا لك!",
+  "es": "De por vida · ¡gracias!",
+  "fr": "À vie · merci !"
+ },
  "Light": {
   "ar": "فاتح",
   "es": "Claro",
@@ -800,6 +940,11 @@ enum Strings {
   "ar": "لثغة",
   "es": "Ceceo",
   "fr": "Zézaiement"
+ },
+ "Log from your wrist. Your day on the watch face.": {
+  "ar": "سجّل من معصمك. يومك على واجهة الساعة.",
+  "es": "Registra desde tu muñeca. Tu día en la esfera.",
+  "fr": "Notez depuis votre poignet. Votre journée sur le cadran."
  },
  "Makes the file larger.": {
   "ar": "يجعل الملف أكبر.",
@@ -826,6 +971,11 @@ enum Strings {
   "es": "Más",
   "fr": "Plus"
  },
+ "More photos with Inly+": {
+  "ar": "صور أكثر مع Inly+",
+  "es": "Más fotos con Inly+",
+  "fr": "Plus de photos avec Inly+"
+ },
  "Most orthodontists ask for 20 to 22 hours a day. Use the number your orthodontist gave you.": {
   "ar": "يطلب معظم أطباء التقويم من 20 إلى 22 ساعة يوميًا. استخدم الرقم الذي أعطاك إياه طبيبك.",
   "es": "La mayoría de los ortodoncistas piden de 20 a 22 horas al día. Usa el número que te dio el tuyo.",
@@ -840,6 +990,11 @@ enum Strings {
   "ar": "لن تنساها أبدًا",
   "es": "Que no se te olviden",
   "fr": "Ne les oubliez jamais"
+ },
+ "Never lose your history.": {
+  "ar": "لا تفقد سجلك أبدًا.",
+  "es": "No pierdas nunca tu historial.",
+  "fr": "Ne perdez jamais votre historique."
  },
  "New plan: %@. Switch on %@.": {
   "ar": "الخطة الجديدة: %@. التغيير في %@.",
@@ -871,6 +1026,11 @@ enum Strings {
   "es": "Cada noche · %d horas",
   "fr": "Chaque nuit · %d h"
  },
+ "Nights or full time, for years after treatment.": {
+  "ar": "ليلًا أو طوال الوقت، لسنوات بعد العلاج.",
+  "es": "De noche o a tiempo completo, durante años tras el tratamiento.",
+  "fr": "La nuit ou à plein temps, pendant des années après le traitement."
+ },
  "Nights per week": {
   "ar": "ليالٍ في الأسبوع",
   "es": "Noches por semana",
@@ -890,6 +1050,11 @@ enum Strings {
   "ar": "لا توجد ملاحظات بعد. اضغط على اقتراح أعلاه أو اكتب ملاحظتك.",
   "es": "Aún no hay notas. Toca una sugerencia de arriba o escribe la tuya.",
   "fr": "Aucune note pour l'instant. Touchez une suggestion ci-dessus ou écrivez la vôtre."
+ },
+ "No purchase found for this Apple ID.": {
+  "ar": "لم يتم العثور على أي عملية شراء لهذا الـ Apple ID.",
+  "es": "No se encontró ninguna compra para este Apple ID.",
+  "fr": "Aucun achat trouvé pour cet identifiant Apple."
  },
  "No tray yet": {
   "ar": "لا يوجد طقم بعد",
@@ -951,6 +1116,16 @@ enum Strings {
   "es": "Uno más",
   "fr": "Un de plus"
  },
+ "One purchase works on every iPhone signed in with your Apple ID, and for your family.": {
+  "ar": "شراء واحد يعمل على كل iPhone مسجّل بحساب Apple ID الخاص بك، ولعائلتك.",
+  "es": "Una sola compra funciona en todos los iPhone con tu Apple ID, y para tu familia.",
+  "fr": "Un seul achat fonctionne sur tous les iPhone connectés à votre identifiant Apple, et pour votre famille."
+ },
+ "One-time purchase · No subscription": {
+  "ar": "شراء لمرة واحدة · بدون اشتراك",
+  "es": "Compra única · Sin suscripción",
+  "fr": "Achat unique · Sans abonnement"
+ },
  "Open Inly": {
   "ar": "افتح Inly",
   "es": "Abrir Inly",
@@ -975,6 +1150,11 @@ enum Strings {
   "ar": "يفتح أطقمك",
   "es": "Abre tus alineadores",
   "fr": "Ouvre vos gouttières"
+ },
+ "Or unlock now for %@": {
+  "ar": "أو افتحه الآن مقابل %@",
+  "es": "O desbloquéalo ahora por %@",
+  "fr": "Ou débloquer maintenant pour %@"
  },
  "Orthodontist today": {
   "ar": "طبيب التقويم اليوم",
@@ -1036,6 +1216,11 @@ enum Strings {
   "es": "Paciente",
   "fr": "Patient"
  },
+ "Pay once. Yours for your whole treatment and your retainer years.": {
+  "ar": "ادفع مرة واحدة. لك طوال علاجك وسنوات المثبّت.",
+  "es": "Paga una vez. Tuyo durante todo el tratamiento y los años de retenedor.",
+  "fr": "Payez une fois. À vous pour tout votre traitement et vos années de contention."
+ },
  "Period": {
   "ar": "الفترة",
   "es": "Periodo",
@@ -1081,6 +1266,11 @@ enum Strings {
   "es": "Mes anterior",
   "fr": "Mois précédent"
  },
+ "Privacy Policy": {
+  "ar": "سياسة الخصوصية",
+  "es": "Política de privacidad",
+  "fr": "Politique de confidentialité"
+ },
  "Profile": {
   "ar": "الملف الشخصي",
   "es": "Perfil",
@@ -1120,6 +1310,11 @@ enum Strings {
   "ar": "يسجّل أن المقوّمات عادت إلى الفم",
   "es": "Registra que te has puesto los alineadores",
   "fr": "Enregistre que vos aligneurs sont remis"
+ },
+ "Redeem code": {
+  "ar": "استرداد رمز",
+  "es": "Canjear código",
+  "fr": "Utiliser un code"
  },
  "Redo first-time setup": {
   "ar": "إعادة الإعداد الأولي",
@@ -1191,6 +1386,11 @@ enum Strings {
   "es": "Reemplaza todo en Inly con un archivo de copia",
   "fr": "Remplace tout dans Inly par un fichier de sauvegarde"
  },
+ "Reports for your orthodontist": {
+  "ar": "تقارير لطبيب التقويم",
+  "es": "Informes para tu ortodoncista",
+  "fr": "Rapports pour votre orthodontiste"
+ },
  "Restore": {
   "ar": "استعادة",
   "es": "Restaurar",
@@ -1201,10 +1401,35 @@ enum Strings {
   "es": "Restaurar desde copia",
   "fr": "Restaurer une sauvegarde"
  },
+ "Restore my data from iCloud": {
+  "ar": "استعادة بياناتي من iCloud",
+  "es": "Restaurar mis datos desde iCloud",
+  "fr": "Restaurer mes données depuis iCloud"
+ },
+ "Restore purchases": {
+  "ar": "استعادة المشتريات",
+  "es": "Restaurar compras",
+  "fr": "Restaurer les achats"
+ },
+ "Restore your Inly data from iCloud?": {
+  "ar": "استعادة بيانات Inly من iCloud؟",
+  "es": "¿Restaurar tus datos de Inly desde iCloud?",
+  "fr": "Restaurer vos données Inly depuis iCloud ?"
+ },
  "Retainer": {
   "ar": "المثبّت",
   "es": "Retenedor",
   "fr": "Contention"
+ },
+ "Retainer mode": {
+  "ar": "وضع المثبّت",
+  "es": "Modo retenedor",
+  "fr": "Mode contention"
+ },
+ "Retainer mode is part of Inly+": {
+  "ar": "وضع المثبّت جزء من Inly+",
+  "es": "El modo retenedor forma parte de Inly+",
+  "fr": "Le mode contention fait partie d'Inly+"
  },
  "Retainer mode on": {
   "ar": "تم تفعيل وضع المثبّت",
@@ -1241,6 +1466,11 @@ enum Strings {
   "es": "Mira cómo se ha movido tu sonrisa",
   "fr": "Voyez comment votre sourire a bougé"
  },
+ "Send feedback": {
+  "ar": "إرسال ملاحظات",
+  "es": "Enviar comentarios",
+  "fr": "Envoyer un avis"
+ },
  "Set up your tray": {
   "ar": "اضبط طقمك",
   "es": "Configura tu alineador",
@@ -1271,6 +1501,11 @@ enum Strings {
   "es": "Compartir con tu ortodoncista",
   "fr": "Partager avec votre orthodontiste"
  },
+ "Sign in to iCloud in the Settings app to sync": {
+  "ar": "سجّل الدخول إلى iCloud في تطبيق الإعدادات للمزامنة",
+  "es": "Inicia sesión en iCloud en la app Ajustes para sincronizar",
+  "fr": "Connectez-vous à iCloud dans l'app Réglages pour synchroniser"
+ },
  "Since %@": {
   "ar": "منذ %@",
   "es": "Desde el %@",
@@ -1290,6 +1525,11 @@ enum Strings {
   "ar": "لنبدأ العدّ من الطقم الصحيح واليوم الصحيح.",
   "es": "Para empezar a contar desde el alineador y el día correctos.",
   "fr": "Pour compter à partir de la bonne gouttière et du bon jour."
+ },
+ "Something wrong? Tell us before leaving a review, we read every message.": {
+  "ar": "هل هناك مشكلة؟ أخبرنا قبل كتابة تقييم، فنحن نقرأ كل رسالة.",
+  "es": "¿Algo va mal? Escríbenos antes de dejar una reseña, leemos cada mensaje.",
+  "fr": "Un souci ? Écrivez-nous avant de laisser un avis, nous lisons chaque message."
  },
  "Sore teeth": {
   "ar": "ألم في الأسنان",
@@ -1421,6 +1661,16 @@ enum Strings {
   "es": "Cambiado",
   "fr": "Changée"
  },
+ "Sync with iCloud": {
+  "ar": "المزامنة مع iCloud",
+  "es": "Sincronizar con iCloud",
+  "fr": "Synchroniser avec iCloud"
+ },
+ "Synced %@": {
+  "ar": "تمت المزامنة %@",
+  "es": "Sincronizado %@",
+  "fr": "Synchronisé %@"
+ },
  "System": {
   "ar": "النظام",
   "es": "Sistema",
@@ -1440,6 +1690,21 @@ enum Strings {
   "ar": "التقاط صورة",
   "es": "Hacer foto",
   "fr": "Prendre la photo"
+ },
+ "Tap to unlock widgets": {
+  "ar": "اضغط لفتح الأدوات",
+  "es": "Toca para desbloquear los widgets",
+  "fr": "Touchez pour débloquer les widgets"
+ },
+ "Terms of Use": {
+  "ar": "شروط الاستخدام",
+  "es": "Condiciones de uso",
+  "fr": "Conditions d'utilisation"
+ },
+ "Thank you for supporting Inly.": {
+  "ar": "شكرًا لدعمك Inly.",
+  "es": "Gracias por apoyar Inly.",
+  "fr": "Merci de soutenir Inly."
  },
  "That leaves %d hours a day out of your mouth.": {
   "ar": "يترك ذلك %d ساعة يوميًا خارج فمك.",
@@ -1525,6 +1790,11 @@ enum Strings {
   "ar": "جدول اليوم",
   "es": "Cronología de hoy",
   "fr": "Chronologie du jour"
+ },
+ "Too much data for iCloud sync. Use automatic backup.": {
+  "ar": "البيانات كثيرة جدًا لمزامنة iCloud. استخدم النسخ الاحتياطي التلقائي.",
+  "es": "Demasiados datos para sincronizar con iCloud. Usa la copia automática.",
+  "fr": "Trop de données pour la synchro iCloud. Utilisez la sauvegarde automatique."
  },
  "Touch and hold your Home Screen, tap +, then pick Inly.": {
   "ar": "اضغط مطولًا على الشاشة الرئيسية، ثم +، ثم اختر Inly.",
@@ -1626,6 +1896,31 @@ enum Strings {
   "es": "Tratamiento · %@",
   "fr": "Traitement · %@"
  },
+ "Try Inly+ free for 7 days": {
+  "ar": "جرّب Inly+ مجانًا لمدة 7 أيام",
+  "es": "Prueba Inly+ gratis 7 días",
+  "fr": "Essayez Inly+ gratuitement 7 jours"
+ },
+ "Try again": {
+  "ar": "حاول مجددًا",
+  "es": "Reintentar",
+  "fr": "Réessayer"
+ },
+ "Try everything free for 7 days": {
+  "ar": "جرّب كل شيء مجانًا لمدة 7 أيام",
+  "es": "Prueba todo gratis durante 7 días",
+  "fr": "Essayez tout gratuitement pendant 7 jours"
+ },
+ "Try free": {
+  "ar": "جرّب مجانًا",
+  "es": "Probar gratis",
+  "fr": "Essai gratuit"
+ },
+ "Try free for %d days": {
+  "ar": "جرّب مجانًا لمدة %d أيام",
+  "es": "Probar gratis %d días",
+  "fr": "Essayer gratuitement %d jours"
+ },
  "Turn it on in Settings to take progress photos.": {
   "ar": "فعّلها من الإعدادات لالتقاط صور التقدم.",
   "es": "Actívalo en Ajustes para hacer fotos de progreso.",
@@ -1646,15 +1941,45 @@ enum Strings {
   "es": "Deshacer",
   "fr": "Annuler"
  },
+ "Unlimited progress photos": {
+  "ar": "صور تقدّم غير محدودة",
+  "es": "Fotos de progreso ilimitadas",
+  "fr": "Photos de progression illimitées"
+ },
+ "Unlock": {
+  "ar": "فتح",
+  "es": "Desbloquear",
+  "fr": "Débloquer"
+ },
+ "Unlock Inly+": {
+  "ar": "افتح Inly+",
+  "es": "Desbloquear Inly+",
+  "fr": "Débloquer Inly+"
+ },
+ "Unlock Inly+ · %@": {
+  "ar": "افتح Inly+ · %@",
+  "es": "Desbloquear Inly+ · %@",
+  "fr": "Débloquer Inly+ · %@"
+ },
  "Unlock the Apple Watch app with Inly+ on your iPhone.": {
   "ar": "افتح تطبيق Apple Watch مع Inly+ على iPhone.",
   "es": "Desbloquea la app del Apple Watch con Inly+ en tu iPhone.",
   "fr": "Débloquez l'app Apple Watch avec Inly+ sur votre iPhone."
  },
+ "Unlock with Inly+": {
+  "ar": "افتح مع Inly+",
+  "es": "Desbloquear con Inly+",
+  "fr": "Débloquer avec Inly+"
+ },
  "Unlock with Inly+ on your iPhone.": {
   "ar": "افتحه مع Inly+ على iPhone.",
   "es": "Desbloquéalo con Inly+ en tu iPhone.",
   "fr": "Débloquez avec Inly+ sur votre iPhone."
+ },
+ "Unlocked": {
+  "ar": "مفتوح",
+  "es": "Desbloqueado",
+  "fr": "Débloqué"
  },
  "Use photo": {
   "ar": "استخدام الصورة",
@@ -1665,6 +1990,11 @@ enum Strings {
   "ar": "استخدم زر الإجراء",
   "es": "Usa el botón de acción",
   "fr": "Utilisez le bouton Action"
+ },
+ "Use the iCloud data": {
+  "ar": "استخدام بيانات iCloud",
+  "es": "Usar los datos de iCloud",
+  "fr": "Utiliser les données iCloud"
  },
  "Version %@": {
   "ar": "الإصدار %@",
@@ -1731,6 +2061,11 @@ enum Strings {
   "es": "¿Cómo quieres que te llamemos?",
   "fr": "Comment devons-nous vous appeler ?"
  },
+ "What's included": {
+  "ar": "ما المشمول",
+  "es": "Qué incluye",
+  "fr": "Ce qui est inclus"
+ },
  "Which tray are you on?": {
   "ar": "في أي طقم أنت؟",
   "es": "¿En qué alineador estás?",
@@ -1786,6 +2121,11 @@ enum Strings {
   "es": "Todo listo, %@",
   "fr": "Tout est prêt, %@"
  },
+ "Your Inly+ trial ends tomorrow": {
+  "ar": "تنتهي تجربة Inly+ غدًا",
+  "es": "Tu prueba de Inly+ termina mañana",
+  "fr": "Votre essai Inly+ se termine demain"
+ },
  "Your aligners (%@) have been out for %d minutes.": {
   "ar": "المقوّمات (%@) خارج الفم منذ %d دقيقة.",
   "es": "Tus alineadores (%@) llevan fuera %d minutos.",
@@ -1826,6 +2166,11 @@ enum Strings {
   "es": "Tus datos se quedan en tus dispositivos.",
   "fr": "Vos données restent sur vos appareils."
  },
+ "Your day, on every screen.": {
+  "ar": "يومك على كل شاشة.",
+  "es": "Tu día, en cada pantalla.",
+  "fr": "Votre journée, sur chaque écran."
+ },
  "Your days will show up here.": {
   "ar": "ستظهر أيامك هنا.",
   "es": "Tus días aparecerán aquí.",
@@ -1835,6 +2180,21 @@ enum Strings {
   "ar": "اسمك الأول",
   "es": "Tu nombre",
   "fr": "Votre prénom"
+ },
+ "Your free trial has ended. Your data is safe and waiting.": {
+  "ar": "انتهت تجربتك المجانية. بياناتك آمنة بانتظارك.",
+  "es": "Tu prueba gratuita ha terminado. Tus datos están a salvo.",
+  "fr": "Votre essai gratuit est terminé. Vos données sont en sécurité."
+ },
+ "Your history follows you to a new iPhone.": {
+  "ar": "يرافقك سجلك إلى أي iPhone جديد.",
+  "es": "Tu historial te acompaña a un iPhone nuevo.",
+  "fr": "Votre historique vous suit sur un nouvel iPhone."
+ },
+ "Your history, trays, notes and settings, in your own iCloud. Photos stay on this iPhone.": {
+  "ar": "سجلك وأطقمك وملاحظاتك وإعداداتك في iCloud الخاص بك. تبقى الصور على هذا الـ iPhone.",
+  "es": "Tu historial, alineadores, notas y ajustes, en tu propio iCloud. Las fotos se quedan en este iPhone.",
+  "fr": "Votre historique, gouttières, notes et réglages, dans votre propre iCloud. Les photos restent sur cet iPhone."
  },
  "Your last tray is saved as finished. Inly now tracks your retainer instead.": {
   "ar": "يُحفظ آخر طقم كمكتمل. سيتتبّع Inly الآن المثبّت بدلًا منه.",
@@ -1846,15 +2206,40 @@ enum Strings {
   "es": "Tu ortodoncista pidió un nuevo juego de alineadores. La numeración vuelve a empezar en 1 y tu historial se conserva.",
   "fr": "Votre orthodontiste a commandé de nouvelles gouttières. La numérotation repart à 1 et votre historique est conservé."
  },
+ "Your retainer years, covered.": {
+  "ar": "سنوات المثبّت مغطاة.",
+  "es": "Tus años de retenedor, cubiertos.",
+  "fr": "Vos années de contention, couvertes."
+ },
+ "Your ring and out timer at a glance.": {
+  "ar": "حلقتك ومؤقت الإخراج بنظرة سريعة.",
+  "es": "Tu anillo y el temporizador de un vistazo.",
+  "fr": "Votre anneau et le minuteur d'un coup d'œil."
+ },
+ "Your timer keeps working. Unlock nightly schedules and bedtime reminders.": {
+  "ar": "يستمر المؤقت في العمل. افتح الجداول الليلية وتذكيرات وقت النوم.",
+  "es": "Tu temporizador sigue funcionando. Desbloquea los horarios nocturnos y los recordatorios al acostarte.",
+  "fr": "Votre minuteur continue de fonctionner. Débloquez les horaires de nuit et les rappels du coucher."
+ },
  "Your timer lives in the Dynamic Island and on your Lock Screen, so you can put them back in without opening the app.": {
   "ar": "يعيش مؤقتك في الجزيرة الديناميكية وعلى شاشة القفل، لتعيد المقوّمات دون فتح التطبيق.",
   "es": "Tu temporizador vive en la Dynamic Island y en la pantalla de bloqueo, así puedes ponerlos sin abrir la app.",
   "fr": "Votre minuteur vit dans la Dynamic Island et sur l'écran verrouillé : remettez vos aligneurs sans ouvrir l'app."
  },
+ "Your tracking, reminders and Live Activity stay free forever.": {
+  "ar": "يبقى التتبع والتذكيرات والنشاط المباشر مجانية للأبد.",
+  "es": "El seguimiento, los recordatorios y la actividad en vivo siguen gratis para siempre.",
+  "fr": "Le suivi, les rappels et l'activité en direct restent gratuits pour toujours."
+ },
  "Your treatment": {
   "ar": "علاجك",
   "es": "Tu tratamiento",
   "fr": "Votre traitement"
+ },
+ "Your whole story, not just two weeks.": {
+  "ar": "قصتك كاملة، وليس أسبوعين فقط.",
+  "es": "Toda tu historia, no solo dos semanas.",
+  "fr": "Toute votre histoire, pas seulement deux semaines."
  },
  "avg wear %@": {
   "ar": "متوسط الارتداء %@",
@@ -1912,6 +2297,21 @@ enum Strings {
   "ar": "صديقي",
   "es": "amigo",
   "fr": "ami"
+ },
+ "iCloud sync": {
+  "ar": "مزامنة iCloud",
+  "es": "Sincronización con iCloud",
+  "fr": "Synchro iCloud"
+ },
+ "iCloud sync & auto backup": {
+  "ar": "مزامنة iCloud ونسخ احتياطي تلقائي",
+  "es": "Sincronización con iCloud y copia automática",
+  "fr": "Synchro iCloud et sauvegarde auto"
+ },
+ "iCloud sync on": {
+  "ar": "مزامنة iCloud مفعّلة",
+  "es": "Sincronización con iCloud activada",
+  "fr": "Synchro iCloud activée"
  },
  "in %@": {
   "ar": "بعد %@",

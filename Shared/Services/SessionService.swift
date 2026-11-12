@@ -395,11 +395,15 @@ final class SessionService {
         return WearStatus.make(from: snapshot, settings: WearSettings.load(), now: .now)
     }
 
+    /// Called after every save (the iPhone app uses it to keep iCloud sync up to date).
+    var didSave: (@MainActor () -> Void)?
+
     private func save() {
         try? context.save()
         writeWidgetSnapshot()
         WidgetCenter.shared.reloadAllTimelines()
         reconcileLiveActivity()
         ControlCenter.shared.reloadAllControls()
+        didSave?()
     }
 }

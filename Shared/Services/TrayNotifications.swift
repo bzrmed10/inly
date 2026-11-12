@@ -80,7 +80,7 @@ enum RetainerReminders {
         let center = UNUserNotificationCenter.current()
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
         let s = WearSettings.load()
-        guard s.isNightRetainer, s.bedtimeReminder, s.remindersEnabled else { return }
+        guard s.isNightRetainer, s.bedtimeReminder, s.remindersEnabled, PlusStatus.isActive else { return }
         var comps = DateComponents()
         comps.hour = s.bedtimeMinutes / 60
         comps.minute = s.bedtimeMinutes % 60

@@ -118,6 +118,7 @@ struct TraysView: View {
                 show(ToastData(title: L10n.t("Tray %d started", started), subtitle: L10n.t("Switch reminder %@", dueText)) {
                     SessionService.shared.undoStartTray(undo)
                 })
+                ReviewPrompter.shared.note(.newTray)
             }
         }
         .sheet(isPresented: $showRefinement) {
@@ -284,7 +285,7 @@ struct TraysView: View {
                 actionCircle("calendar.badge.plus", label: L10n.t("Extend")) { showExtend = true }
                 Menu {
                     Button { showRefinement = true } label: { Label(L10n.t("Start refinement"), systemImage: "arrow.triangle.2.circlepath") }
-                    Button { showRetainer = true } label: { Label(L10n.t("Finish treatment · start retainer"), systemImage: "moon.stars") }
+                    Button { Store.shared.require(.retainer) { showRetainer = true } } label: { Label(L10n.t("Finish treatment · start retainer"), systemImage: "moon.stars") }
                 } label: {
                     actionCircleLabel("ellipsis", label: L10n.t("More"))
                 }
@@ -354,7 +355,7 @@ struct TraysView: View {
         Menu {
             Button { showRefinement = true } label: { Label(L10n.t("Start refinement"), systemImage: "arrow.triangle.2.circlepath") }
             if !inRetainer {
-                Button { showRetainer = true } label: { Label(L10n.t("Finish treatment · start retainer"), systemImage: "moon.stars") }
+                Button { Store.shared.require(.retainer) { showRetainer = true } } label: { Label(L10n.t("Finish treatment · start retainer"), systemImage: "moon.stars") }
             }
         } label: {
             Text(L10n.t("Refinement or retainer"))

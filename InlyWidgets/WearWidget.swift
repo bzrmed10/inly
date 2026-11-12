@@ -113,12 +113,45 @@ private struct WearWidgetView: View {
     }
 
     var body: some View {
+        if PlusStatus.isActive {
+            switch family {
+            case .systemSmall: small
+            case .systemMedium: medium
+            case .accessoryCircular: circular
+            case .accessoryRectangular: rectangular
+            default: small
+            }
+        } else {
+            locked.widgetURL(URL(string: "inly://plus"))
+        }
+    }
+
+    /// Widgets are part of Inly+: tapping opens the paywall in the app.
+    @ViewBuilder
+    private var locked: some View {
         switch family {
-        case .systemSmall: small
-        case .systemMedium: medium
-        case .accessoryCircular: circular
-        case .accessoryRectangular: rectangular
-        default: small
+        case .accessoryCircular:
+            ZStack {
+                AccessoryWidgetBackground()
+                Image(systemName: "lock.fill").font(.system(size: 18, weight: .bold))
+            }
+        case .accessoryRectangular:
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Inly+").font(.system(.headline, design: .rounded, weight: .heavy))
+                Text(L10n.t("Tap to unlock widgets")).font(.system(.caption, design: .rounded, weight: .semibold))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        default:
+            VStack(spacing: 8) {
+                ZStack {
+                    Circle().stroke(Theme.raised, lineWidth: 8)
+                    Image(systemName: "lock.fill").font(.system(size: 22, weight: .bold)).foregroundStyle(Theme.inColor)
+                }
+                .frame(width: 64, height: 64)
+                Text("Inly+").font(Theme.font(17, .heavy)).foregroundStyle(Theme.text)
+                Text(L10n.t("Tap to unlock widgets")).font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
+                    .multilineTextAlignment(.center)
+            }
         }
     }
 

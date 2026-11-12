@@ -29,7 +29,7 @@ final class BackupService {
 
     // MARK: Build / restore
 
-    func makeBackup(now: Date = .now) throws -> BackupFile {
+    func makeBackup(now: Date = .now, includePhotos: Bool = true) throws -> BackupFile {
         let sessions = try context.fetch(FetchDescriptor<WearSession>(sortBy: [SortDescriptor(\.start)]))
         let trays = try context.fetch(FetchDescriptor<Tray>(sortBy: [SortDescriptor(\.number)]))
         let notes = try context.fetch(FetchDescriptor<TrayNote>(sortBy: [SortDescriptor(\.date)]))
@@ -37,7 +37,7 @@ final class BackupService {
             createdAt: now,
             settings: .init(WearSettings.load()),
             sessions: sessions.map { .init(start: $0.start, end: $0.end, reason: $0.reasonRaw) },
-            trays: trays.map { .init(number: $0.number, startDate: $0.startDate, endDate: $0.endDate, plannedDays: $0.plannedDays, photo: $0.photoData, phase: $0.phase, phaseBase: $0.phaseBase) },
+            trays: trays.map { .init(number: $0.number, startDate: $0.startDate, endDate: $0.endDate, plannedDays: $0.plannedDays, photo: includePhotos ? $0.photoData : nil, phase: $0.phase, phaseBase: $0.phaseBase) },
             notes: notes.map { .init(trayNumber: $0.trayNumber, date: $0.date, text: $0.text) }
         )
     }
@@ -46,7 +46,18 @@ final class BackupService {
 
     /// Replaces everything in the app with the contents of the backup.
     func restore(_ data: Data) throws {
-        let file = try BackupFile.decode(data)
+        try restore(file: BackupFile.decode(data))
+    }
+
+    /// Replaces everything with `file`. With `keepPhotos`, trays without a photo in the file keep the photo
+    /// this iPhone already has for the same tray number (iCloud sync carries no photos).
+    func restore(file: BackupFile, keepPhotos: Bool = false) throws {
+        var localPhotos: [Int: Data] = [:]
+        if keepPhotos {
+            for tray in (try? context.fetch(FetchDescriptor<Tray>())) ?? [] {
+                if let photo = tray.photoData { localPhotos[tray.number] = photo }
+            }
+        }
         try context.delete(model: WearSession.self)
         try context.delete(model: Tray.self)
         try context.delete(model: TrayNote.self)
@@ -55,7 +66,7 @@ final class BackupService {
         }
         for t in file.trays {
             let tray = Tray(number: t.number, startDate: t.startDate, endDate: t.endDate, plannedDays: t.plannedDays, phase: t.phase ?? 0, phaseBase: t.phaseBase ?? 0)
-            tray.photoData = t.photo
+            tray.photoData = t.photo ?? localPhotos[t.number]
             context.insert(tray)
         }
         for n in file.notes {

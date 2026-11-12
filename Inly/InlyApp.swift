@@ -10,6 +10,7 @@ struct InlyApp: App {
         SessionService.shared.ensureTray()
         OutReminders.registerCategory()
         PhoneConnectivity.shared.start()
+        CloudSync.shared.start()
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
     }
 
@@ -18,8 +19,16 @@ struct InlyApp: App {
             RootView()
                 .modelContainer(SessionService.shared.container)
                 .onChange(of: scenePhase) { _, phase in
-                    if phase == .active { SessionService.shared.reconcileLiveActivity(); RetainerReminders.reschedule() }
-                    if phase == .background { BackupService.shared.autoBackupIfDue() }
+                    if phase == .active {
+                        SessionService.shared.reconcileLiveActivity()
+                        RetainerReminders.reschedule()
+                        CloudSync.shared.pullIfNewer()
+                        Task { await Store.shared.refresh() }
+                    }
+                    if phase == .background {
+                        if PlusStatus.isActive { BackupService.shared.autoBackupIfDue() }
+                        CloudSync.shared.push()
+                    }
                 }
         }
     }

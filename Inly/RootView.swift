@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 
 /// System TabView: on iOS 26 this gets the Liquid Glass tab bar for free.
@@ -7,6 +8,10 @@ struct RootView: View {
     @State private var setupDone = WearSettings.load().onboardingDone
     @State private var selection: AppTab = .today
     @AppStorage(L10n.storageKey, store: UserDefaults(suiteName: AppGroup.identifier)) private var languageRaw = AppLanguage.system.rawValue
+
+    @State private var store = Store.shared
+    @State private var reviews = ReviewPrompter.shared
+    @Environment(\.requestReview) private var requestReview
 
     @AppStorage(AppAppearance.storageKey, store: UserDefaults(suiteName: AppGroup.identifier)) private var appearanceRaw = AppAppearance.dark.rawValue
 
@@ -32,6 +37,19 @@ struct RootView: View {
             }
         }
         .id(languageRaw)
+        .sheet(item: $store.paywall) { reason in
+            PaywallView(reason: reason)
+        }
+        .onChange(of: reviews.shouldAsk) { _, ask in
+            guard ask else { return }
+            reviews.shouldAsk = false
+            requestReview()
+        }
+        .onOpenURL { url in
+            // Locked widgets open inly://plus.
+            if url.scheme == "inly", url.host == "plus" { store.paywall = .widgets }
+        }
+        .task { await store.start() }
         .appLanguage()
         .preferredColorScheme((AppAppearance(rawValue: appearanceRaw) ?? .dark).scheme)
     }
