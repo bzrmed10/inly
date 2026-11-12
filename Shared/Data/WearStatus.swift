@@ -47,6 +47,6 @@ extension WatchPayload {
     init(_ s: WearStatus) {
         self.init(isOut: s.isOut, outStart: s.outStart, budgetEnd: s.budgetEnd, wornSeconds: s.wornSeconds,
                   wornFraction: s.wornFraction, leftSeconds: s.leftSeconds, goalHours: s.goalHours, trayLine: s.trayLine,
-                  language: L10n.code)
+                  language: L10n.code, asOf: .now, plus: PlusStatus.isActive)
     }
 }

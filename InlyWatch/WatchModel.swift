@@ -2,6 +2,7 @@ import Foundation
 import Observation
 @preconcurrency import WatchConnectivity
 import WatchKit
+import WidgetKit
 
 /// Holds the latest state from the iPhone and sends Take out / Put back in to it.
 @MainActor
@@ -23,8 +24,13 @@ final class WatchModel: NSObject {
     func apply(_ data: Data?) {
         guard let new = WatchPayload.decode(data) else { return }
         payload = new
-        if let language = new.language { UserDefaults.standard.set(language, forKey: L10n.storageKey) }
+        if let language = new.language {
+            UserDefaults.standard.set(language, forKey: L10n.storageKey)
+            UserDefaults(suiteName: AppGroup.identifier)?.set(language, forKey: L10n.storageKey)
+        }
         UserDefaults.standard.set(data, forKey: storeKey)
+        new.saveShared()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     func toggle() {
@@ -41,6 +47,8 @@ final class WatchModel: NSObject {
             next.budgetEnd = now.addingTimeInterval(max(1, current.leftSeconds))
         }
         payload = next
+        next.saveShared()
+        WidgetCenter.shared.reloadAllTimelines()
 
         let command = takingOut ? WatchPayload.takeOutCommand : WatchPayload.putBackCommand
         send(command)

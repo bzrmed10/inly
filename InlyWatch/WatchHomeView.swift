@@ -5,7 +5,9 @@ struct WatchHomeView: View {
 
     var body: some View {
         Group {
-            if let p = model.payload {
+            if let p = model.payload, !p.isPlus {
+                locked
+            } else if let p = model.payload {
                 content(p)
             } else {
                 VStack(spacing: 8) {
@@ -19,6 +21,18 @@ struct WatchHomeView: View {
         .containerBackground(Theme.night.gradient, for: .navigation)
         .environment(\.layoutDirection, L10n.layoutDirection)
         .environment(\.locale, L10n.locale)
+    }
+
+    /// Apple Watch is part of Inly+: shown when the iPhone says it is not unlocked.
+    private var locked: some View {
+        VStack(spacing: 8) {
+            Image(systemName: "applewatch.radiowaves.left.and.right")
+                .font(.system(size: 30, weight: .semibold)).foregroundStyle(Theme.inColor)
+            Text("Inly+").font(Theme.font(20, .heavy))
+            Text(L10n.t("Unlock the Apple Watch app with Inly+ on your iPhone."))
+                .font(Theme.font(13, .semibold)).multilineTextAlignment(.center).foregroundStyle(Theme.muted)
+        }
+        .padding()
     }
 
     private func content(_ p: WatchPayload) -> some View {

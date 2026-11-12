@@ -17,3 +17,6 @@ DerivedData/
 .vscode/
 .idea/
 InlyWatch/Info.plist
+InlyWatch/InlyWatch.entitlements
+InlyWatchWidgets/Info.plist
+InlyWatchWidgets/InlyWatchWidgets.entitlements

@@ -76,6 +76,14 @@ targets:
         CFBundleShortVersionString: $(MARKETING_VERSION)
         WKApplication: true
         WKCompanionAppBundleIdentifier: com.bzrmed.inly
+    entitlements:
+      path: InlyWatch/InlyWatch.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.bzrmed.inly
+    dependencies:
+      - target: InlyWatchWidgets
+        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly.watchkitapp
@@ -87,6 +95,40 @@ targets:
           CODE_SIGN_STYLE: Manual
           CODE_SIGN_IDENTITY: "Apple Distribution"
           PROVISIONING_PROFILE_SPECIFIER: "Inly CI Watch AppStore"
+  InlyWatchWidgets:
+    type: app-extension
+    platform: watchOS
+    deploymentTarget: "10.0"
+    sources:
+      - path: InlyWatchWidgets
+      - path: Shared/Watch
+      - path: Shared/DesignSystem/Theme.swift
+      - path: Shared/DesignSystem/TimeFormat.swift
+      - path: Shared/L10n
+      - path: Shared/AppGroup.swift
+    info:
+      path: InlyWatchWidgets/Info.plist
+      properties:
+        CFBundleDisplayName: Inly
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: InlyWatchWidgets/InlyWatchWidgets.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.bzrmed.inly
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.bzrmed.inly.watchkitapp.widgets
+        TARGETED_DEVICE_FAMILY: "4"
+        SKIP_INSTALL: YES
+      configs:
+        Release:
+          CODE_SIGN_STYLE: Manual
+          CODE_SIGN_IDENTITY: "Apple Distribution"
+          PROVISIONING_PROFILE_SPECIFIER: "Inly CI Watch Widgets AppStore"
   InlyWidgets:
     type: app-extension
     platform: iOS
@@ -147,6 +189,7 @@ schemes:
         Inly: all
         InlyWidgets: all
         InlyWatch: all
+        InlyWatchWidgets: all
     test:
       targets:
         - InlyUITests
@@ -156,6 +199,7 @@ schemes:
         Inly: all
         InlyWidgets: all
         InlyWatch: all
+        InlyWatchWidgets: all
     test:
       targets:
         - InlyTests

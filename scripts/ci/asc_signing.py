@@ -26,6 +26,7 @@ PROFILES = {
     "com.bzrmed.inly": "Inly CI AppStore",
     "com.bzrmed.inly.widgets": "Inly CI Widgets AppStore",
     "com.bzrmed.inly.watchkitapp": "Inly CI Watch AppStore",
+    "com.bzrmed.inly.watchkitapp.widgets": "Inly CI Watch Widgets AppStore",
 }
 WORK = pathlib.Path(os.environ.get("RUNNER_TEMP", "/tmp")) / "signing"
 STATE = WORK / "state.json"

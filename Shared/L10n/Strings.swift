@@ -281,6 +281,11 @@ enum Strings {
   "es": "Siempre a la vista",
   "fr": "Toujours visible"
  },
+ "Appearance": {
+  "ar": "المظهر",
+  "es": "Apariencia",
+  "fr": "Apparence"
+ },
  "Appointment at %@. Keep your aligners in until you arrive.": {
   "ar": "الموعد عند %@. أبقِ المقوّمات في فمك حتى تصل.",
   "es": "Cita a las %@. Mantén tus alineadores puestos hasta llegar.",
@@ -475,6 +480,11 @@ enum Strings {
   "ar": "الارتداء اليومي",
   "es": "Uso diario",
   "fr": "Port quotidien"
+ },
+ "Dark": {
+  "ar": "داكن",
+  "es": "Oscuro",
+  "fr": "Sombre"
  },
  "Day": {
   "ar": "اليوم",
@@ -741,26 +751,6 @@ enum Strings {
   "es": "Instala la app del reloj",
   "fr": "Installer l'app pour la montre"
  },
- "Appearance": {
-  "ar": "المظهر",
-  "es": "Apariencia",
-  "fr": "Apparence"
- },
- "Dark": {
-  "ar": "داكن",
-  "es": "Oscuro",
-  "fr": "Sombre"
- },
- "Light": {
-  "ar": "فاتح",
-  "es": "Claro",
-  "fr": "Clair"
- },
- "System": {
-  "ar": "النظام",
-  "es": "Sistema",
-  "fr": "Système"
- },
  "Language": {
   "ar": "اللغة",
   "es": "Idioma",
@@ -800,6 +790,11 @@ enum Strings {
   "ar": "الاستوديو",
   "es": "Fototeca",
   "fr": "Photothèque"
+ },
+ "Light": {
+  "ar": "فاتح",
+  "es": "Claro",
+  "fr": "Clair"
  },
  "Lisp": {
   "ar": "لثغة",
@@ -1426,6 +1421,11 @@ enum Strings {
   "es": "Cambiado",
   "fr": "Changée"
  },
+ "System": {
+  "ar": "النظام",
+  "es": "Sistema",
+  "fr": "Système"
+ },
  "Take it out when you wake up and put it back in at bedtime. Inly counts the hours it was in.": {
   "ar": "أخرجه عند الاستيقاظ وأعده وقت النوم. يحسب Inly الساعات التي كان فيها في الفم.",
   "es": "Quítatelo al despertar y vuelve a ponértelo al acostarte. Inly cuenta las horas que lo llevaste.",
@@ -1645,6 +1645,16 @@ enum Strings {
   "ar": "تراجع",
   "es": "Deshacer",
   "fr": "Annuler"
+ },
+ "Unlock the Apple Watch app with Inly+ on your iPhone.": {
+  "ar": "افتح تطبيق Apple Watch مع Inly+ على iPhone.",
+  "es": "Desbloquea la app del Apple Watch con Inly+ en tu iPhone.",
+  "fr": "Débloquez l'app Apple Watch avec Inly+ sur votre iPhone."
+ },
+ "Unlock with Inly+ on your iPhone.": {
+  "ar": "افتحه مع Inly+ على iPhone.",
+  "es": "Desbloquéalo con Inly+ en tu iPhone.",
+  "fr": "Débloquez avec Inly+ sur votre iPhone."
  },
  "Use photo": {
   "ar": "استخدام الصورة",
