@@ -275,5 +275,5 @@ enum LegalLinks {
     static let terms = URL(string: "https://inly-app.netlify.app/terms")!
     static let privacy = URL(string: "https://inly-app.netlify.app/privacy")!
     static let support = URL(string: "https://inly-app.netlify.app/support")!
-    static let supportEmail = "support@inly.app"
+    static let supportEmail = "support@healus-ai.com"
 }
