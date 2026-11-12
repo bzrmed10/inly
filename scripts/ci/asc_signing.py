@@ -112,7 +112,7 @@ def ensure_capabilities(identifier: str, resource_id: str) -> None:
         return
     try:
         have = {c["attributes"]["capabilityType"] for c in
-                call("GET", f"/bundleIds/{resource_id}/bundleIdCapabilities?limit=200").get("data", [])}
+                call("GET", f"/bundleIds/{resource_id}/bundleIdCapabilities").get("data", [])}
     except RuntimeError as e:
         print("::warning::Could not read capabilities for", identifier, e)
         return
