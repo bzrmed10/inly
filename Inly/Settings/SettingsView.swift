@@ -406,7 +406,7 @@ private struct BackupSettingsPage: View {
                             Text(syncSubtitle).font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
                         }
                         Spacer(minLength: 0)
-                        Toggle("", isOn: Binding(get: { syncOn }, set: setSync)).labelsHidden().tint(Theme.inColor)
+                        Toggle("", isOn: Binding(get: { syncOn }, set: { setSync($0) })).labelsHidden().tint(Theme.inColor)
                     }
                     .padding(16)
                 }
