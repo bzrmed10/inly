@@ -23,7 +23,7 @@ if [ -z "$UDID" ]; then echo "::warning::No watch simulator"; exit 0; fi
 echo "Watch simulator: $UDID"
 
 xcodebuild build -project Inly.xcodeproj -target InlyWatch -configuration Debug \
-  -sdk watchsimulator -derivedDataPath build/watchDD SYMROOT="$PWD/build/watchSym" \
+  -sdk watchsimulator SYMROOT="$PWD/build/watchSym" \
   CODE_SIGNING_ALLOWED=NO -quiet || { echo "::warning::Watch build failed"; exit 0; }
 APP=$(find build/watchSym -name "InlyWatch.app" -path "*watchsimulator*" | head -1)
 [ -z "$APP" ] && APP=$(find build -name "InlyWatch.app" -path "*watchsimulator*" | head -1)
