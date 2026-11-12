@@ -47,6 +47,10 @@ jobs:
             CODE_SIGNING_ALLOWED=NO \
             | tee build/xcodebuild.log | xcbeautify --renderer github-actions
 
+      - name: Show compile errors
+        if: failure()
+        run: grep -E "error:|warning: .*will be an error" build/xcodebuild.log | sort -u | head -60 || true
+
       - name: Capture screenshots
         run: |
           set -o pipefail
