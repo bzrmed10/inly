@@ -836,6 +836,11 @@ enum Strings {
   "es": "Ya hay datos de Inly en iCloud",
   "fr": "Des données Inly sont déjà dans iCloud"
  },
+ "Inly helps you track wear time. It is not medical advice: always follow your orthodontist's instructions.": {
+  "ar": "يساعدك Inly على تتبّع وقت الارتداء. إنه ليس استشارة طبية: اتبع دائمًا تعليمات طبيب التقويم.",
+  "es": "Inly te ayuda a registrar el tiempo de uso. No es consejo médico: sigue siempre las indicaciones de tu ortodoncista.",
+  "fr": "Inly vous aide à suivre le temps de port. Ce n'est pas un avis médical : suivez toujours les consignes de votre orthodontiste."
+ },
  "Inly on your wrist.": {
   "ar": "Inly على معصمك.",
   "es": "Inly en tu muñeca.",

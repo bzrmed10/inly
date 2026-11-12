@@ -16,6 +16,18 @@ final class WatchModel: NSObject {
     override init() {
         super.init()
         if let data = UserDefaults.standard.data(forKey: storeKey) { payload = WatchPayload.decode(data) }
+        // Store screenshots: `-demoData` (aligners in) or `-demoData -demoOut`.
+        let args = ProcessInfo.processInfo.arguments
+        if args.contains("-demoData") {
+            let now = Date.now
+            let out = args.contains("-demoOut")
+            let start = now.addingTimeInterval(-14 * 60 - 30)
+            payload = WatchPayload(isOut: out, outStart: start, budgetEnd: start.addingTimeInterval(49 * 60),
+                                   wornSeconds: 20 * 3600 + 12 * 60, wornFraction: (20 * 3600 + 12 * 60) / (22 * 3600),
+                                   leftSeconds: out ? 35 * 60 : 50 * 60, goalHours: 22,
+                                   trayLine: L10n.t("Tray %d of %d", 7, 24), asOf: now, plus: true)
+            return
+        }
         guard WCSession.isSupported() else { return }
         WCSession.default.delegate = self
         WCSession.default.activate()

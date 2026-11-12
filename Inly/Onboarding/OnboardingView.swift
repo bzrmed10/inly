@@ -274,6 +274,10 @@ struct OnboardingView: View {
                 tip("square.grid.2x2", L10n.t("Add the widget"), L10n.t("Touch and hold your Home Screen, tap +, then pick Inly."))
                 tip("button.horizontal.top.press", L10n.t("Use the Action Button"), L10n.t("Settings, Action Button, Shortcut, then choose Take out or Put back in."))
                 tip("applewatch", L10n.t("Install the watch app"), L10n.t("Open the Watch app on your iPhone and install Inly."))
+                Text(L10n.t("Inly helps you track wear time. It is not medical advice: always follow your orthodontist's instructions."))
+                    .font(Theme.font(12, .semibold)).foregroundStyle(Theme.muted)
+                    .multilineTextAlignment(.center)
+                    .padding(.top, 6)
             }
         default:
             EmptyView()

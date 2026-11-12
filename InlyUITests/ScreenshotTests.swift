@@ -114,6 +114,20 @@ extension ScreenshotTests {
         app.launch()
         sleep(2)
         save("20-\(code)-today")
+
+        let out = XCUIApplication()
+        out.launchArguments = ["-demoData", "-demoOut", "-appLanguage", code]
+        out.launch()
+        sleep(2)
+        save("28-\(code)-today-out")
+        out.tabBars.buttons.element(boundBy: 2).tap()
+        sleep(1)
+        out.swipeUp()
+        sleep(1)
+        save("29-\(code)-calendar")
+
+        app.launch()
+        sleep(2)
         let tabs = app.tabBars.buttons
         for (i, name) in ["trays", "history", "settings"].enumerated() where tabs.count > i + 1 {
             tabs.element(boundBy: i + 1).tap()

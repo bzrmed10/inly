@@ -627,6 +627,7 @@ private struct AboutSettingsPage: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Theme.surface, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             settingsNote(L10n.t("Your data stays on your devices."))
+            settingsNote(L10n.t("Inly helps you track wear time. It is not medical advice: always follow your orthodontist's instructions."))
 
             VStack(alignment: .leading, spacing: 0) {
                 aboutLink("envelope.fill", L10n.t("Send feedback"), URL(string: "mailto:\(LegalLinks.supportEmail)?subject=Inly%20feedback%20(\(version.replacingOccurrences(of: " ", with: "%20")))")!)

@@ -59,6 +59,8 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p build/screenshots
+          xcrun simctl boot "${{ steps.sim.outputs.udid }}" 2>/dev/null || true
+          xcrun simctl status_bar "${{ steps.sim.outputs.udid }}" override --time 9:41 --dataNetwork wifi --wifiBars 3 --cellularBars 4 --batteryState charged --batteryLevel 100 || true
           TEST_RUNNER_SCREENSHOT_DIR="$PWD/build/screenshots" xcodebuild test \
             -project Inly.xcodeproj \
             -scheme InlyScreenshots \
@@ -66,6 +68,10 @@ jobs:
             -resultBundlePath build/UITest.xcresult \
             CODE_SIGNING_ALLOWED=NO \
             | tee build/uitest.log | xcbeautify --renderer github-actions
+
+      - name: Capture watch screenshots
+        continue-on-error: true
+        run: bash scripts/ci/watch-screenshots.sh build/screenshots
 
       - name: Publish screenshots to the ci-screenshots branch
         if: always() && github.ref == 'refs/heads/main'
