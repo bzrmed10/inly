@@ -1266,6 +1266,11 @@ enum Strings {
   "es": "Presión",
   "fr": "Pression"
  },
+ "Preview report": {
+  "ar": "معاينة التقرير",
+  "es": "Vista previa del informe",
+  "fr": "Aperçu du rapport"
+ },
  "Previous month": {
   "ar": "الشهر السابق",
   "es": "Mes anterior",
@@ -1470,6 +1475,11 @@ enum Strings {
   "ar": "شاهد كيف تحرّكت ابتسامتك",
   "es": "Mira cómo se ha movido tu sonrisa",
   "fr": "Voyez comment votre sourire a bougé"
+ },
+ "See it before you send it.": {
+  "ar": "اطّلع عليه قبل إرساله.",
+  "es": "Revísalo antes de enviarlo.",
+  "fr": "Vérifiez-le avant de l'envoyer."
  },
  "Send feedback": {
   "ar": "إرسال ملاحظات",

@@ -33,6 +33,7 @@ struct HistoryView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button { Store.shared.require(.export) { showExport = true } } label: { Image(systemName: "square.and.arrow.up").foregroundStyle(Theme.text) }
+                        .accessibilityIdentifier("exportButton")
                         .tint(Theme.text)
                         .accessibilityLabel(L10n.t("Share with your orthodontist"))
                 }

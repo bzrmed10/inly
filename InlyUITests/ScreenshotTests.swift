@@ -164,4 +164,39 @@ extension ScreenshotTests {
         sleep(1)
         save("31-paywall-bottom")
     }
+
+    /// Store screenshots of the photo comparison and the report preview, in every language.
+    func testShowcase() throws {
+        for code in ["en", "fr", "es", "ar"] {
+            let app = XCUIApplication()
+            app.launchArguments = ["-demoData", "-appLanguage", code]
+            app.launch()
+            sleep(2)
+            app.tabBars.buttons.element(boundBy: 1).tap()
+            sleep(1)
+            let compare = app.buttons["compareButton"]
+            if compare.waitForExistence(timeout: 5) {
+                compare.tap()
+                sleep(2)
+                save("32-\(code)-compare")
+            }
+            app.terminate()
+
+            app.launch()
+            sleep(2)
+            app.tabBars.buttons.element(boundBy: 2).tap()
+            sleep(1)
+            let export = app.buttons["exportButton"]
+            if export.waitForExistence(timeout: 5) {
+                export.tap()
+                let preview = app.buttons["reportPreview"]
+                if preview.waitForExistence(timeout: 8) {
+                    preview.tap()
+                    sleep(3)
+                    save("33-\(code)-report")
+                }
+            }
+            app.terminate()
+        }
+    }
 }

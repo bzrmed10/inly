@@ -182,6 +182,7 @@ struct TraysView: View {
             HStack(spacing: 10) {
                 if trays.filter({ $0.photoData != nil }).count >= 2 {
                     headerButton("rectangle.split.2x1", label: L10n.t("Compare photos")) { showCompare = true }
+                        .accessibilityIdentifier("compareButton")
                 }
                 headerButton("calendar.badge.clock", label: settings.nextAppointment.flatMap { $0 > .now ? $0 : nil } == nil ? L10n.t("Add orthodontist visit") : L10n.t("Edit orthodontist visit"), badge: settings.nextAppointment.map { $0 > .now } ?? false) { showAppointment = true }
             }

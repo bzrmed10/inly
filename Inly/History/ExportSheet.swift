@@ -1,4 +1,5 @@
 import SwiftData
+import PDFKit
 import SwiftUI
 
 /// Create a PDF report or CSV file for the orthodontist and share it.
@@ -23,6 +24,12 @@ struct ExportSheet: View {
     @State private var range: Period = .month
     @State private var format: Format = .pdf
     @State private var fileURL: URL?
+    @State private var previewing = false
+
+    /// First page of the PDF, for the preview card.
+    static func thumbnail(_ url: URL) -> UIImage? {
+        PDFDocument(url: url)?.page(at: 0)?.thumbnail(of: CGSize(width: 240, height: 320), for: .mediaBox)
+    }
     @State private var settings = WearSettings.load()
     @State private var includePhotos = false
 
@@ -67,6 +74,26 @@ struct ExportSheet: View {
                 .tint(Theme.trayColor)
                 .padding(14)
                 .background(Theme.track, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            }
+
+            if format == .pdf, let fileURL, let thumb = Self.thumbnail(fileURL) {
+                Button { previewing = true } label: {
+                    HStack(spacing: 14) {
+                        Image(uiImage: thumb).resizable().scaledToFit().frame(height: 96)
+                            .clipShape(RoundedRectangle(cornerRadius: 6)).shadow(radius: 4)
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(L10n.t("Preview report")).font(Theme.font(16, .heavy)).foregroundStyle(Theme.text)
+                            Text(L10n.t("See it before you send it.")).font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
+                        }
+                        Spacer(minLength: 0)
+                        Image(systemName: "chevron.forward").font(.footnote.weight(.bold)).foregroundStyle(Theme.muted)
+                    }
+                    .padding(12)
+                    .background(Theme.track, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+                }
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("reportPreview")
+                .sheet(isPresented: $previewing) { PDFPreview(url: fileURL) }
             }
 
             Spacer(minLength: 0)
@@ -132,4 +159,39 @@ struct ExportSheet: View {
             fileURL = nil
         }
     }
+}
+
+/// Full-screen view of the exported PDF.
+private struct PDFPreview: View {
+    let url: URL
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        NavigationStack {
+            PDFKitView(url: url)
+                .ignoresSafeArea(edges: .bottom)
+                .navigationTitle(L10n.t("Preview report"))
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button(L10n.t("Done")) { dismiss() }
+                    }
+                }
+        }
+    }
+}
+
+private struct PDFKitView: UIViewRepresentable {
+    let url: URL
+
+    func makeUIView(context: Context) -> PDFView {
+        let view = PDFView()
+        view.autoScales = true
+        view.displayMode = .singlePageContinuous
+        view.backgroundColor = .secondarySystemBackground
+        view.document = PDFDocument(url: url)
+        return view
+    }
+
+    func updateUIView(_ view: PDFView, context: Context) {}
 }
