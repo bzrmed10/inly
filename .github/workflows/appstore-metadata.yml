@@ -2,6 +2,11 @@ name: App Store metadata
 
 on:
   workflow_dispatch:
+    inputs:
+      check_only:
+        description: "Only print what App Store Connect holds"
+        type: boolean
+        default: false
 
 jobs:
   upload:
@@ -19,4 +24,6 @@ jobs:
           echo "ASC_KEY_PATH=$RUNNER_TEMP/keys/key.p8" >> "$GITHUB_ENV"
       - run: pip install pyjwt cryptography requests
       - name: Upload texts and screenshots
-        run: python3 scripts/ci/asc_metadata.py
+        run: |
+          if [ "${{ inputs.check_only }}" != "true" ]; then python3 scripts/ci/asc_metadata.py; fi
+          python3 scripts/ci/asc_check.py
