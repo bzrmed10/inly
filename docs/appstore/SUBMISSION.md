@@ -44,9 +44,10 @@ Already declared in the build: `ITSAppUsesNonExemptEncryption = NO`. Apple won't
 - **Contact information:** your name, phone and email (only Apple sees these).
 
 ## Screenshots to upload
-- **iPhone 6.9" display:** `screenshots/<language>/iphone-01…06.png` (1320 × 2868).
+- **iPhone 6.9" display:** `screenshots/<language>/iphone-01…08.png` (1320 × 2868).
+- **Product page header:** `screenshots/<language>/header-3840x1646.png`. **Search results:** `screenshots/<language>/search-results-3840x2560.png` (upload by hand).
 - **Apple Watch:** `screenshots/<language>/watch-01…02.png` (422 × 514, Apple Watch Ultra size).
-- Order: 1 Dynamic Island, 2 Today, 3 Trays, 4 History, 5 Calendar, 6 Privacy and Inly+.
+- Order: 1 Dynamic Island, 2 Today, 3 Trays, 4 History, 5 Calendar, 6 Photo compare, 7 Report, 8 Privacy and Inly+.
 
 ## In-app purchases
 Create them before submitting, and attach both to version 1.0 ("In-App Purchases" section of the version page). See `docs/APPSTORE.md` for IDs, prices and localized texts. Each needs a review screenshot: use the paywall screenshot.

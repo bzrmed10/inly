@@ -7,7 +7,7 @@ import asyncio, base64, os, sys
 from playwright.async_api import async_playwright
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-RAW, OUT = sys.argv[1], sys.argv[2]
+RAW, OUT = (sys.argv[1], sys.argv[2]) if __name__ == "__main__" else ("", "")
 
 def b64(path):
     with open(path, "rb") as f:
@@ -26,11 +26,16 @@ RAWS = {
 for code in ("fr", "es", "ar"):
     RAWS[code] = {"out": f"28-{code}-today-out", "in": f"20-{code}-today", "trays": f"21-{code}-trays",
                   "history": f"22-{code}-history", "calendar": f"29-{code}-calendar"}
+for code in ("en", "fr", "es", "ar"):
+    RAWS[code]["compare"] = f"32-{code}-compare"
+    RAWS[code]["report"] = f"33-{code}-report"
 
-COLORS = {"out": "#FFB547", "in": "#5B9DFF", "trays": "#3DDC97", "history": "#B28DFF", "calendar": "#4FD1D9", "privacy": "#3DDC97"}
+COLORS = {"compare": "#FF8FB1", "report": "#5B9DFF", "out": "#FFB547", "in": "#5B9DFF", "trays": "#3DDC97", "history": "#B28DFF", "calendar": "#4FD1D9", "privacy": "#3DDC97"}
 
 TEXT = {
     "en": {
+        "compare": ("See your smile<br>change.", "Guided photos. Compare any two trays with a slider."),
+        "report": ("A report worth<br>bringing.", "A clean PDF of your wear time for your orthodontist."),
         "out": ("Every minute out,<br>accounted for.", "The timer lives in your Dynamic Island."),
         "in": ("22 hours a day,<br>made easy.", "One tap out, one tap in. Reminders do the rest."),
         "trays": ("Every tray,<br>on schedule.", "Refinements, appointments and progress photos."),
@@ -42,6 +47,8 @@ TEXT = {
         "watch_in": ("Inly on your wrist.", ""), "watch_out": ("Log a break from your wrist.", ""),
     },
     "fr": {
+        "compare": ("Voyez votre sourire<br>changer.", "Photos guidées. Comparez deux gouttières avec un curseur."),
+        "report": ("Un rapport<br>à emporter.", "Un PDF clair de votre temps de port pour l'orthodontiste."),
         "out": ("Chaque minute<br>hors bouche, comptée.", "Le minuteur vit dans la Dynamic Island."),
         "in": ("22 heures par jour,<br>en toute simplicité.", "Un toucher pour enlever, un pour remettre."),
         "trays": ("Chaque gouttière,<br>dans les temps.", "Raffinements, rendez-vous et photos de progression."),
@@ -53,6 +60,8 @@ TEXT = {
         "watch_in": ("Inly à votre poignet.", ""), "watch_out": ("Notez une pause au poignet.", ""),
     },
     "es": {
+        "compare": ("Mira cómo cambia<br>tu sonrisa.", "Fotos guiadas. Compara dos alineadores con un deslizador."),
+        "report": ("Un informe<br>que vale la pena.", "Un PDF claro de tu tiempo de uso para tu ortodoncista."),
         "out": ("Cada minuto fuera,<br>bajo control.", "El temporizador vive en la Dynamic Island."),
         "in": ("22 horas al día,<br>sin esfuerzo.", "Un toque para quitar, otro para poner."),
         "trays": ("Cada alineador,<br>al día.", "Refinamientos, citas y fotos de progreso."),
@@ -64,6 +73,8 @@ TEXT = {
         "watch_in": ("Inly en tu muñeca.", ""), "watch_out": ("Registra una pausa desde tu muñeca.", ""),
     },
     "ar": {
+        "compare": ("شاهد ابتسامتك<br>تتغيّر.", "صور موجّهة. قارن بين أي طقمين بشريط تمرير."),
+        "report": ("تقرير جدير<br>بأخذه معك.", "ملف PDF واضح لوقت الارتداء لطبيب التقويم."),
         "out": ("كل دقيقة خارج الفم<br>محسوبة.", "المؤقت يعيش في الـ Dynamic Island."),
         "in": ("22 ساعة يوميًا<br>بكل سهولة.", "لمسة للإخراج ولمسة للإرجاع، والتذكيرات تتكفّل بالباقي."),
         "trays": ("كل طقم<br>في موعده.", "مراحل التحسين والمواعيد وصور التقدّم."),
@@ -138,10 +149,10 @@ ISLAND_SVG = """<svg width="56" height="56" viewBox="0 0 20 20"><circle cx="10" 
 <circle cx="10" cy="10" r="7" fill="none" stroke="#FFB547" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="44" stroke-dashoffset="18" transform="rotate(-90 10 10)"/></svg>"""
 
 EYEBROW = {
-    "en": {"out": "Live Activity", "in": "Today", "trays": "Trays", "history": "History", "calendar": "Calendar"},
-    "fr": {"out": "Activité en direct", "in": "Aujourd'hui", "trays": "Gouttières", "history": "Historique", "calendar": "Calendrier"},
-    "es": {"out": "Actividad en vivo", "in": "Hoy", "trays": "Alineadores", "history": "Historial", "calendar": "Calendario"},
-    "ar": {"out": "النشاط المباشر", "in": "اليوم", "trays": "الأطقم", "history": "السجل", "calendar": "التقويم"},
+    "en": {"compare": "Photos", "report": "Reports", "out": "Live Activity", "in": "Today", "trays": "Trays", "history": "History", "calendar": "Calendar"},
+    "fr": {"compare": "Photos", "report": "Rapports", "out": "Activité en direct", "in": "Aujourd'hui", "trays": "Gouttières", "history": "Historique", "calendar": "Calendrier"},
+    "es": {"compare": "Fotos", "report": "Informes", "out": "Actividad en vivo", "in": "Hoy", "trays": "Alineadores", "history": "Historial", "calendar": "Calendario"},
+    "ar": {"compare": "الصور", "report": "التقارير", "out": "النشاط المباشر", "in": "اليوم", "trays": "الأطقم", "history": "السجل", "calendar": "التقويم"},
 }
 
 
@@ -181,7 +192,7 @@ async def main():
             d = os.path.join(OUT, lang)
             os.makedirs(d, exist_ok=True)
             pg = await browser.new_page(viewport={"width": 1320, "height": 2868})
-            for i, key in enumerate(["out", "in", "trays", "history", "calendar"], start=1):
+            for i, key in enumerate(["out", "in", "trays", "history", "calendar", "compare", "report"], start=1):
                 raw = os.path.join(RAW, RAWS[lang][key] + ".png")
                 if not os.path.exists(raw):
                     print("missing", raw)
@@ -191,7 +202,7 @@ async def main():
                 await pg.screenshot(path=os.path.join(d, f"iphone-0{i}.png"))
             await pg.set_content(privacy_slide(lang), wait_until="load")
             await pg.wait_for_timeout(250)
-            await pg.screenshot(path=os.path.join(d, "iphone-06.png"))
+            await pg.screenshot(path=os.path.join(d, "iphone-08.png"))
             await pg.close()
             # Apple Watch: same pixel size as the simulator capture.
             for j, state in enumerate(["in", "out"], start=1):
@@ -208,4 +219,5 @@ async def main():
                 await wp.close()
         await browser.close()
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
