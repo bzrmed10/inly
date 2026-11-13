@@ -31,7 +31,12 @@ final class Store {
     /// Set to open the paywall from anywhere (RootView presents it).
     var paywall: PaywallReason?
 
-    private let demo = ProcessInfo.processInfo.arguments.contains("-demoData") || ProcessInfo.processInfo.arguments.contains("-plusUnlocked")
+    /// `-paywallShot`: App Store review screenshot of the paywall (locked, sample price, no StoreKit).
+    let paywallShot = ProcessInfo.processInfo.arguments.contains("-paywallShot")
+    private var demo: Bool {
+        let args = ProcessInfo.processInfo.arguments
+        return (args.contains("-demoData") || args.contains("-plusUnlocked")) && !args.contains("-paywallShot")
+    }
     private var updates: Task<Void, Never>?
 
     private init() {
@@ -50,6 +55,10 @@ final class Store {
     var trialUsed: Bool { trialStart != nil }
     var isPlus: Bool { demo || ownsLifetime || trialActive }
 
+    /// Price of the lifetime purchase as the App Store shows it.
+    var lifetimePrice: String? { lifetime?.displayPrice ?? (paywallShot ? "$9.99" : nil) }
+    var canStartTrial: Bool { paywallShot || (!trialUsed && trialProduct != nil) }
+
     /// Runs `action` when Inly+ is unlocked, otherwise opens the paywall for `reason`.
     func require(_ reason: PaywallReason, _ action: () -> Void) {
         if isPlus { action() } else { paywall = reason }
@@ -58,6 +67,7 @@ final class Store {
     // MARK: StoreKit
 
     func start() async {
+        if paywallShot { paywall = .general; return }
         await loadProducts()
         await refresh()
     }
@@ -120,6 +130,7 @@ final class Store {
     }
 
     private func publish() {
+        guard !paywallShot else { return }
         let active = isPlus
         let changed = PlusStatus.isActive != active
         PlusStatus.set(active)

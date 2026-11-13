@@ -152,4 +152,16 @@ extension ScreenshotTests {
     func testFrench() { localized("fr", start: "Commencer", next: "Suivant") }
     func testArabic() { localized("ar", start: "ابدأ", next: "التالي") }
     func testSpanish() { localized("es", start: "Empezar", next: "Siguiente") }
+
+    /// App Store review screenshot of the Inly+ screen.
+    func testPaywall() throws {
+        let app = XCUIApplication()
+        app.launchArguments = ["-demoData", "-paywallShot"]
+        app.launch()
+        sleep(4)
+        save("30-paywall")
+        app.swipeUp()
+        sleep(1)
+        save("31-paywall-bottom")
+    }
 }

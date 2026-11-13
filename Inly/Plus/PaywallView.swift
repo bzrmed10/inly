@@ -48,7 +48,7 @@ struct PaywallView: View {
         }
     }
 
-    private var canTrial: Bool { !store.trialUsed && store.trialProduct != nil }
+    private var canTrial: Bool { store.canStartTrial }
 
     var body: some View {
         ZStack(alignment: .topTrailing) {
@@ -77,7 +77,7 @@ struct PaywallView: View {
         .background(background.ignoresSafeArea())
         .overlay { if unlocked { successOverlay } }
         .offerCodeRedemption(isPresented: $redeeming) { _ in Task { await store.refresh(); if store.isPlus { celebrate() } } }
-        .task { if store.lifetime == nil { await store.loadProducts() } }
+        .task { if store.lifetime == nil && !store.paywallShot { await store.loadProducts() } }
         .onAppear { withAnimation(.spring(duration: 0.9, bounce: 0.25)) { appeared = true } }
     }
 
@@ -161,8 +161,8 @@ struct PaywallView: View {
             }
             Spacer(minLength: 0)
             Group {
-                if let product = store.lifetime {
-                    Text(product.displayPrice)
+                if let price = store.lifetimePrice {
+                    Text(price)
                 } else if store.productsFailed {
                     Image(systemName: "wifi.exclamationmark")
                 } else {
@@ -179,7 +179,7 @@ struct PaywallView: View {
 
     private var actions: some View {
         VStack(spacing: 12) {
-            if store.productsFailed && store.lifetime == nil {
+            if store.productsFailed && store.lifetimePrice == nil {
                 Text(L10n.t("Couldn't reach the App Store. Check your connection."))
                     .font(Theme.font(14, .semibold)).foregroundStyle(Theme.muted).multilineTextAlignment(.center)
                 Button(L10n.t("Try again")) { Task { await store.loadProducts() } }
@@ -190,7 +190,7 @@ struct PaywallView: View {
                 Text(L10n.t("Free for 7 days. No automatic charge, nothing to cancel."))
                     .font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted).multilineTextAlignment(.center)
                 Button { purchase(store.lifetime) } label: {
-                    Text(store.lifetime.map { L10n.t("Or unlock now for %@", $0.displayPrice) } ?? L10n.t("Unlock Inly+"))
+                    Text(store.lifetimePrice.map { L10n.t("Or unlock now for %@", $0) } ?? L10n.t("Unlock Inly+"))
                         .font(Theme.font(16, .heavy)).foregroundStyle(Theme.text)
                         .frame(maxWidth: .infinity).frame(height: 50)
                         .background(Theme.raised, in: RoundedRectangle(cornerRadius: Theme.pillRadius, style: .continuous))
@@ -198,7 +198,7 @@ struct PaywallView: View {
                 .buttonStyle(.plain)
             } else {
                 Button { purchase(store.lifetime) } label: {
-                    buttonLabel(store.lifetime.map { L10n.t("Unlock Inly+ · %@", $0.displayPrice) } ?? L10n.t("Unlock Inly+"))
+                    buttonLabel(store.lifetimePrice.map { L10n.t("Unlock Inly+ · %@", $0) } ?? L10n.t("Unlock Inly+"))
                 }
                 .buttonStyle(PillButtonStyle(color: Theme.inColor, foreground: Theme.night))
                 if store.trialUsed && !store.trialActive {

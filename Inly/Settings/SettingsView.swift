@@ -684,7 +684,7 @@ struct PlusSettingsPage: View {
                 Text(Self.statusLine(store)).font(Theme.font(15, .semibold)).foregroundStyle(Theme.muted)
                 if store.trialActive && !store.ownsLifetime {
                     Button { Task { await store.buy(store.lifetime) } } label: {
-                        Text(store.lifetime.map { L10n.t("Keep Inly+ forever · %@", $0.displayPrice) } ?? L10n.t("Unlock Inly+"))
+                        Text(store.lifetimePrice.map { L10n.t("Keep Inly+ forever · %@", $0) } ?? L10n.t("Unlock Inly+"))
                     }
                     .buttonStyle(PillButtonStyle(color: Theme.inColor, foreground: Theme.night, height: 52))
                     .padding(.top, 6)
