@@ -125,3 +125,11 @@ Builds are uploaded to TestFlight at the end of each milestone. Install the Test
 - PDF report grouped by phase, optional progress photos with captions.
 - Default out reason is Meal. Backup file version 2 (old v1 files still load; tested).
 - Known: changing language returns Settings to its first page (view tree rebuilds); not tested on device.
+
+## Milestones A–D (Nov 2026)
+
+- **A: Watch complications.** Circular ring, rectangular, inline and corner complications, fed from the watch app through the app group. Inly+ flag in the watch payload.
+- **B: iCloud sync.** A compact copy of the data (no photos) in the user's own iCloud key-value store. Restore offered on the first onboarding screen; choice dialog when two iPhones have data.
+- **C: Inly+.** StoreKit 2, lifetime non-consumable `com.bzrmed.inly.plus` plus a free 7-day trial non-consumable `com.bzrmed.inly.plus.trial`. Paywall, feature locks (watch, widgets, sync and auto backup, retainer schedules, history older than 14 days, more than 2 photos, reports), review prompts at happy moments, feedback link. Pricing plan in the project doc `pricing-plan.md`.
+- **D: App Store readiness.** Privacy manifests, medical disclaimer, localized camera permission, metadata in 4 languages, marketing screenshots (iPhone 6.9″ and Watch), submission sheet (`docs/appstore/`). CI captures watch screenshots and turns on iCloud for the App ID.
+- Nothing above has been verified on a device yet.
