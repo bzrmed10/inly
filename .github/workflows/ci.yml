@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [main]
-    paths-ignore: ["website/**"]
+    paths-ignore: ["website/**", "docs/**", "scripts/ci/asc_metadata.py", ".github/workflows/appstore-metadata.yml"]
   pull_request:
 
 concurrency:

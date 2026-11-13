@@ -1,0 +1,22 @@
+name: App Store metadata
+
+on:
+  workflow_dispatch:
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    env:
+      ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+      ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+      ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: API key
+        run: |
+          mkdir -p "$RUNNER_TEMP/keys"
+          printf '%s\n' "$ASC_KEY_P8" > "$RUNNER_TEMP/keys/key.p8"
+          echo "ASC_KEY_PATH=$RUNNER_TEMP/keys/key.p8" >> "$GITHUB_ENV"
+      - run: pip install pyjwt cryptography requests
+      - name: Upload texts and screenshots
+        run: python3 scripts/ci/asc_metadata.py
