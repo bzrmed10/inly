@@ -76,7 +76,7 @@ struct TodayView: View {
                        title: L10n.t("Retainer mode is part of Inly+"),
                        detail: L10n.t("Your timer keeps working. Unlock nightly schedules and bedtime reminders."),
                        button: L10n.t("Unlock"), reason: .retainer, dismissible: false)
-        } else if !store.isPlus && !store.trialUsed && !trialCardDismissed && ReviewPrompter.shared.daysSinceFirstLaunch >= 1 {
+        } else if !store.isPlus && !store.trialUsedForTesting && !trialCardDismissed && ReviewPrompter.shared.daysSinceFirstLaunch >= 1 {
             plusInvite(icon: "sparkles", color: Theme.inColor,
                        title: L10n.t("Try Inly+ free for 7 days"),
                        detail: L10n.t("Apple Watch, widgets, iCloud sync, full history and reports. No automatic charge."),

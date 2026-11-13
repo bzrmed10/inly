@@ -53,11 +53,23 @@ final class Store {
     var trialEnd: Date? { trialStart.map { $0.addingTimeInterval(Double(Self.trialDays) * 86_400) } }
     var trialActive: Bool { trialEnd.map { Date.now < $0 } ?? false }
     var trialUsed: Bool { trialStart != nil }
-    var isPlus: Bool { demo || ownsLifetime || trialActive }
+    var isPlus: Bool { !testAsFree && (demo || ownsLifetime || trialActive) }
+
+    /// TestFlight builds only: pretend nothing was bought, to test the free version and the paywall again.
+    static var isTestFlight: Bool { Bundle.main.appStoreReceiptURL?.lastPathComponent == "sandboxReceipt" }
+    var testAsFree: Bool = Store.isTestFlight && UserDefaults.standard.bool(forKey: "testAsFreeUser") {
+        didSet {
+            UserDefaults.standard.set(testAsFree, forKey: "testAsFreeUser")
+            publish()
+        }
+    }
+
+    /// TestFlight only: hides Inly+ and the trial on this iPhone so they can be tried again.
+    var trialUsedForTesting: Bool { testAsFree ? false : trialUsed }
 
     /// Price of the lifetime purchase as the App Store shows it.
     var lifetimePrice: String? { lifetime?.displayPrice ?? (paywallShot ? "$9.99" : nil) }
-    var canStartTrial: Bool { paywallShot || (!trialUsed && trialProduct != nil) }
+    var canStartTrial: Bool { paywallShot || (!trialUsedForTesting && trialProduct != nil) }
 
     /// Runs `action` when Inly+ is unlocked, otherwise opens the paywall for `reason`.
     func require(_ reason: PaywallReason, _ action: () -> Void) {
@@ -115,6 +127,7 @@ final class Store {
             await transaction.finish()
             await refresh()
             if transaction.productID == Self.trialID { scheduleTrialReminder() }
+            if testAsFree { testAsFree = false }
             if isPlus { CloudSync.shared.plusDidUnlock() }
             return isPlus
         } catch {

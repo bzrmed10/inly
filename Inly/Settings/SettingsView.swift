@@ -143,12 +143,12 @@ struct SettingsView: View {
                     .frame(width: 42, height: 42)
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Inly+").font(Theme.font(18, .heavy)).foregroundStyle(Theme.text)
-                        Text(store.trialUsed ? L10n.t("Apple Watch, widgets, sync, reports. Pay once.")
+                        Text(store.trialUsedForTesting ? L10n.t("Apple Watch, widgets, sync, reports. Pay once.")
                                              : L10n.t("Try everything free for 7 days"))
                             .font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted).lineLimit(2)
                     }
                     Spacer(minLength: 0)
-                    Text(store.trialUsed ? L10n.t("Unlock") : L10n.t("Try free"))
+                    Text(store.trialUsedForTesting ? L10n.t("Unlock") : L10n.t("Try free"))
                         .font(Theme.font(14, .heavy)).foregroundStyle(Theme.night)
                         .padding(.horizontal, 14).padding(.vertical, 8)
                         .background(Theme.inColor, in: Capsule())
@@ -640,6 +640,23 @@ private struct AboutSettingsPage: View {
             }
             .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             settingsNote(L10n.t("Something wrong? Tell us before leaving a review, we read every message."))
+
+            if Store.isTestFlight {
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack(spacing: 14) {
+                        Image(systemName: "hammer.fill").font(.system(size: 18, weight: .bold)).foregroundStyle(Theme.outColor).frame(width: 28)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Test as free user").font(Theme.font(16, .heavy))
+                            Text("TestFlight only. Hides Inly+ and the trial on this iPhone.").font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
+                        }
+                        Spacer(minLength: 0)
+                        Toggle("", isOn: Binding(get: { Store.shared.testAsFree }, set: { Store.shared.testAsFree = $0 }))
+                            .labelsHidden().tint(Theme.outColor)
+                    }
+                    .padding(16)
+                }
+                .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
+            }
         }
     }
 

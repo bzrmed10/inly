@@ -201,7 +201,7 @@ struct PaywallView: View {
                     buttonLabel(store.lifetimePrice.map { L10n.t("Unlock Inly+ · %@", $0) } ?? L10n.t("Unlock Inly+"))
                 }
                 .buttonStyle(PillButtonStyle(color: Theme.inColor, foreground: Theme.night))
-                if store.trialUsed && !store.trialActive {
+                if store.trialUsedForTesting && !store.trialActive {
                     Text(L10n.t("Your free trial has ended. Your data is safe and waiting."))
                         .font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted).multilineTextAlignment(.center)
                 }
