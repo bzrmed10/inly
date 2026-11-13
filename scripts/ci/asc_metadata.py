@@ -15,7 +15,7 @@ import requests
 API = "https://api.appstoreconnect.apple.com/v1"
 ROOT = pathlib.Path(__file__).resolve().parents[2] / "docs" / "appstore"
 BUNDLE_ID = "com.bzrmed.inly"
-LOCALES = {"en-US": "en", "fr-FR": "fr", "es-ES": "es", "ar-SA": "ar"}
+LOCALES = {"en-GB": "en", "en-US": "en", "fr-FR": "fr", "es-ES": "es", "ar-SA": "ar"}
 # 6.9" iPhone screenshots are 1320x2868; Apple Watch Ultra 3 captures are 422x514.
 IPHONE_TYPES = ["APP_IPHONE_67"]
 WATCH_TYPES = ["APP_WATCH_ULTRA"]
