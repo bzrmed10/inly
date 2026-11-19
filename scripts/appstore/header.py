@@ -11,10 +11,10 @@ RAW, OUT = sys.argv[1], sys.argv[2]
 ICON = b64(os.path.join(HERE, "icon.png"))
 
 COPY = {
-    "en": ("Every minute out,<br>accounted for.", "The aligner timer that lives in your Dynamic Island.", "No account · No ads · Pay once"),
-    "fr": ("Chaque minute<br>hors bouche, comptée.", "Le minuteur de gouttières dans votre Dynamic Island.", "Sans compte · Sans pub · Un seul paiement"),
-    "es": ("Cada minuto fuera,<br>bajo control.", "El temporizador de alineadores en tu Dynamic Island.", "Sin cuenta · Sin anuncios · Pago único"),
-    "ar": ("كل دقيقة خارج الفم<br>محسوبة.", "مؤقت التقويم الشفاف في الـ Dynamic Island.", "بدون حساب · بدون إعلانات · ادفع مرة واحدة"),
+    "en": ("Every minute out,<br>accounted for.", "The aligner timer that lives in your Dynamic Island.", "No account · No ads · No tracking"),
+    "fr": ("Chaque minute<br>hors bouche, comptée.", "Le minuteur de gouttières dans votre Dynamic Island.", "Sans compte · Sans pub · Sans pistage"),
+    "es": ("Cada minuto fuera,<br>bajo control.", "El temporizador de alineadores en tu Dynamic Island.", "Sin cuenta · Sin anuncios · Sin rastreo"),
+    "ar": ("كل دقيقة خارج الفم<br>محسوبة.", "مؤقت التقويم الشفاف في الـ Dynamic Island.", "بدون حساب · بدون إعلانات · بدون تتبّع"),
 }
 
 CSS = """

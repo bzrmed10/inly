@@ -41,9 +41,9 @@ TEXT = {
         "trays": ("Every tray,<br>on schedule.", "Refinements, appointments and progress photos."),
         "history": ("Progress you<br>can actually see.", "Weekly score, streaks and a 7-day chart."),
         "calendar": ("Your treatment,<br>day by day.", "Tap any day to see or fix every break."),
-        "privacy": ("Private.<br>Pay once.", "No account, no ads, no tracking.", ["No account", "No ads", "No tracking"],
+        "privacy": ("Private<br>by design.", "No account, no ads, no tracking.", ["No account", "No ads", "No tracking"],
                     ["Apple Watch & complications", "Home & Lock Screen widgets", "iCloud sync", "Reports for your orthodontist"],
-                    "Inly+ · one-time purchase · try free for 7 days"),
+                    ""),
         "watch_in": ("Inly on your wrist.", ""), "watch_out": ("Log a break from your wrist.", ""),
     },
     "fr": {
@@ -54,9 +54,9 @@ TEXT = {
         "trays": ("Chaque gouttière,<br>dans les temps.", "Raffinements, rendez-vous et photos de progression."),
         "history": ("Des progrès<br>enfin visibles.", "Score hebdo, séries et graphique sur 7 jours."),
         "calendar": ("Tout votre traitement,<br>jour après jour.", "Touchez un jour pour voir ou corriger chaque pause."),
-        "privacy": ("Privé.<br>Un seul paiement.", "Sans compte, sans pub, sans pistage.", ["Sans compte", "Sans pub", "Sans pistage"],
+        "privacy": ("Privé<br>par conception.", "Sans compte, sans pub, sans pistage.", ["Sans compte", "Sans pub", "Sans pistage"],
                     ["Apple Watch et complications", "Widgets d'accueil et verrouillage", "Synchro iCloud", "Rapports pour l'orthodontiste"],
-                    "Inly+ · achat unique · essai gratuit de 7 jours"),
+                    ""),
         "watch_in": ("Inly à votre poignet.", ""), "watch_out": ("Notez une pause au poignet.", ""),
     },
     "es": {
@@ -67,9 +67,9 @@ TEXT = {
         "trays": ("Cada alineador,<br>al día.", "Refinamientos, citas y fotos de progreso."),
         "history": ("Un progreso<br>que se ve.", "Puntuación semanal, rachas y gráfico de 7 días."),
         "calendar": ("Todo tu tratamiento,<br>día a día.", "Toca un día para ver o corregir cada pausa."),
-        "privacy": ("Privado.<br>Pago único.", "Sin cuenta, sin anuncios, sin rastreo.", ["Sin cuenta", "Sin anuncios", "Sin rastreo"],
+        "privacy": ("Privado<br>por diseño.", "Sin cuenta, sin anuncios, sin rastreo.", ["Sin cuenta", "Sin anuncios", "Sin rastreo"],
                     ["Apple Watch y complicaciones", "Widgets de inicio y bloqueo", "Sincronización con iCloud", "Informes para tu ortodoncista"],
-                    "Inly+ · compra única · prueba gratis 7 días"),
+                    ""),
         "watch_in": ("Inly en tu muñeca.", ""), "watch_out": ("Registra una pausa desde tu muñeca.", ""),
     },
     "ar": {
@@ -80,9 +80,9 @@ TEXT = {
         "trays": ("كل طقم<br>في موعده.", "مراحل التحسين والمواعيد وصور التقدّم."),
         "history": ("تقدّم<br>تراه بعينك.", "نتيجة أسبوعية وسلاسل ورسم بياني لـ 7 أيام."),
         "calendar": ("علاجك كاملًا<br>يومًا بيوم.", "اضغط على أي يوم لترى كل استراحة أو تصحّحها."),
-        "privacy": ("خصوصية تامة.<br>ادفع مرة واحدة.", "بدون حساب، بدون إعلانات، بدون تتبّع.", ["بدون حساب", "بدون إعلانات", "بدون تتبّع"],
+        "privacy": ("خصوصيتك<br>أولًا.", "بدون حساب، بدون إعلانات، بدون تتبّع.", ["بدون حساب", "بدون إعلانات", "بدون تتبّع"],
                     ["Apple Watch وإضافات الساعة", "أدوات الشاشة الرئيسية والقفل", "مزامنة iCloud", "تقارير لطبيب التقويم"],
-                    "Inly+ · شراء لمرة واحدة · تجربة مجانية 7 أيام"),
+                    ""),
         "watch_in": ("Inly على معصمك.", ""), "watch_out": ("سجّل الاستراحة من معصمك.", ""),
     },
 }
@@ -175,7 +175,7 @@ def privacy_slide(lang):
     lock = '<svg width="120" height="120" viewBox="0 0 24 24"><path fill="#3DDC97" d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm-3 8V7a3 3 0 0 1 6 0v3z"/></svg>'
     body = f"""<div class="wrap"><div class="shield">{lock}</div><h1>{title}</h1>
 <div class="strikes">{''.join(f'<span>{s}</span>' for s in strikes)}</div>
-<div class="plus"><div class="name" dir="ltr" style="text-align:{'right' if lang == 'ar' else 'left'}">Inly<b>+</b></div><ul>{''.join(f'<li>{i}</li>' for i in items)}</ul><p class="foot">{foot}</p></div></div>"""
+<div class="plus"><div class="name" dir="ltr" style="text-align:{'right' if lang == 'ar' else 'left'}">Inly</div><ul>{''.join(f'<li>{i}</li>' for i in items)}</ul>{f'<p class="foot">{foot}</p>' if foot else ""}</div></div>"""
     return page(PRIVACY, body, lang, COLORS["privacy"], 1320, 2868)
 
 
