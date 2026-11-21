@@ -4,6 +4,8 @@ import AppIntents
 struct PutBackInIntent: LiveActivityIntent {
     static var title: LocalizedStringResource { "Put back in" }
     static var description: IntentDescription { IntentDescription("Record that your aligners are back in.") }
+    /// Works from the Lock Screen without Face ID: logging aligners in/out is not sensitive.
+    static var authenticationPolicy: IntentAuthenticationPolicy { .alwaysAllowed }
 
     func perform() async throws -> some IntentResult {
         await SessionService.shared.putBackIn()

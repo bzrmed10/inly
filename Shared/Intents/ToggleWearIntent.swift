@@ -7,6 +7,8 @@ struct ToggleWearIntent: LiveActivityIntent {
     static var description: IntentDescription {
         IntentDescription("Switch between aligners in and aligners out.")
     }
+    /// Works from the Lock Screen without Face ID: logging aligners in/out is not sensitive.
+    static var authenticationPolicy: IntentAuthenticationPolicy { .alwaysAllowed }
 
     func perform() async throws -> some IntentResult {
         await SessionService.shared.toggle()
@@ -18,6 +20,8 @@ struct ToggleWearIntent: LiveActivityIntent {
 /// Backs the Control Center toggle (on = aligners out).
 struct SetOutIntent: SetValueIntent, LiveActivityIntent {
     static var title: LocalizedStringResource { "Aligners out" }
+    /// Works from the Lock Screen without Face ID: logging aligners in/out is not sensitive.
+    static var authenticationPolicy: IntentAuthenticationPolicy { .alwaysAllowed }
 
     @Parameter(title: "Out")
     var value: Bool
