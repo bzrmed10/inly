@@ -160,7 +160,7 @@ final class Store {
         guard fire > .now else { return }
         let content = UNMutableNotificationContent()
         content.title = L10n.t("Your Inly+ trial ends tomorrow")
-        content.body = L10n.t("Keep Apple Watch, widgets, sync and reports with a one-time purchase.")
+        content.body = L10n.t("Keep Apple Watch, widgets, photos and reports with a one-time purchase.")
         let comps = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: fire)
         let request = UNNotificationRequest(identifier: "inlyPlusTrialEnds", content: content,
                                             trigger: UNCalendarNotificationTrigger(dateMatching: comps, repeats: false))

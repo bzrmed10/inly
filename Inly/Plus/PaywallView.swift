@@ -23,7 +23,6 @@ struct PaywallView: View {
         let all = [
             Benefit(id: .watch, icon: "applewatch", color: Theme.phaseColor(2), title: L10n.t("Apple Watch & complications"), detail: L10n.t("Log from your wrist. Your day on the watch face.")),
             Benefit(id: .widgets, icon: "square.grid.2x2.fill", color: Theme.inColor, title: L10n.t("Home & Lock Screen widgets"), detail: L10n.t("Your ring and out timer at a glance.")),
-            Benefit(id: .sync, icon: "icloud.fill", color: Theme.inColor, title: L10n.t("iCloud sync & auto backup"), detail: L10n.t("Your history follows you to a new iPhone.")),
             Benefit(id: .retainer, icon: "moon.stars.fill", color: Theme.retainerColor, title: L10n.t("Retainer mode"), detail: L10n.t("Nights or full time, for years after treatment.")),
             Benefit(id: .history, icon: "calendar", color: Theme.phaseColor(1), title: L10n.t("Full history & weekly score"), detail: L10n.t("Every day, every tray, your streaks.")),
             Benefit(id: .photos, icon: "photo.stack.fill", color: Theme.trayColor, title: L10n.t("Unlimited progress photos"), detail: L10n.t("Compare any two trays side by side.")),

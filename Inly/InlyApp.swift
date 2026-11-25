@@ -26,7 +26,7 @@ struct InlyApp: App {
                         Task { await Store.shared.refresh() }
                     }
                     if phase == .background {
-                        if PlusStatus.isActive { BackupService.shared.autoBackupIfDue() }
+                        BackupService.shared.autoBackupIfDue()
                         CloudSync.shared.push()
                     }
                 }

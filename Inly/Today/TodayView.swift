@@ -79,7 +79,7 @@ struct TodayView: View {
         } else if !store.isPlus && !store.trialUsedForTesting && !trialCardDismissed && ReviewPrompter.shared.daysSinceFirstLaunch >= 1 {
             plusInvite(icon: "sparkles", color: Theme.inColor,
                        title: L10n.t("Try Inly+ free for 7 days"),
-                       detail: L10n.t("Apple Watch, widgets, iCloud sync, full history and reports. No automatic charge."),
+                       detail: L10n.t("Apple Watch, widgets, full history, photos and reports. No automatic charge."),
                        button: L10n.t("Try free"), reason: .general, dismissible: true)
         }
     }

@@ -1,6 +1,6 @@
 import Foundation
 
-/// iCloud sync (Inly+): a compact copy of everything except photos lives in the user's own iCloud
+/// iCloud sync (free for everyone, Apple guideline 4.10): a compact copy of everything except photos lives in the user's own iCloud
 /// key-value store, so a new iPhone (same Apple ID) gets the history back and two iPhones stay in step.
 /// No Inly server is involved. The newest change wins.
 @MainActor
@@ -35,7 +35,7 @@ final class CloudSync {
         get { defaults.bool(forKey: Key.enabled) }
         set { defaults.set(newValue, forKey: Key.enabled) }
     }
-    var isOn: Bool { wantsSync && PlusStatus.isActive }
+    var isOn: Bool { wantsSync }
     var lastSync: Date? { defaults.object(forKey: Key.lastSync) as? Date }
     var iCloudAvailable: Bool { FileManager.default.ubiquityIdentityToken != nil }
 

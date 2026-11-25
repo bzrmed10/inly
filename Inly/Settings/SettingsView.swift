@@ -143,7 +143,7 @@ struct SettingsView: View {
                     .frame(width: 42, height: 42)
                     VStack(alignment: .leading, spacing: 3) {
                         Text("Inly+").font(Theme.font(18, .heavy)).foregroundStyle(Theme.text)
-                        Text(store.trialUsedForTesting ? L10n.t("Apple Watch, widgets, sync, reports. Pay once.")
+                        Text(store.trialUsedForTesting ? L10n.t("Apple Watch, widgets, photos, reports. Pay once.")
                                              : L10n.t("Try everything free for 7 days"))
                             .font(Theme.font(13, .semibold)).foregroundStyle(Theme.muted).lineLimit(2)
                     }
@@ -401,7 +401,6 @@ private struct BackupSettingsPage: View {
                         VStack(alignment: .leading, spacing: 2) {
                             HStack(spacing: 6) {
                                 Text(L10n.t("Sync with iCloud")).font(Theme.font(16, .heavy))
-                                if !Store.shared.isPlus { plusBadge }
                             }
                             Text(syncSubtitle).font(Theme.font(13, .medium)).foregroundStyle(Theme.muted)
                         }
@@ -426,7 +425,7 @@ private struct BackupSettingsPage: View {
                     icon: "arrow.triangle.2.circlepath.icloud.fill",
                     title: folderName.map { L10n.t("Automatic backup · %@", $0) } ?? L10n.t("Automatic backup"),
                     subtitle: folderName == nil ? L10n.t("Pick an iCloud Drive folder once; Inly keeps it up to date") : (lastBackup.map { L10n.t("Last backup %@", L10n.dateTime($0)) } ?? L10n.t("Waiting for first backup"))
-                ) { Store.shared.require(.sync) { pickingFolder = true } }
+                ) { pickingFolder = true }
             }
             .background(Theme.raised, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
             settingsNote(L10n.t("Backups include your history, trays, photos, notes and settings."))
@@ -519,7 +518,6 @@ private struct BackupSettingsPage: View {
 
     private func setSync(_ on: Bool) {
         guard on else { CloudSync.shared.disable(); syncOn = false; return }
-        guard Store.shared.isPlus else { Store.shared.paywall = .sync; return }
         syncOn = true
         if let remote = CloudSync.shared.enable() { syncChoice = remote }
     }

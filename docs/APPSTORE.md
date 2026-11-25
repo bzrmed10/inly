@@ -52,10 +52,10 @@ Localized display names and descriptions (App Store Connect limit: descriptions 
 
 | Language | Lifetime name | Lifetime description | Trial name | Trial description |
 | --- | --- | --- | --- | --- |
-| English | Inly+ Lifetime | Apple Watch, widgets, sync, photos, reports. Pay once. | 7-Day Trial | Try every Inly+ feature free for 7 days. No charge. |
-| French | Inly+ à vie | Apple Watch, widgets, synchro, rapports. Achat unique. | Essai de 7 jours | Toutes les fonctions Inly+ gratuites 7 jours. |
-| Spanish | Inly+ de por vida | Apple Watch, widgets, sincronía, informes. Pago único. | Prueba de 7 días | Todas las funciones de Inly+ gratis 7 días. |
-| Arabic | Inly+ مدى الحياة | Apple Watch والأدوات والمزامنة والتقارير. ادفع مرة. | تجربة 7 أيام | جرّب كل ميزات Inly+ مجانًا لمدة 7 أيام. |
+| English | Inly+ Lifetime | Apple Watch, widgets, photos, reports. Pay once. | 7-Day Trial | Try every Inly+ feature free for 7 days. No charge. |
+| French | Inly+ à vie | Apple Watch, widgets, photos, rapports. Achat unique. | Essai de 7 jours | Toutes les fonctions Inly+ gratuites 7 jours. |
+| Spanish | Inly+ de por vida | Apple Watch, widgets, fotos, informes. Pago único. | Prueba de 7 días | Todas las funciones de Inly+ gratis 7 días. |
+| Arabic | Inly+ مدى الحياة | Apple Watch والأدوات والصور والتقارير. ادفع مرة. | تجربة 7 أيام | جرّب كل ميزات Inly+ مجانًا لمدة 7 أيام. |
 
 Review screenshot: a screenshot of the Inly+ screen (Settings → Inly+ card).
 

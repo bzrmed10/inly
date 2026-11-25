@@ -301,10 +301,20 @@ enum Strings {
   "es": "Apple Watch y complicaciones",
   "fr": "Apple Watch et complications"
  },
+ "Apple Watch, widgets, full history, photos and reports. No automatic charge.": {
+  "ar": "Apple Watch والأدوات والسجل الكامل والصور والتقارير. بدون أي خصم تلقائي.",
+  "es": "Apple Watch, widgets, historial completo, fotos e informes. Sin cobro automático.",
+  "fr": "Apple Watch, widgets, historique complet, photos et rapports. Aucun prélèvement automatique."
+ },
  "Apple Watch, widgets, iCloud sync, full history and reports. No automatic charge.": {
   "ar": "Apple Watch والأدوات ومزامنة iCloud والسجل الكامل والتقارير. بدون أي خصم تلقائي.",
   "es": "Apple Watch, widgets, sincronización con iCloud, historial completo e informes. Sin cobro automático.",
   "fr": "Apple Watch, widgets, synchro iCloud, historique complet et rapports. Aucun prélèvement automatique."
+ },
+ "Apple Watch, widgets, photos, reports. Pay once.": {
+  "ar": "Apple Watch والأدوات والصور والتقارير. ادفع مرة واحدة.",
+  "es": "Apple Watch, widgets, fotos, informes. Pago único.",
+  "fr": "Apple Watch, widgets, photos, rapports. Un seul paiement."
  },
  "Apple Watch, widgets, sync, reports. Pay once.": {
   "ar": "Apple Watch والأدوات والمزامنة والتقارير. ادفع مرة واحدة.",
@@ -860,6 +870,11 @@ enum Strings {
   "ar": "ثبّت تطبيق الساعة",
   "es": "Instala la app del reloj",
   "fr": "Installer l'app pour la montre"
+ },
+ "Keep Apple Watch, widgets, photos and reports with a one-time purchase.": {
+  "ar": "احتفظ بـ Apple Watch والأدوات والصور والتقارير بشراء واحد.",
+  "es": "Conserva Apple Watch, widgets, fotos e informes con una compra única.",
+  "fr": "Gardez Apple Watch, widgets, photos et rapports avec un achat unique."
  },
  "Keep Apple Watch, widgets, sync and reports with a one-time purchase.": {
   "ar": "احتفظ بـ Apple Watch والأدوات والمزامنة والتقارير بشراء واحد.",
